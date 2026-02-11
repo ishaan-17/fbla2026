@@ -59,7 +59,7 @@ const DropdownMenu = ({
         type="button"
         onClick={toggleDropdown}
         className={cn(
-          "w-full px-4 py-3 text-sm text-left flex items-center justify-between",
+          "w-full h-[46px] px-4 text-sm text-left flex items-center justify-between",
           "rounded-xl transition-all duration-200",
           // Liquid glass effect for dark mode
           "bg-white/10 backdrop-blur-sm",

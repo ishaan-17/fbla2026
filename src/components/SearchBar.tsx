@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 
 export default function SearchBar() {
   const router = useRouter();
@@ -31,13 +32,27 @@ export default function SearchBar() {
     router.push("/items");
   };
 
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    updateSearch(search, value);
+  };
+
+  // Category options for dropdown
+  const categoryOptions = [
+    { value: "", label: "All Categories" },
+    ...SCHOOL_CATEGORIES.map((cat) => ({
+      value: cat.name,
+      label: cat.label,
+    })),
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Search input */}
+        {/* Search input - liquid glass style */}
         <div className="relative flex-1">
           <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-earth-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -49,32 +64,25 @@ export default function SearchBar() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search for lost items..."
-            className="w-full pl-11 pr-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
+            className="w-full h-[46px] pl-11 pr-4 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
           />
         </div>
 
-        {/* Category filter */}
-        <select
-          value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            updateSearch(search, e.target.value);
-          }}
-          className="px-4 py-3 bg-white border border-earth-300 text-sm text-earth-600 focus:border-earth-900 focus:outline-none min-w-[160px] cursor-pointer"
-        >
-          <option value="">All Categories</option>
-          {SCHOOL_CATEGORIES.map((cat) => (
-            <option key={cat.name} value={cat.name}>
-              {cat.label}
-            </option>
-          ))}
-        </select>
+        {/* Category filter - liquid glass dropdown */}
+        <div className="min-w-[180px]">
+          <DropdownMenu
+            value={category}
+            onChange={handleCategoryChange}
+            placeholder="All Categories"
+            options={categoryOptions}
+          />
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-2">
           <button
             type="submit"
-            className="px-6 py-3 bg-earth-900 text-white text-sm font-bold tracking-wide hover:bg-earth-800 transition-colors"
+            className="h-[46px] px-6 rounded-xl text-sm font-semibold text-white transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] hover:bg-white/15 hover:border-white/30"
           >
             Search
           </button>
@@ -82,7 +90,7 @@ export default function SearchBar() {
             <button
               type="button"
               onClick={handleClear}
-              className="px-4 py-3 border border-earth-300 text-earth-600 text-sm font-semibold hover:bg-earth-100 transition-colors"
+              className="h-[46px] px-5 rounded-xl text-sm font-semibold text-white/80 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] hover:bg-white/15 hover:text-white hover:border-white/30"
             >
               Clear
             </button>

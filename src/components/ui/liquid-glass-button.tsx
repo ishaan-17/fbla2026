@@ -22,6 +22,7 @@ const liquidbuttonVariants = cva(
         xxl: "h-14 px-10",
         full: "h-14 w-full px-10",
         icon: "size-9",
+        search: "h-[46px] px-6",
       },
     },
     defaultVariants: {
@@ -82,8 +83,8 @@ function LiquidButton({
   ...props
 }: LiquidButtonProps) {
   const isDark = variant === "dark"
-  const isLarge = size === "full" || size === "xxl" || size === "xl"
-  const borderRadius = isLarge ? "rounded-2xl" : "rounded-full"
+  const isLarge = size === "full" || size === "xxl" || size === "xl" || size === "search"
+  const borderRadius = isLarge ? "rounded-xl" : "rounded-full"
 
   const glassLayers = (
     <>
@@ -131,7 +132,7 @@ function LiquidButton({
 
       {/* Inner highlight ring - creates the shape inside */}
       <div
-        className={cn("absolute z-[3] pointer-events-none", isLarge ? "rounded-xl" : "rounded-full")}
+        className={cn("absolute z-[3] pointer-events-none", isLarge ? "rounded-[10px]" : "rounded-full")}
         style={{
           top: '3px',
           left: '3px',
