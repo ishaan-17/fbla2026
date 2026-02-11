@@ -25,10 +25,10 @@ export default function LeaderboardPage() {
         <p className="text-xs font-bold text-primary-500 uppercase tracking-wider mb-3">
           Rewards Program
         </p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-earth-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Leaderboard
         </h1>
-        <p className="text-earth-500 mt-3 max-w-lg mx-auto">
+        <p className="text-earth-100 mt-3 max-w-lg mx-auto">
           Earn points by finding and reporting lost items. Get bonus points when the item is successfully returned!
         </p>
       </div>
@@ -106,8 +106,8 @@ export default function LeaderboardPage() {
         </div>
       ) : (
         <div className="text-center py-24">
-          <h2 className="text-xl font-bold text-earth-700 mb-2">No one on the leaderboard yet</h2>
-          <p className="text-earth-500">Be the first to earn points by reporting a found item!</p>
+          <h2 className="text-xl font-bold text-earth-100 mb-2">No one on the leaderboard yet</h2>
+          <p className="text-earth-100">Be the first to earn points by reporting a found item!</p>
         </div>
       )}
     </div>

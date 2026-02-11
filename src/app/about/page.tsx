@@ -5,10 +5,10 @@ export default function AboutPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {/* Header */}
       <div className="text-center mb-16">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-earth-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           About Reclaimr
         </h1>
-        <p className="text-earth-500 mt-3 max-w-xl mx-auto">
+        <p className="text-[#E6E6E6] mt-3 max-w-xl mx-auto">
           Everything you need to know about how our school&apos;s lost and found system works.
         </p>
       </div>
@@ -17,7 +17,7 @@ export default function AboutPage() {
         {/* Mission */}
         <section>
           <h2 className="text-sm font-bold text-primary-500 uppercase tracking-wider mb-4">Our Mission</h2>
-          <p className="text-earth-600 leading-relaxed">
+          <p className="text-[#E6E6E6] leading-relaxed">
             Our Lost & Found platform is built to help our school community reunite with their belongings quickly and efficiently.
             Powered by AI image recognition, the system automatically categorizes found items to make searching easier.
             We reward students who take the time to report items they find, building a culture of kindness and responsibility.
@@ -55,8 +55,8 @@ export default function AboutPage() {
                   {item.step}
                 </span>
                 <div>
-                  <h3 className="font-bold text-earth-900 mb-1">{item.title}</h3>
-                  <p className="text-sm text-earth-500 leading-relaxed">{item.desc}</p>
+                  <h3 className={`font-bold mb-1 ${item.step === "04" ? "text-white" : "text-[#E6E6E6]"}`}>{item.title}</h3>
+                  <p className="text-sm text-[#CCCCCC] leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -94,7 +94,7 @@ export default function AboutPage() {
         {/* Rewards */}
         <section>
           <h2 className="text-sm font-bold text-primary-500 uppercase tracking-wider mb-4">Reward Points System</h2>
-          <p className="text-earth-600 mb-6 leading-relaxed">
+          <p className="text-[#E6E6E6] mb-6 leading-relaxed">
             We believe in recognizing people who help our community. Our points system rewards you for being a good citizen:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-earth-200">
@@ -112,7 +112,7 @@ export default function AboutPage() {
           <div className="mt-4 text-center">
             <Link
               href="/leaderboard"
-              className="text-sm font-bold text-earth-900 underline underline-offset-4 decoration-primary-500 decoration-2 hover:decoration-primary-400 transition-colors"
+              className="text-sm font-bold text-white underline underline-offset-4 decoration-primary-500 decoration-2 hover:decoration-primary-400 transition-colors"
             >
               View the leaderboard
             </Link>

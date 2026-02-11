@@ -45,10 +45,10 @@ export default async function ItemsPage({ searchParams }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-earth-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Found Items
         </h1>
-        <p className="text-earth-500 mt-2">
+        <p className="text-[#E6E6E6] mt-2">
           Browse {countResult.total} item{countResult.total !== 1 ? "s" : ""} currently listed.
           Spot yours? Click to claim it.
         </p>
@@ -66,8 +66,8 @@ export default async function ItemsPage({ searchParams }: Props) {
         <ItemsFocusGrid items={items} />
       ) : (
         <div className="text-center py-24">
-          <h2 className="text-xl font-bold text-earth-700 mb-2">No items found</h2>
-          <p className="text-earth-500 mb-8">
+          <h2 className="text-xl font-bold text-[#E6E6E6] mb-2">No items found</h2>
+          <p className="text-[#E6E6E6] mb-8">
             {search || category
               ? "Try adjusting your search or filters."
               : "No items have been listed yet. Be the first to report one!"}

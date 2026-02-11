@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import HeroShader from "@/components/HeroShader";
 import { StatsSection } from "@/components/StatsSection";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { HowItWorks } from "@/components/HowItWorks";
 
 export const dynamic = "force-dynamic";
 
@@ -62,47 +63,7 @@ export default function Home() {
       <StatsSection stats={stats} />
 
       {/* How It Works */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-earth-900 tracking-tight">
-            How It Works
-          </h2>
-          <p className="text-earth-500 mt-3 max-w-md mx-auto">
-            Three simple steps to help lost items find their owners
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {[
-            {
-              step: "01",
-              title: "Find an Item",
-              desc: "Spot something that doesn't belong to you? Pick it up and bring it to safety.",
-            },
-            {
-              step: "02",
-              title: "Report It",
-              desc: "Upload a photo and our AI will auto-categorize it. Fill in the details and submit.",
-            },
-            {
-              step: "03",
-              title: "Reunite & Earn",
-              desc: "The owner claims it, admin verifies, and you earn points for being helpful!",
-            },
-          ].map((item, i) => (
-            <div key={i} className="group">
-              <p className="text-5xl font-extrabold text-earth-200 mb-4 group-hover:text-primary-300 transition-colors duration-300">
-                {item.step}
-              </p>
-              <h3 className="text-lg font-bold text-earth-900 mb-2">
-                {item.title}
-              </h3>
-              <p className="text-sm text-earth-500 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* CTA Section */}
       <section className="bg-earth-900">
