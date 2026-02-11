@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/ImageUploader";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
 import { TagsSelector } from "@/components/ui/tags-selector";
+import { DatePicker } from "@/components/ui/date-picker";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import type { MappedTag } from "@/types";
 
 // Common tags for lost & found items
@@ -36,11 +38,11 @@ export default function ReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  const [dateFound, setDateFound] = useState<Date | undefined>(new Date());
   const [form, setForm] = useState({
     title: "",
     description: "",
     location_found: "",
-    date_found: new Date().toISOString().split("T")[0],
     reporter_name: "",
     reporter_email: "",
   });
@@ -85,6 +87,7 @@ export default function ReportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          date_found: dateFound?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0],
           category: category || "other",
           image_path: imagePath,
           ai_tags: selectedTags.map((t) => t.label),
@@ -193,12 +196,11 @@ export default function ReportPage() {
               <label className="block text-sm font-semibold text-earth-700 mb-1.5">
                 Date Found <span className="text-primary-500">*</span>
               </label>
-              <input
-                type="date"
-                required
-                value={form.date_found}
-                onChange={(e) => setForm({ ...form, date_found: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 focus:border-earth-900 focus:outline-none transition-colors"
+              <DatePicker
+                date={dateFound}
+                onDateChange={setDateFound}
+                placeholder="Select date found"
+                className="bg-white border-earth-300 text-sm text-earth-900 focus:border-earth-900"
               />
             </div>
           </div>
@@ -261,10 +263,12 @@ export default function ReportPage() {
 
         {/* Submit */}
         <div className="pt-2">
-          <button
+          <LiquidButton
             type="submit"
             disabled={submitting}
-            className="w-full py-4 bg-earth-900 text-white text-sm font-bold tracking-wide hover:bg-earth-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="dark"
+            size="full"
+            className="tracking-wide"
           >
             {submitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -274,7 +278,7 @@ export default function ReportPage() {
             ) : (
               "Submit Report"
             )}
-          </button>
+          </LiquidButton>
           <p className="text-xs text-center text-earth-400 mt-3">
             Your report will be reviewed by an admin before appearing publicly.
           </p>

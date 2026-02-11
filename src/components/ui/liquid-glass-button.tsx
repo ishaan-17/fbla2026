@@ -1,15 +1,41 @@
-// @ts-nocheck
 "use client"
 
 import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
-export function GlassFilter() {
+const liquidbuttonVariants = cva(
+  "inline-flex items-center transition-colors justify-center cursor-pointer gap-2 whitespace-nowrap text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 outline-none",
+  {
+    variants: {
+      variant: {
+        default: "hover:scale-105 duration-300 transition text-earth-800",
+        dark: "hover:scale-[1.02] duration-300 transition text-white",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 text-xs gap-1.5 px-4",
+        lg: "h-10 px-6",
+        xl: "h-12 px-8",
+        xxl: "h-14 px-10",
+        full: "h-14 w-full px-10",
+        icon: "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+function GlassFilter() {
   return (
-    <svg className="hidden">
+    <svg className="hidden" aria-hidden="true">
       <defs>
         <filter
-          id="navbar-glass"
+          id="liquid-btn-glass"
           x="0%"
           y="0%"
           width="100%"
@@ -37,66 +63,129 @@ export function GlassFilter() {
         </filter>
       </defs>
     </svg>
-  );
-}
-
-interface LiquidGlassContainerProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function LiquidGlassContainer({ children, className }: LiquidGlassContainerProps) {
-  return (
-    <>
-      <GlassFilter />
-      <div className={cn("relative", className)}>
-        {/* Glass effect layer */}
-        <div 
-          className="absolute inset-0 -z-10 backdrop-blur-xl"
-          style={{ backdropFilter: 'url("#navbar-glass") blur(12px)' }}
-        />
-        {/* Inner shadow/glow effects */}
-        <div 
-          className="absolute inset-0 -z-10"
-          style={{
-            boxShadow: `
-              inset 2px 2px 4px 0 rgba(255, 255, 255, 0.1),
-              inset -2px -2px 4px 0 rgba(255, 255, 255, 0.05),
-              0 4px 30px rgba(0, 0, 0, 0.1)
-            `
-          }}
-        />
-        {children}
-      </div>
-    </>
-  );
-}
-
-export function LiquidButton({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"button">) {
-  return (
-    <button
-      className={cn(
-        "relative inline-flex items-center justify-center cursor-pointer gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-300 hover:scale-105 px-6 py-2",
-        className
-      )}
-      {...props}
-    >
-      <div className="absolute top-0 left-0 z-0 h-full w-full rounded-full 
-          shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)] 
-      transition-all 
-      dark:shadow-[0_0_8px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3.5px_rgba(255,255,255,0.09),inset_-3px_-3px_0.5px_-3.5px_rgba(255,255,255,0.85),inset_1px_1px_1px_-0.5px_rgba(255,255,255,0.6),inset_-1px_-1px_1px_-0.5px_rgba(255,255,255,0.6),inset_0_0_6px_6px_rgba(255,255,255,0.12),inset_0_0_2px_2px_rgba(255,255,255,0.06),0_0_12px_rgba(0,0,0,0.15)]" />
-      <div
-        className="absolute top-0 left-0 isolate -z-10 h-full w-full overflow-hidden rounded-full backdrop-blur-xl"
-      />
-      <span className="pointer-events-none z-10">
-        {children}
-      </span>
-    </button>
   )
 }
 
-export default LiquidGlassContainer;
+export interface LiquidButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof liquidbuttonVariants> {
+  asChild?: boolean
+}
+
+function LiquidButton({
+  className,
+  variant,
+  size,
+  asChild = false,
+  children,
+  ...props
+}: LiquidButtonProps) {
+  const Comp = asChild ? Slot : "button"
+  const isDark = variant === "dark"
+  const isLarge = size === "full" || size === "xxl" || size === "xl"
+  const borderRadius = isLarge ? "rounded-2xl" : "rounded-full"
+
+  return (
+    <>
+      <GlassFilter />
+      <Comp
+        data-slot="button"
+        className={cn(
+          "relative",
+          borderRadius,
+          liquidbuttonVariants({ variant, size, className })
+        )}
+        style={{
+          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15)",
+        }}
+        {...props}
+      >
+        {/* Backdrop blur layer */}
+        <div
+          className={cn("absolute inset-0 z-0 overflow-hidden", borderRadius)}
+          style={{ 
+            backdropFilter: 'url("#liquid-btn-glass") blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        />
+
+        {/* Dark background */}
+        {isDark && (
+          <div
+            className={cn("absolute inset-0 z-[1]", borderRadius)}
+            style={{
+              background: `radial-gradient(ellipse at 50% 0%, rgba(45, 43, 40, 0.97) 0%, rgba(20, 20, 18, 0.98) 100%)`,
+            }}
+          />
+        )}
+
+        {/* Main liquid glass effect - the key visual */}
+        <div 
+          className={cn("absolute inset-0 z-[2]", borderRadius)}
+          style={{
+            boxShadow: isDark
+              ? `
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.12),
+                inset -2px -2px 4px rgba(255, 255, 255, 0.08),
+                inset 4px 4px 8px rgba(255, 255, 255, 0.06),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.04),
+                inset 0 8px 16px rgba(255, 255, 255, 0.08),
+                inset 0 -4px 12px rgba(0, 0, 0, 0.3)
+              `
+              : `
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+                inset -2px -2px 4px rgba(255, 255, 255, 0.3),
+                inset 0 4px 8px rgba(255, 255, 255, 0.2)
+              `,
+          }}
+        />
+
+        {/* Inner highlight ring - creates the shape inside */}
+        <div 
+          className={cn("absolute z-[3] pointer-events-none", isLarge ? "rounded-xl" : "rounded-full")}
+          style={{
+            top: '3px',
+            left: '3px',
+            right: '3px',
+            bottom: '3px',
+            boxShadow: isDark
+              ? `
+                inset 1px 1px 2px rgba(255, 255, 255, 0.15),
+                inset -1px -1px 2px rgba(255, 255, 255, 0.08),
+                inset 0 1px 3px rgba(255, 255, 255, 0.12)
+              `
+              : `
+                inset 1px 1px 2px rgba(255, 255, 255, 0.6),
+                inset -1px -1px 2px rgba(255, 255, 255, 0.4)
+              `,
+            border: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.06)'
+              : '1px solid rgba(255, 255, 255, 0.3)',
+          }}
+        />
+
+        {/* Top edge shine */}
+        <div
+          className={cn("absolute left-[10%] right-[10%] z-[4] pointer-events-none", isLarge ? "rounded-lg" : "rounded-full")}
+          style={{
+            top: '2px',
+            height: isLarge ? '6px' : '4px',
+            background: isDark
+              ? 'linear-gradient(to bottom, rgba(255,255,255,0.2), transparent)'
+              : 'linear-gradient(to bottom, rgba(255,255,255,0.5), transparent)',
+          }}
+        />
+
+        {/* Content */}
+        <span className="relative z-10">
+          {children}
+        </span>
+      </Comp>
+    </>
+  )
+}
+
+export { LiquidButton, liquidbuttonVariants, GlassFilter }
+export default LiquidButton

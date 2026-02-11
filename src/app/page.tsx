@@ -51,13 +51,13 @@ export default function Home() {
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/report"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-earth-900 text-sm font-bold tracking-wide hover:bg-white/90 transition-colors rounded-full"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-earth-900 text-sm font-bold tracking-wide hover:bg-white/90 transition-colors"
                 >
                   Report Found Item
                 </Link>
                 <Link
                   href="/items"
-                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white text-sm font-bold tracking-wide hover:bg-white hover:text-earth-900 transition-all rounded-full"
+                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white text-sm font-bold tracking-wide hover:bg-white hover:text-earth-900 transition-all"
                 >
                   Search Lost Items
                 </Link>

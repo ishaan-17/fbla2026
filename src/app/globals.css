@@ -29,6 +29,19 @@
   --color-earth-800: #2d2a25;
   --color-earth-900: #212322;
 
+  /* shadcn color tokens for components */
+  --color-background: var(--color-earth-100);
+  --color-foreground: var(--color-earth-900);
+  --color-muted: var(--color-earth-200);
+  --color-muted-foreground: var(--color-earth-600);
+  --color-popover: #ffffff;
+  --color-popover-foreground: var(--color-earth-900);
+  --color-border: var(--color-earth-300);
+  --color-input: var(--color-earth-300);
+  --color-ring: var(--color-earth-900);
+  --color-accent: var(--color-earth-200);
+  --color-accent-foreground: var(--color-earth-900);
+
   --font-sans: var(--font-nunito);
   --font-mono: var(--font-jetbrains-mono);
 }
