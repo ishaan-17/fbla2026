@@ -61,8 +61,8 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     return (
       <div className="max-w-sm mx-auto mt-24 px-4">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-extrabold text-earth-900 tracking-tight">Admin Access</h2>
-          <p className="text-earth-500 text-sm mt-2">Enter the admin password to continue</p>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Admin Access</h2>
+          <p className="text-gray-200 text-sm mt-2">Enter the admin password to continue</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
