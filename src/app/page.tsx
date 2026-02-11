@@ -2,6 +2,7 @@ import Link from "next/link";
 import db from "@/lib/db";
 import HeroShader from "@/components/HeroShader";
 import { StatsSection } from "@/components/StatsSection";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export const dynamic = "force-dynamic";
 
@@ -49,18 +50,8 @@ export default function Home() {
                 search for your belongings, and earn rewards for helping.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/report"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-earth-900 text-sm font-bold tracking-wide hover:bg-white/90 transition-colors"
-                >
-                  Report Found Item
-                </Link>
-                <Link
-                  href="/items"
-                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white text-sm font-bold tracking-wide hover:bg-white hover:text-earth-900 transition-all"
-                >
-                  Search Lost Items
-                </Link>
+                <LiquidButton asChild variant="light" size="xl"><Link href="/report">Report Found Item</Link></LiquidButton>
+                <LiquidButton asChild variant="dark" size="xl"><Link href="/items">Search Lost Items</Link></LiquidButton>
               </div>
             </div>
           </div>

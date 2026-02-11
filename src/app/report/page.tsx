@@ -7,6 +7,7 @@ import { SCHOOL_CATEGORIES } from "@/lib/categories";
 import { TagsSelector } from "@/components/ui/tags-selector";
 import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import type { MappedTag } from "@/types";
 
 // Common tags for lost & found items
@@ -106,184 +107,182 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      {/* Header */}
-      <div className="mb-12">
-        <p className="text-xs font-bold text-primary-500 uppercase tracking-wider mb-3">
-          New Report
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-earth-900 tracking-tight">
-          Report a Found Item
-        </h1>
-        <p className="text-earth-500 mt-3 leading-relaxed">
-          Found something? Help it find its owner. Upload a photo and our AI will help categorize it.
-          You&apos;ll earn <span className="font-bold text-primary-500">10 points</span> for reporting!
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-10">
-        {error && (
-          <div className="bg-red-50 border border-red-200 p-4 text-sm text-red-800">
-            {error}
-          </div>
-        )}
-
-        {/* Image Upload */}
-        <div>
-          <h2 className="text-sm font-bold text-earth-900 uppercase tracking-wider mb-4">Photo</h2>
-          <ImageUploader
-            onFileSelect={setFile}
-            onCategoryDetected={setCategory}
-            onTagsDetected={setAiDetectedTags}
-          />
-        </div>
-
-        {/* Item Details */}
-        <div className="space-y-5">
-          <h2 className="text-sm font-bold text-earth-900 uppercase tracking-wider">Item Details</h2>
-
-          <div>
-            <label className="block text-sm font-semibold text-earth-700 mb-1.5">
-              Item Title <span className="text-primary-500">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
-              placeholder="e.g., Blue water bottle"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-earth-700 mb-1.5">
-              Description <span className="text-primary-500">*</span>
-            </label>
-            <textarea
-              required
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              rows={3}
-              className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors resize-none"
-              placeholder="Describe the item — color, brand, size, any distinguishing features..."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-semibold text-earth-700 mb-1.5">
-                Category
-                {category && (
-                  <span className="ml-2 text-xs text-primary-500 font-normal">AI suggested</span>
-                )}
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-600 focus:border-earth-900 focus:outline-none transition-colors cursor-pointer"
-              >
-                <option value="">Select a category</option>
-                {SCHOOL_CATEGORIES.map((cat) => (
-                  <option key={cat.name} value={cat.name}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-earth-700 mb-1.5">
-                Date Found <span className="text-primary-500">*</span>
-              </label>
-              <DatePicker
-                date={dateFound}
-                onDateChange={setDateFound}
-                placeholder="Select date found"
-                className="bg-white border-earth-300 text-sm text-earth-900 focus:border-earth-900"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-earth-700 mb-1.5">
-              Location Found <span className="text-primary-500">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={form.location_found}
-              onChange={(e) => setForm({ ...form, location_found: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
-              placeholder="e.g., Room 204, Main Hallway, Gym"
-            />
-          </div>
-
-          {/* Tags */}
-          <div>
-            <TagsSelector
-              tags={COMMON_TAGS}
-              selectedTags={selectedTags}
-              onSelectionChange={setSelectedTags}
-              title={aiDetectedTags.length > 0 ? "Tags (AI suggested)" : "Tags"}
-            />
-          </div>
-        </div>
-
-        {/* Reporter Info */}
-        <div className="space-y-5">
-          <div>
-            <h2 className="text-sm font-bold text-earth-900 uppercase tracking-wider">Your Info</h2>
-            <p className="text-sm text-earth-400 mt-1">Optional — provide your info to earn reward points</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-semibold text-earth-700 mb-1.5">Your Name</label>
-              <input
-                type="text"
-                value={form.reporter_name}
-                onChange={(e) => setForm({ ...form, reporter_name: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
-                placeholder="Your full name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-earth-700 mb-1.5">Your Email</label>
-              <input
-                type="email"
-                value={form.reporter_email}
-                onChange={(e) => setForm({ ...form, reporter_email: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
-                placeholder="your.email@school.edu"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Submit */}
-        <div className="pt-2">
-          <LiquidButton
-            type="submit"
-            disabled={submitting}
-            variant="dark"
-            size="full"
-            className="tracking-wide"
-          >
-            {submitting ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Submitting Report...
-              </span>
-            ) : (
-              "Submit Report"
-            )}
-          </LiquidButton>
-          <p className="text-xs text-center text-earth-400 mt-3">
-            Your report will be reviewed by an admin before appearing publicly.
+    <div className="min-h-screen bg-earth-900 -mt-16 pt-16">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Header */}
+        <div className="mb-12">
+          <p className="text-xs font-bold text-primary-400 uppercase tracking-wider mb-3">
+            New Report
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Report a Found Item
+          </h1>
+          <p className="text-white/60 mt-3 leading-relaxed">
+            Found something? Help it find its owner. Upload a photo and our AI will help categorize it.
+            You&apos;ll earn <span className="font-bold text-primary-400">10 points</span> for reporting!
           </p>
         </div>
-      </form>
+
+        <form onSubmit={handleSubmit} className="space-y-10">
+          {error && (
+            <div className="p-4 text-sm text-red-300 rounded-xl bg-red-500/20 backdrop-blur-sm border border-red-500/30 shadow-[0_2px_12px_rgba(220,38,38,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]">
+              {error}
+            </div>
+          )}
+
+          {/* Image Upload */}
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Photo</h2>
+            <ImageUploader
+              onFileSelect={setFile}
+              onCategoryDetected={setCategory}
+              onTagsDetected={setAiDetectedTags}
+            />
+          </div>
+
+          {/* Item Details */}
+          <div className="space-y-5">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Item Details</h2>
+
+            <div>
+              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                Item Title <span className="text-primary-400">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                placeholder="e.g., Blue water bottle"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                Description <span className="text-primary-400">*</span>
+              </label>
+              <textarea
+                required
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 resize-none bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                placeholder="Describe the item — color, brand, size, any distinguishing features..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                  Category
+                  {category && (
+                    <span className="ml-2 text-xs text-primary-400 font-normal">AI suggested</span>
+                  )}
+                </label>
+                <DropdownMenu
+                  value={category}
+                  onChange={setCategory}
+                  placeholder="Select a category"
+                  options={SCHOOL_CATEGORIES.map((cat) => ({
+                    value: cat.name,
+                    label: cat.label,
+                  }))}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                  Date Found <span className="text-primary-400">*</span>
+                </label>
+                <DatePicker
+                  date={dateFound}
+                  onDateChange={setDateFound}
+                  placeholder="Select date found"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                Location Found <span className="text-primary-400">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={form.location_found}
+                onChange={(e) => setForm({ ...form, location_found: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                placeholder="e.g., Room 204, Main Hallway, Gym"
+              />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <TagsSelector
+                tags={COMMON_TAGS}
+                selectedTags={selectedTags}
+                onSelectionChange={setSelectedTags}
+                title={aiDetectedTags.length > 0 ? "Tags (AI suggested)" : "Tags"}
+              />
+            </div>
+          </div>
+
+          {/* Reporter Info */}
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Your Info</h2>
+              <p className="text-sm text-white/50 mt-1">Optional — provide your info to earn reward points</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-white/80 mb-1.5">Your Name</label>
+                <input
+                  type="text"
+                  value={form.reporter_name}
+                  onChange={(e) => setForm({ ...form, reporter_name: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white/80 mb-1.5">Your Email</label>
+                <input
+                  type="email"
+                  value={form.reporter_email}
+                  onChange={(e) => setForm({ ...form, reporter_email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                  placeholder="your.email@school.edu"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="pt-2">
+            <LiquidButton
+              type="submit"
+              disabled={submitting}
+              variant="dark"
+              size="full"
+              className="tracking-wide"
+            >
+              {submitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Submitting Report...
+                </span>
+              ) : (
+                "Submit Report"
+              )}
+            </LiquidButton>
+            <p className="text-xs text-center text-white/40 mt-3">
+              Your report will be reviewed by an admin before appearing publicly.
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
