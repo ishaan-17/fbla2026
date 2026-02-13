@@ -176,31 +176,32 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
               >
                 <div className="relative w-full h-full rounded-3xl overflow-hidden group border border-white/10">
                   {/* Gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-earth-800 via-earth-900 to-black" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-tl from-primary-500/20 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
 
                   {/* Glowing effect on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary-500/10 to-primary-600/10" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-white/5 to-white/5" />
 
                   {/* Content */}
-                  <div className="relative h-full p-6 flex flex-col justify-between">
-                    {/* Step number and Icon */}
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex items-center justify-center w-12 h-12">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl opacity-30" />
-                        <div className="absolute inset-0.5 bg-earth-900/90 rounded-[10px]" />
-                        <span className="relative text-xl font-black text-primary-300">
-                          {item.step}
-                        </span>
-                      </div>
-                      <div className="p-2.5 bg-white/5 rounded-lg text-primary-300">
+                  <div className="relative h-full p-6 flex flex-col">
+                    {/* Step number - top left */}
+                    <div className="relative flex items-center justify-center w-12 h-12">
+                      <div className="absolute inset-0 bg-white/10 rounded-xl" />
+                      <div className="absolute inset-0.5 bg-earth-900/90 rounded-[10px]" />
+                      <span className="relative text-xl font-black text-white/80">
+                        {item.step}
+                      </span>
+                    </div>
+
+                    {/* Centered Icon */}
+                    <div className="flex-1 flex items-center justify-center -mt-4">
+                      <div className="p-4">
                         {item.icon}
                       </div>
                     </div>
 
                     {/* Title and Description */}
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <h3 className="text-xl font-bold text-white">
                         {item.title}
                       </h3>
