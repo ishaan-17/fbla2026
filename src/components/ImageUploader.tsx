@@ -5,6 +5,9 @@ import type { MappedTag } from "@/types";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
 import { FileUpload } from "@/components/ui/file-upload";
 
+// Toggle this to enable/disable safe search checking
+const ENABLE_SAFE_SEARCH = false;
+
 interface ImageUploaderProps {
   onFileSelect: (file: File) => void;
   onCategoryDetected: (category: string) => void;
@@ -108,7 +111,11 @@ export default function ImageUploader({
         // The result will be a Data URL (e.g., "data:image/jpeg;base64,...")
         // Extract just the Base64 part
         const base64Image = (reader.result as string).split(",")[1];
-        searchSafeImage(base64Image);
+
+        // Only run safe search if enabled
+        if (ENABLE_SAFE_SEARCH) {
+          searchSafeImage(base64Image);
+        }
       };
 
       reader.onerror = (error) => {
