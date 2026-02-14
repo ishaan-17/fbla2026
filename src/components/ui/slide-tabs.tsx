@@ -74,7 +74,7 @@ export const SlideTabs = ({
   return (
     <ul
       onMouseLeave={resetToSelected}
-      className={`relative flex w-fit rounded-full border border-white/20 bg-white/10 backdrop-blur-xl p-1 ${className}`}
+      className={`relative flex w-fit rounded-full border-[0.5px] border-white/20 bg-white/10 backdrop-blur-xl p-[3px] ${className}`}
     >
       {tabs.map((tab, i) => (
         <Tab
