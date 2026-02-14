@@ -327,7 +327,7 @@ export default function Navbar() {
                     <LiquidButton
                       variant="light"
                       size="default"
-                      onClick={() => signOut()}
+                      onClick={() => signOut({ callbackUrl: '/' })}
                       className=""
                     >
                       <div className={`flex items-center`}>
