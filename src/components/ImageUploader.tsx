@@ -131,14 +131,27 @@ export default function ImageUploader({
   return (
     <div className="space-y-4">
       {/* File Upload */}
-      <div className="border border-dashed border-earth-300 rounded-lg overflow-hidden bg-white">
+      <div className="rounded-2xl overflow-hidden">
         <FileUpload onChange={handleFileUpload} />
 
         {isAnalyzing && (
-          <div className="px-6 py-4 bg-earth-50 border-t border-earth-200">
+          <div 
+            className="px-6 py-4 -mt-2 rounded-b-2xl border-x border-b border-white/[0.08]"
+            style={{
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              background: `linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.06) 0%,
+                rgba(255, 255, 255, 0.02) 50%,
+                rgba(255, 255, 255, 0.04) 100%
+              )`,
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.03)',
+            }}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-4 h-4 border-2 border-earth-900 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm font-semibold text-earth-900">
+              <div className="w-4 h-4 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-semibold text-white/70">
                 Analyzing image with AI...
               </span>
             </div>
@@ -148,10 +161,27 @@ export default function ImageUploader({
 
       {/* AI Tags */}
       {tags.length > 0 && (
-        <div className="bg-earth-100 p-4 border border-earth-200">
+        <div 
+          className="p-4 rounded-2xl border border-white/[0.08]"
+          style={{
+            backdropFilter: 'blur(24px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            background: `linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.08) 0%,
+              rgba(255, 255, 255, 0.03) 50%,
+              rgba(255, 255, 255, 0.06) 100%
+            )`,
+            boxShadow: `
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
+              inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03),
+              0 4px 16px rgba(0, 0, 0, 0.1)
+            `,
+          }}
+        >
           <div className="flex items-center gap-2 mb-3">
             <svg
-              className="w-4 h-4 text-primary-500"
+              className="w-4 h-4 text-emerald-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -163,7 +193,7 @@ export default function ImageUploader({
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            <span className="text-sm font-bold text-earth-900">
+            <span className="text-sm font-bold text-white/80">
               AI Detected Tags
             </span>
           </div>
@@ -171,10 +201,17 @@ export default function ImageUploader({
             {tags.map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-xs font-semibold text-earth-700 border border-earth-200 rounded-[4px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/80 rounded-full border border-white/[0.1]"
+                style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                }}
               >
                 {tag.label}
-                <span className="text-primary-500">
+                <span className="text-emerald-400">
                   {Math.round(tag.confidence * 100)}%
                 </span>
               </span>
