@@ -65,9 +65,9 @@ function LiquidButton({
           background: isDark
             ? `linear-gradient(
                 135deg,
-                rgba(40, 40, 40, 0.4) 0%,
-                rgba(20, 20, 20, 0.3) 50%,
-                rgba(30, 30, 30, 0.35) 100%
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(255, 255, 255, 0.06) 50%,
+                rgba(255, 255, 255, 0.08) 100%
               )`
             : isLight
               ? `linear-gradient(
@@ -105,8 +105,8 @@ function LiquidButton({
         style={{
           boxShadow: isDark
             ? `
-              inset 0 0 0 0.5px rgba(255, 255, 255, 0.08),
-              inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+              inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
               inset 0 -1px 0 0 rgba(0, 0, 0, 0.1)
             `
             : `

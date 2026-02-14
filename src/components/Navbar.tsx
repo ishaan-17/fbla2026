@@ -273,42 +273,6 @@ export default function Navbar() {
           >
             {/* Navigation links container with shared background */}
             <div className="relative p-4 overflow-hidden rounded-xl">
-              {/* Shared glass background for all links */}
-              <div
-                className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
-                style={{
-                  backdropFilter: "blur(24px) saturate(150%)",
-                  WebkitBackdropFilter: "blur(24px) saturate(150%)",
-                  background: `linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.12) 0%,
-                    rgba(255, 255, 255, 0.06) 50%,
-                    rgba(255, 255, 255, 0.1) 100%
-                  )`,
-                }}
-              />
-
-              {/* Inner border glow for container */}
-              <div
-                className="absolute inset-0 z-1 pointer-events-none rounded-xl"
-                style={{
-                  boxShadow: `
-                    inset 0 0 0 0.5px rgba(255, 255, 255, 0.15),
-                    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
-                    inset 0 -1px 0 0 rgba(0, 0, 0, 0.03)
-                  `,
-                }}
-              />
-
-              {/* Outer shadow for depth */}
-              <div
-                className="absolute inset-0 z-[-1] pointer-events-none rounded-xl"
-                style={{
-                  boxShadow:
-                    "0 4px 24px rgba(0, 0, 0, 0.08), 0 12px 48px rgba(0, 0, 0, 0.05)",
-                }}
-              />
-
               {/* Links with borders */}
               <div className="relative z-10 flex flex-col">
                 {navTabs.map((tab, index) => {
@@ -320,9 +284,8 @@ export default function Navbar() {
                       {/* Hover overlay */}
                       <div
                         className={`
-                          absolute inset-0 z-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                          ${isFirst ? "rounded-t-xl" : ""}
-                          ${isLast ? "rounded-b-xl" : ""}
+                          absolute inset-0 z-0 pointer-events-none rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200
+
                         `}
                         style={{
                           background: "rgba(255, 255, 255, 0.08)",
@@ -334,9 +297,8 @@ export default function Navbar() {
                         onClick={() => setMobileOpen(false)}
                         className={`
                           relative z-10 py-3 px-4 font-semibold text-base tracking-wide
-                          transition-all duration-200 block
+                          transition-all duration-200 block rounded-xl
                           ${isActive ? "text-white bg-white/10" : "text-white/80"}
-                          ${!isLast ? "border-b border-white/10" : ""}
                           ${isFirst ? "rounded-t-xl" : ""}
                           ${isLast ? "rounded-b-xl" : ""}
                         `}

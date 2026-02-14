@@ -101,6 +101,18 @@ const ItemCard = React.memo(
             <p className="text-xs text-white/70 mt-1">
               {item.location_found}
             </p>
+            {item.ai_tags && JSON.parse(item.ai_tags).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {JSON.parse(item.ai_tags).slice(0, 3).map((tag: string, i: number) => (
+                  <span
+                    key={i}
+                    className="text-[10px] font-medium px-2 py-0.5 bg-white/20 text-white/90 rounded backdrop-blur-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Link>
