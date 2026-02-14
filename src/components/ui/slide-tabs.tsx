@@ -19,9 +19,14 @@ interface Position {
 interface SlideTabsProps {
   tabs: TabItem[];
   className?: string;
+  isLightBackground?: boolean;
 }
 
-export const SlideTabs = ({ tabs, className }: SlideTabsProps) => {
+export const SlideTabs = ({
+  tabs,
+  className,
+  isLightBackground = false,
+}: SlideTabsProps) => {
   const pathname = usePathname();
   const [position, setPosition] = useState<Position>({
     left: 0,
@@ -82,11 +87,12 @@ export const SlideTabs = ({ tabs, className }: SlideTabsProps) => {
           setPosition={setPosition}
           onHover={() => setHovered(i)}
           onClick={() => setSelected(i)}
+          isLightBackground={isLightBackground}
         >
           {tab.label}
         </Tab>
       ))}
-      <Cursor position={position} />
+      <Cursor position={position} isLightBackground={isLightBackground} />
     </ul>
   );
 };
@@ -98,10 +104,22 @@ interface TabProps {
   setPosition: (pos: Position) => void;
   onHover: () => void;
   onClick: () => void;
+  isLightBackground?: boolean;
 }
 
 const Tab = forwardRef<HTMLLIElement, TabProps>(
-  ({ children, href, isActive, setPosition, onHover, onClick }, ref) => {
+  (
+    {
+      children,
+      href,
+      isActive,
+      setPosition,
+      onHover,
+      onClick,
+      isLightBackground = false,
+    },
+    ref,
+  ) => {
     const internalRef = useRef<HTMLLIElement>(null);
 
     const setRefs = (el: HTMLLIElement | null) => {
@@ -132,7 +150,13 @@ const Tab = forwardRef<HTMLLIElement, TabProps>(
         <Link
           href={href}
           className={`block px-3 py-1.5 text-xs font-semibold uppercase md:px-5 md:py-2 md:text-sm tracking-wide transition-colors duration-200 ${
-            isActive ? "text-earth-900" : "text-white/80"
+            isActive
+              ? isLightBackground
+                ? "text-white"
+                : "text-earth-900"
+              : isLightBackground
+                ? "text-black/80"
+                : "text-white/80"
           }`}
         >
           {children}
@@ -146,9 +170,10 @@ Tab.displayName = "Tab";
 
 interface CursorProps {
   position: Position;
+  isLightBackground?: boolean;
 }
 
-const Cursor = ({ position }: CursorProps) => {
+const Cursor = ({ position, isLightBackground = false }: CursorProps) => {
   return (
     <motion.li
       animate={{
@@ -161,7 +186,9 @@ const Cursor = ({ position }: CursorProps) => {
         stiffness: 400,
         damping: 30,
       }}
-      className="absolute z-0 top-1 bottom-1 rounded-full bg-white/90"
+      className={`absolute z-0 top-1 bottom-1 rounded-full transition-colors duration-200 ${
+        isLightBackground ? "bg-black/90" : "bg-white/90"
+      }`}
     />
   );
 };
