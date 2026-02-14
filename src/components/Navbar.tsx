@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { SlideTabs } from "@/components/ui/slide-tabs";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
-import { LogIn } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 const navTabs = [
@@ -135,6 +135,16 @@ export default function Navbar() {
     : "text-white/80";
   const hamburgerColor = isLightBackground ? "bg-black" : "bg-white";
 
+  // Helper function to truncate last name to initial
+  const formatName = (name: string | null | undefined) => {
+    if (!name) return "User";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0];
+    const firstName = parts[0];
+    const lastInitial = parts[parts.length - 1][0];
+    return `${firstName} ${lastInitial}.`;
+  };
+
   return (
     <div
       ref={navRef}
@@ -197,8 +207,16 @@ export default function Navbar() {
                   <span
                     className={`font-semibold transition-colors duration-200 ${textColorSecondary} lg:text-white/80`}
                   >
-                    {session.user.name || "User"}
+                    {formatName(session.user.name)}
                   </span>
+                  <LiquidButton
+                    variant="light"
+                    size="sm"
+                    onClick={() => signOut()}
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                  </LiquidButton>
                 </div>
               ) : (
                 <LiquidButton variant="light" size="default" asChild>
@@ -332,16 +350,29 @@ export default function Navbar() {
             </div>
 
             {/* Login/User section */}
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-4 mt-4">
               <div className="flex justify-center">
                 {status === "loading" ? (
                   <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
                 ) : session?.user ? (
-                  <div className="flex items-center justify-center gap-3">
-                    <UserAvatar />
-                    <span className="text-white/80 font-semibold">
-                      {session.user.name || "User"}
-                    </span>
+                  <div className="flex flex-row items-center justify-center gap-3">
+                    <div className="flex items-center gap-3">
+                      <UserAvatar />
+                      <span className="text-white/80 font-semibold">
+                        {formatName(session.user.name)}
+                      </span>
+                    </div>
+                    <LiquidButton
+                      variant="light"
+                      size="default"
+                      onClick={() => signOut()}
+                      className=""
+                    >
+                      <div className={`flex items-center`}>
+                        <LogOut className="w-4 h-4 mr-2 text-red-400" />
+                        Sign Out
+                      </div>
+                    </LiquidButton>
                   </div>
                 ) : (
                   <LiquidButton variant="light" size="lg" asChild>
