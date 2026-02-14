@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useRef, useState, useEffect, forwardRef } from "react";
 import { motion } from "framer-motion";
@@ -29,13 +29,13 @@ export const SlideTabs = ({ tabs, className }: SlideTabsProps) => {
     opacity: 0,
   });
   const [hovered, setHovered] = useState<number | null>(null);
-  
-  const activeIndex = tabs.findIndex(tab => tab.href === pathname);
+
+  const activeIndex = tabs.findIndex((tab) => tab.href === pathname);
   const [selected, setSelected] = useState(activeIndex >= 0 ? activeIndex : 0);
   const tabsRef = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
-    const newIndex = tabs.findIndex(tab => tab.href === pathname);
+    const newIndex = tabs.findIndex((tab) => tab.href === pathname);
     if (newIndex >= 0) {
       setSelected(newIndex);
     }
@@ -69,12 +69,14 @@ export const SlideTabs = ({ tabs, className }: SlideTabsProps) => {
   return (
     <ul
       onMouseLeave={resetToSelected}
-      className={`relative flex w-fit rounded-full border-2 border-white/30 bg-white/10 backdrop-blur-xl p-1 ${className}`}
+      className={`relative flex w-fit rounded-full border border-white/20 bg-white/10 backdrop-blur-xl p-1 ${className}`}
     >
       {tabs.map((tab, i) => (
         <Tab
           key={tab.href}
-          ref={(el) => { tabsRef.current[i] = el; }}
+          ref={(el) => {
+            tabsRef.current[i] = el;
+          }}
           href={tab.href}
           isActive={hovered === i || (hovered === null && selected === i)}
           setPosition={setPosition}
@@ -101,10 +103,10 @@ interface TabProps {
 const Tab = forwardRef<HTMLLIElement, TabProps>(
   ({ children, href, isActive, setPosition, onHover, onClick }, ref) => {
     const internalRef = useRef<HTMLLIElement>(null);
-    
+
     const setRefs = (el: HTMLLIElement | null) => {
       internalRef.current = el;
-      if (typeof ref === 'function') {
+      if (typeof ref === "function") {
         ref(el);
       } else if (ref) {
         ref.current = el;
@@ -137,7 +139,7 @@ const Tab = forwardRef<HTMLLIElement, TabProps>(
         </Link>
       </li>
     );
-  }
+  },
 );
 
 Tab.displayName = "Tab";

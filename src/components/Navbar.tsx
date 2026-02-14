@@ -20,23 +20,25 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-b-2xl"
-        style={{
-          boxShadow: `
+    <nav
+      className="sticky top-5 mx-5 z-50 border border-white/8 bg-white/3 backdrop-blur-xl rounded-2xl"
+      style={{
+        boxShadow: `
             inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
             inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03),
             0 8px 32px rgba(0, 0, 0, 0.12),
             0 2px 8px rgba(0, 0, 0, 0.06)
           `,
-          background: `
+        background: `
             linear-gradient(
               135deg,
               rgba(255, 255, 255, 0.05) 0%,
               rgba(255, 255, 255, 0.02) 50%,
               rgba(255, 255, 255, 0.04) 100%
             )
-          `
-        }}>
+          `,
+      }}
+    >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           {/* Logo - Left */}
@@ -67,18 +69,26 @@ export default function Navbar() {
             className="md:hidden p-2 z-20"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
-            <div className={`w-6 h-0.5 bg-white mb-1.5 transition-all duration-300 ${mobileOpen ? 'transform rotate-45 translate-y-2' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white mb-1.5 transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`}></div>
-            <div className={`w-6 h-0.5 bg-white transition-all duration-300 ${mobileOpen ? 'transform -rotate-45 -translate-y-2' : ''}`}></div>
+            <div
+              className={`w-6 h-0.5 bg-white mb-1.5 transition-all duration-300 ${mobileOpen ? "transform rotate-45 translate-y-2" : ""}`}
+            ></div>
+            <div
+              className={`w-6 h-0.5 bg-white mb-1.5 transition-all duration-300 ${mobileOpen ? "opacity-0" : ""}`}
+            ></div>
+            <div
+              className={`w-6 h-0.5 bg-white transition-all duration-300 ${mobileOpen ? "transform -rotate-45 -translate-y-2" : ""}`}
+            ></div>
           </button>
         </div>
 
         {/* Mobile menu */}
-        <div className={`
+        <div
+          className={`
           md:hidden fixed inset-x-0 top-16 bg-earth-100 border-b border-earth-200
           transition-all duration-300 overflow-hidden
-          ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}
-        `}>
+          ${mobileOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"}
+        `}
+        >
           <div className="flex flex-col p-4 space-y-1">
             {navTabs.map((tab) => {
               const isActive = pathname === tab.href;
@@ -89,9 +99,10 @@ export default function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className={`
                     py-3 px-4 font-semibold text-base tracking-wide transition-colors
-                    ${isActive 
-                      ? "text-white bg-earth-900 rounded-lg" 
-                      : "text-earth-600 hover:text-earth-900 hover:bg-earth-100 rounded-lg"
+                    ${
+                      isActive
+                        ? "text-white bg-earth-900 rounded-lg"
+                        : "text-earth-600 hover:text-earth-900 hover:bg-earth-100 rounded-lg"
                     }
                   `}
                 >
@@ -101,7 +112,10 @@ export default function Navbar() {
             })}
             <div className="pt-3 flex justify-center">
               <LiquidButton variant="light" size="lg" asChild>
-                <Link href="/login" className="flex items-center gap-2 w-full justify-center">
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 w-full justify-center"
+                >
                   <LogIn className="w-4 h-4" />
                   Login
                 </Link>
