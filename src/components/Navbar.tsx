@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SlideTabs } from "@/components/ui/slide-tabs";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { LogIn } from "lucide-react";
 const navTabs = [
   { label: "Home", href: "/" },
   { label: "Report", href: "/report" },
@@ -50,9 +51,14 @@ export default function Navbar() {
             <SlideTabs tabs={navTabs} />
           </div>
 
-          {/* Theme Toggle - Right */}
+          {/* Login Button - Right */}
           <div className="hidden md:flex">
-            <ThemeToggle />
+            <LiquidButton variant="light" size="default" asChild>
+              <Link href="/login" className="flex items-center gap-2">
+                <LogIn className="w-4 h-4" />
+                Login
+              </Link>
+            </LiquidButton>
           </div>
 
           {/* Mobile menu button */}
@@ -94,7 +100,12 @@ export default function Navbar() {
               );
             })}
             <div className="pt-3 flex justify-center">
-              <ThemeToggle />
+              <LiquidButton variant="light" size="lg" asChild>
+                <Link href="/login" className="flex items-center gap-2 w-full justify-center">
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+              </LiquidButton>
             </div>
           </div>
         </div>
