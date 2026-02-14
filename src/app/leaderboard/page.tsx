@@ -34,7 +34,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Points Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-earth-200 mb-14">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-earth-200 mb-14 rounded-2xl overflow-hidden">
         <div className="bg-earth-50 p-6 text-center">
           <p className="text-3xl font-extrabold text-earth-900">+10</p>
           <p className="text-xs text-earth-500 mt-1 font-medium">Report a found item</p>

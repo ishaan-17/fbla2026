@@ -48,7 +48,7 @@ export default async function ItemDetailPage({
       {/* Back link */}
       <Link
         href="/items"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-earth-500 hover:text-earth-900 transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-earth-500 hover:text-white transition-colors mb-8"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -79,7 +79,7 @@ export default async function ItemDetailPage({
           {/* Details */}
           <div>
             <div className="flex items-start justify-between gap-4 mb-4">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-earth-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 {item.title}
               </h1>
               <span className="text-xs font-bold uppercase tracking-wider text-earth-400 whitespace-nowrap bg-earth-100 px-3 py-1.5">

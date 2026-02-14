@@ -82,7 +82,7 @@ function AdminDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
-        <h1 className="text-3xl font-extrabold text-earth-900 tracking-tight">Admin Dashboard</h1>
+        <h1 className="text-3xl font-extrabold text-white tracking-tight">Admin Dashboard</h1>
         <p className="text-earth-500 mt-2">
           Review items and verify claims. Approve items to make them visible. Approve claims to confirm collection.
         </p>
@@ -113,8 +113,8 @@ function AdminDashboard() {
             onClick={() => setTab(t)}
             className={`pb-3 text-sm font-bold tracking-wide transition-colors ${
               tab === t
-                ? "text-earth-900 border-b-2 border-earth-900"
-                : "text-earth-400 hover:text-earth-600"
+                ? "text-white border-b-2 border-white"
+                : "text-earth-400 hover:text-white"
             }`}
           >
             {t === "items" ? "Items" : "Claims"}
