@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import SessionProvider from "@/components/SessionProvider";
 
 const nunito = Nunito_Sans({
   variable: "--font-nunito",
@@ -30,8 +31,10 @@ export default function RootLayout({
       <body
         className={`${nunito.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <Navbar />
-        <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+        <SessionProvider>
+          <Navbar />
+          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+        </SessionProvider>
         <footer className="border-t border-earth-200 bg-earth-900 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -40,7 +43,8 @@ export default function RootLayout({
                   Reclaimr
                 </span>
                 <p className="text-sm text-earth-400 mt-3 leading-relaxed max-w-xs">
-                  Helping our school community reunite with their belongings. Built with care.
+                  Helping our school community reunite with their belongings.
+                  Built with care.
                 </p>
               </div>
               <div>
@@ -48,9 +52,24 @@ export default function RootLayout({
                   Quick Links
                 </p>
                 <div className="flex flex-col gap-2">
-                  <a href="/items" className="text-sm text-earth-300 hover:text-white transition-colors">Browse Items</a>
-                  <a href="/report" className="text-sm text-earth-300 hover:text-white transition-colors">Report Found</a>
-                  <a href="/leaderboard" className="text-sm text-earth-300 hover:text-white transition-colors">Leaderboard</a>
+                  <a
+                    href="/items"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    Browse Items
+                  </a>
+                  <a
+                    href="/report"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    Report Found
+                  </a>
+                  <a
+                    href="/leaderboard"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    Leaderboard
+                  </a>
                 </div>
               </div>
               <div>
@@ -58,9 +77,24 @@ export default function RootLayout({
                   Info
                 </p>
                 <div className="flex flex-col gap-2">
-                  <a href="/about" className="text-sm text-earth-300 hover:text-white transition-colors">How It Works</a>
-                  <a href="/about" className="text-sm text-earth-300 hover:text-white transition-colors">30-Day Policy</a>
-                  <a href="/admin" className="text-sm text-earth-300 hover:text-white transition-colors">Admin</a>
+                  <a
+                    href="/about"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    How It Works
+                  </a>
+                  <a
+                    href="/about"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    30-Day Policy
+                  </a>
+                  <a
+                    href="/admin"
+                    className="text-sm text-earth-300 hover:text-white transition-colors"
+                  >
+                    Admin
+                  </a>
                 </div>
               </div>
             </div>

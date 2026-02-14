@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { SlideTabs } from "@/components/ui/slide-tabs";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { LogIn } from "lucide-react";
+import UserAvatar from "@/components/UserAvatar";
+
 const navTabs = [
   { label: "Home", href: "/" },
   { label: "Report", href: "/report" },
@@ -18,6 +21,7 @@ const navTabs = [
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   return (
     <nav
@@ -53,14 +57,25 @@ export default function Navbar() {
             <SlideTabs tabs={navTabs} />
           </div>
 
-          {/* Login Button - Right */}
+          {/* User Avatar or Login Button - Right */}
           <div className="hidden md:flex">
-            <LiquidButton variant="light" size="default" asChild>
-              <Link href="/login" className="flex items-center gap-2">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Link>
-            </LiquidButton>
+            {status === "loading" ? (
+              <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+            ) : session?.user ? (
+              <div className="flex items-center justify-center gap-3">
+                <UserAvatar />
+                <span className="text-white/80 font-semibold">
+                  {session.user.name || "User"}
+                </span>
+              </div>
+            ) : (
+              <LiquidButton variant="light" size="default" asChild>
+                <Link href="/login" className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+              </LiquidButton>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -111,15 +126,26 @@ export default function Navbar() {
               );
             })}
             <div className="pt-3 flex justify-center">
-              <LiquidButton variant="light" size="lg" asChild>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 w-full justify-center"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Link>
-              </LiquidButton>
+              {status === "loading" ? (
+                <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+              ) : session?.user ? (
+                <div className="flex items-center justify-center gap-3">
+                  <UserAvatar />
+                  <span className="text-earth-900 font-semibold">
+                    {session.user.name || "User"}
+                  </span>
+                </div>
+              ) : (
+                <LiquidButton variant="light" size="lg" asChild>
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-2 w-full justify-center"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </Link>
+                </LiquidButton>
+              )}
             </div>
           </div>
         </div>

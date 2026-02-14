@@ -2,25 +2,26 @@
 
 import { SignInPage, Testimonial } from "@/components/ui/sign-in";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const sampleTestimonials: Testimonial[] = [
   {
     avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
     name: "Sarah Chen",
     handle: "@sarahdigital",
-    text: "Reclaimr made it so easy to reunite with my lost items. The platform is intuitive and fast!"
+    text: "Reclaimr made it so easy to reunite with my lost items. The platform is intuitive and fast!",
   },
   {
     avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
     name: "Marcus Johnson",
     handle: "@marcustech",
-    text: "Found my lost wallet within hours of posting. This service is a game-changer for our community."
+    text: "Found my lost wallet within hours of posting. This service is a game-changer for our community.",
   },
   {
     avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
     name: "David Martinez",
     handle: "@davidcreates",
-    text: "Clean interface and excellent support. Highly recommend for anyone who's lost something valuable."
+    text: "Clean interface and excellent support. Highly recommend for anyone who's lost something valuable.",
   },
 ];
 
@@ -40,10 +41,11 @@ export default function LoginPage() {
     // router.push('/');
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     console.log("Continue with Google clicked");
     // TODO: Implement Google OAuth here
-    alert("Continue with Google clicked");
+    //alert("Continue with Google clicked");
+    await signIn("google", { redirectTo: "/items" });
   };
 
   const handleResetPassword = () => {
@@ -53,7 +55,7 @@ export default function LoginPage() {
 
   const handleCreateAccount = () => {
     // TODO: Navigate to signup page
-    router.push('/signup');
+    router.push("/signup");
   };
 
   return (
