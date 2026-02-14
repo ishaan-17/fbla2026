@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import db from "@/lib/db";
 import HeroShader from "@/components/HeroShader";
 import { StatsSection } from "@/components/StatsSection";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { HowItWorks } from "@/components/HowItWorks";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 export const dynamic = "force-dynamic";
 
@@ -26,14 +28,29 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section with Canvas Background - extends behind navbar */}
+      {/* Hero Section with Image Background + Aurora Effect - extends behind navbar */}
       <section className="relative h-[650px] overflow-hidden bg-earth-900 -mt-16 pt-16">
-        {/* Canvas mouse trail effect */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <HeroShader />
+          <Image
+            src="/hero-image.png"
+            alt="Lost and Found Hero"
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
+
+        {/* Aurora Effect Layer */}
+        <div className="absolute inset-0 z-[1] mix-blend-overlay">
+          <AuroraBackground className="h-full w-full" showRadialGradient={false}>
+            <></>
+          </AuroraBackground>
+        </div>
+
         {/* Subtle overlay for text readability */}
-        <div className="absolute inset-0 bg-black/20 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent z-[2]" />
+
         {/* Hero content */}
         <div className="relative z-10 flex items-center h-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">

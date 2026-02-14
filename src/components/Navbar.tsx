@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SlideTabs } from "@/components/ui/slide-tabs";
-import { GlassFilter } from "@/components/ui/liquid-glass-button";
-
 const navTabs = [
   { label: "Home", href: "/" },
   { label: "Report", href: "/report" },
@@ -21,14 +19,21 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <>
-      <GlassFilter />
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-transparent backdrop-blur-2xl"
+    <nav className="sticky top-0 z-50 border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-b-2xl"
         style={{
           boxShadow: `
-            inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 -1px 1px 0 rgba(0, 0, 0, 0.05),
-            0 4px 30px rgba(0, 0, 0, 0.1)
+            inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
+            inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03),
+            0 8px 32px rgba(0, 0, 0, 0.12),
+            0 2px 8px rgba(0, 0, 0, 0.06)
+          `,
+          background: `
+            linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.05) 0%,
+              rgba(255, 255, 255, 0.02) 50%,
+              rgba(255, 255, 255, 0.04) 100%
+            )
           `
         }}>
       <div className="px-4 sm:px-6 lg:px-8">
@@ -95,6 +100,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-    </>
   );
 }
