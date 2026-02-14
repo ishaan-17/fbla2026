@@ -17,139 +17,45 @@ type TagsSelectorProps = {
   title?: string
 }
 
-// SVG Filter for liquid glass distortion
-const LiquidGlassFilter: React.FC = () => (
-  <svg className="hidden">
-    <defs>
-      <filter
-        id="tag-liquid-glass"
-        x="0%"
-        y="0%"
-        width="100%"
-        height="100%"
-        colorInterpolationFilters="sRGB"
-      >
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.05 0.05"
-          numOctaves="1"
-          seed="1"
-          result="turbulence"
-        />
-        <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise" />
-        <feDisplacementMap
-          in="SourceGraphic"
-          in2="blurredNoise"
-          scale="70"
-          xChannelSelector="R"
-          yChannelSelector="B"
-          result="displaced"
-        />
-        <feGaussianBlur in="displaced" stdDeviation="4" result="finalBlur" />
-        <feComposite in="finalBlur" in2="finalBlur" operator="over" />
-      </filter>
-    </defs>
-  </svg>
-)
-
-// Liquid Glass Tag Button Component
-const LiquidGlassTagButton: React.FC<{
+// Simple Tag Button Component
+const TagButton: React.FC<{
   tag: Tag
-  layoutId: string
   onClick: () => void
-  children: React.ReactNode
-}> = ({ tag, layoutId, onClick, children }) => (
+}> = ({ tag, onClick }) => (
   <motion.button
     type="button"
-    key={tag.id}
-    layoutId={layoutId}
-    className="relative overflow-hidden rounded-xl shrink-0 group cursor-pointer"
+    className="relative overflow-hidden rounded-lg shrink-0 cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/20 transition-colors"
     onClick={onClick}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.98 }}
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.9 }}
+    transition={{ duration: 0.15 }}
+    whileTap={{ scale: 0.95 }}
   >
-    {/* Liquid glass shadow layer */}
-    <div
-      className="absolute top-0 left-0 z-0 h-full w-full rounded-xl transition-all"
-      style={{
-        boxShadow: `
-          0 0 6px rgba(0,0,0,0.03),
-          0 2px 6px rgba(0,0,0,0.08),
-          inset 3px 3px 0.5px -3px rgba(0,0,0,0.9),
-          inset -3px -3px 0.5px -3px rgba(0,0,0,0.85),
-          inset 1px 1px 1px -0.5px rgba(0,0,0,0.6),
-          inset -1px -1px 1px -0.5px rgba(0,0,0,0.6),
-          inset 0 0 6px 6px rgba(0,0,0,0.12),
-          inset 0 0 2px 2px rgba(0,0,0,0.06),
-          0 0 12px rgba(255,255,255,0.15)
-        `,
-      }}
-    />
-
-    {/* Backdrop blur layer */}
-    <div
-      className="absolute top-0 left-0 isolate -z-10 h-full w-full overflow-hidden rounded-xl"
-      style={{ backdropFilter: 'url("#tag-liquid-glass")' }}
-    />
-
-    {/* Content */}
-    <div className="relative z-10 px-4 py-2 pointer-events-none">
-      {children}
-    </div>
+    <span className="text-white font-medium text-sm">{tag.label}</span>
   </motion.button>
 )
 
-// Selected tag with liquid glass effect
-const LiquidGlassSelectedTag: React.FC<{
+// Selected tag component
+const SelectedTag: React.FC<{
   tag: Tag
-  layoutId: string
   onRemove: () => void
-}> = ({ tag, layoutId, onRemove }) => (
+}> = ({ tag, onRemove }) => (
   <motion.div
-    key={tag.id}
-    className="relative overflow-hidden rounded-xl h-full shrink-0"
-    layoutId={layoutId}
+    className="relative overflow-hidden rounded-lg h-full shrink-0 flex items-center gap-1 pl-3 pr-1 py-1 bg-green-500/20 border border-green-500/30"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.9 }}
+    transition={{ duration: 0.15 }}
   >
-    {/* Liquid glass shadow layer - with green tint for selected */}
-    <div
-      className="absolute top-0 left-0 z-0 h-full w-full rounded-xl transition-all"
-      style={{
-        boxShadow: `
-          0 0 6px rgba(0,0,0,0.03),
-          0 2px 6px rgba(0,0,0,0.08),
-          inset 3px 3px 0.5px -3px rgba(34,197,94,0.9),
-          inset -3px -3px 0.5px -3px rgba(34,197,94,0.85),
-          inset 1px 1px 1px -0.5px rgba(34,197,94,0.6),
-          inset -1px -1px 1px -0.5px rgba(34,197,94,0.6),
-          inset 0 0 6px 6px rgba(34,197,94,0.12),
-          inset 0 0 2px 2px rgba(34,197,94,0.06),
-          0 0 12px rgba(34,197,94,0.15)
-        `,
-      }}
-    />
-
-    {/* Backdrop blur layer */}
-    <div
-      className="absolute top-0 left-0 isolate -z-10 h-full w-full overflow-hidden rounded-xl"
-      style={{ backdropFilter: 'url("#tag-liquid-glass")' }}
-    />
-
-    {/* Content */}
-    <div className="relative z-10 flex items-center gap-1 pl-3 pr-1 py-1 h-full pointer-events-auto">
-      <motion.span
-        layoutId={`tag-${tag.id}-label`}
-        className="text-white font-medium text-sm"
-      >
-        {tag.label}
-      </motion.span>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="p-1 hover:bg-white/20 transition-colors rounded-lg"
-      >
-        <X className="size-4 text-white/70" />
-      </button>
-    </div>
+    <span className="text-white font-medium text-sm">{tag.label}</span>
+    <button
+      type="button"
+      onClick={onRemove}
+      className="p-1 hover:bg-white/20 transition-colors rounded-md"
+    >
+      <X className="size-3.5 text-white/70" />
+    </button>
   </motion.div>
 )
 
@@ -184,62 +90,46 @@ export function TagsSelector({
 
   return (
     <div className="w-full flex flex-col">
-      <LiquidGlassFilter />
-
-      <motion.h2 layout className="text-sm font-bold text-white uppercase tracking-wider mb-3">
+      <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-3">
         {title}
-      </motion.h2>
+      </h2>
 
       {/* Selected tags container */}
-      <motion.div
-        className="w-full flex items-center justify-start gap-2 h-14 mb-3 overflow-x-auto p-1.5 no-scrollbar rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]"
+      <div
+        className="w-full flex items-center justify-start gap-2 min-h-[3rem] mb-3 overflow-x-auto p-2 no-scrollbar rounded-xl bg-white/5 border border-white/10"
         ref={selectedsContainerRef}
-        layout
       >
-        {selectedTags.length === 0 ? (
-          <span className="text-sm text-white/40 px-3">Click tags below to add them</span>
-        ) : (
-          selectedTags.map((tag) => (
-            <LiquidGlassSelectedTag
-              key={tag.id}
-              tag={tag}
-              layoutId={`tag-${tag.id}`}
-              onRemove={() => removeSelectedTag(tag.id)}
-            />
-          ))
-        )}
-      </motion.div>
+        <AnimatePresence mode="popLayout">
+          {selectedTags.length === 0 ? (
+            <span className="text-sm text-white/40 px-2">Click tags below to add them</span>
+          ) : (
+            selectedTags.map((tag) => (
+              <SelectedTag
+                key={tag.id}
+                tag={tag}
+                onRemove={() => removeSelectedTag(tag.id)}
+              />
+            ))
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Available tags */}
-      <AnimatePresence>
-        {availableTags.length > 0 && (
-          <motion.div
-            className="p-3 w-full rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]"
-            layout
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <motion.div className="flex flex-wrap gap-2">
+      {availableTags.length > 0 && (
+        <div className="p-3 w-full rounded-xl bg-white/5 border border-white/10">
+          <div className="flex flex-wrap gap-2">
+            <AnimatePresence mode="popLayout">
               {availableTags.map((tag) => (
-                <LiquidGlassTagButton
+                <TagButton
                   key={tag.id}
                   tag={tag}
-                  layoutId={`tag-${tag.id}`}
                   onClick={() => addSelectedTag(tag)}
-                >
-                  <motion.span
-                    layoutId={`tag-${tag.id}-label`}
-                    className="text-white font-medium text-sm"
-                  >
-                    {tag.label}
-                  </motion.span>
-                </LiquidGlassTagButton>
+                />
               ))}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
