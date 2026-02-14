@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export default function PasswordGate({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -79,12 +80,14 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
             className="w-full px-4 py-3.5 bg-white border border-earth-300 text-sm text-earth-900 placeholder:text-earth-400 focus:border-earth-900 focus:outline-none transition-colors"
             autoFocus
           />
-          <button
+          <LiquidButton
             type="submit"
-            className="w-full py-3.5 bg-earth-900 text-white text-sm font-bold tracking-wide hover:bg-earth-800 transition-colors"
+            variant="dark"
+            size="full"
+            className="font-bold tracking-wide"
           >
             Unlock Dashboard
-          </button>
+          </LiquidButton>
         </form>
       </div>
     );

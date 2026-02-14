@@ -97,22 +97,35 @@ function ValidationTooltip({ message }: { message: string }) {
 
 // Common tags for lost & found items
 const COMMON_TAGS = [
-  { id: "black", label: "Black" },
-  { id: "blue", label: "Blue" },
-  { id: "red", label: "Red" },
-  { id: "white", label: "White" },
-  { id: "green", label: "Green" },
-  { id: "branded", label: "Branded" },
-  { id: "small", label: "Small" },
-  { id: "large", label: "Large" },
-  { id: "metal", label: "Metal" },
-  { id: "plastic", label: "Plastic" },
-  { id: "fabric", label: "Fabric" },
-  { id: "leather", label: "Leather" },
-  { id: "electronics", label: "Electronics" },
-  { id: "valuable", label: "Valuable" },
-  { id: "keys", label: "Keys" },
-  { id: "jewelry", label: "Jewelry" },
+  // Colors
+  { id: "black", label: "Black", category: "color" as const },
+  { id: "white", label: "White", category: "color" as const },
+  { id: "blue", label: "Blue", category: "color" as const },
+  { id: "red", label: "Red", category: "color" as const },
+  { id: "green", label: "Green", category: "color" as const },
+  { id: "yellow", label: "Yellow", category: "color" as const },
+  { id: "orange", label: "Orange", category: "color" as const },
+  { id: "purple", label: "Purple", category: "color" as const },
+  { id: "pink", label: "Pink", category: "color" as const },
+  { id: "brown", label: "Brown", category: "color" as const },
+  { id: "gray", label: "Gray", category: "color" as const },
+  // Sizes
+  { id: "small", label: "Small", category: "size" as const },
+  { id: "medium", label: "Medium", category: "size" as const },
+  { id: "large", label: "Large", category: "size" as const },
+  // Materials
+  { id: "metal", label: "Metal", category: "material" as const },
+  { id: "plastic", label: "Plastic", category: "material" as const },
+  { id: "fabric", label: "Fabric", category: "material" as const },
+  { id: "leather", label: "Leather", category: "material" as const },
+  { id: "glass", label: "Glass", category: "material" as const },
+  { id: "wood", label: "Wood", category: "material" as const },
+  // Types
+  { id: "electronics", label: "Electronics", category: "type" as const },
+  { id: "valuable", label: "Valuable", category: "type" as const },
+  { id: "keys", label: "Keys", category: "type" as const },
+  { id: "jewelry", label: "Jewelry", category: "type" as const },
+  { id: "branded", label: "Branded", category: "type" as const },
 ];
 
 export default function ReportPage() {
@@ -120,7 +133,7 @@ export default function ReportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState("");
   const [aiDetectedTags, setAiDetectedTags] = useState<MappedTag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<{ id: string; label: string }[]>([]);
+  const [selectedTags, setSelectedTags] = useState<{ id: string; label: string; category?: "color" | "size" | "material" | "type" | "other" }[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -360,7 +373,7 @@ export default function ReportPage() {
                   value={form.location_found}
                   onChange={(e) => handleFieldChange("location_found", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
-                  placeholder="e.g., Room 204, Main Hallway, Gym"
+                  placeholder="e.g., Room A101, Rally Court, Gym"
                 />
                 <AnimatePresence>
                   {fieldErrors.location_found && <ValidationTooltip message={fieldErrors.location_found} />}

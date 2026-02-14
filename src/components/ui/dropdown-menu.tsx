@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -27,17 +27,30 @@ const DropdownMenu = ({
   className 
 }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedOption = options.find(opt => opt.value === value);
 
+  // Filter options based on search query
+  const filteredOptions = options.filter(opt => 
+    opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+    if (!isOpen) {
+      setSearchQuery("");
+      // Focus input when opening
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
   };
 
   const handleSelect = (option: DropdownOption) => {
     onChange?.(option.value);
     setIsOpen(false);
+    setSearchQuery("");
   };
 
   // Close dropdown when clicking outside
@@ -45,6 +58,7 @@ const DropdownMenu = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setSearchQuery("");
       }
     };
 
@@ -144,35 +158,51 @@ const DropdownMenu = ({
               />
 
               {/* Content */}
-              <div className="relative z-30 p-1.5 max-h-64 overflow-y-auto">
-                {options.length > 0 ? (
-                  options.map((option, index) => (
-                    <motion.button
-                      type="button"
-                      key={option.value}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        duration: 0.2,
-                        delay: index * 0.03,
-                        ease: "easeOut",
-                      }}
-                      onClick={() => handleSelect(option)}
-                      className={cn(
-                        "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2",
-                        "transition-all duration-150",
-                        option.value === value
-                          ? "bg-white/20 text-white font-medium shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_1px_1px_2px_rgba(255,255,255,0.3)]"
-                          : "text-white hover:bg-white/10"
-                      )}
-                    >
-                      {option.Icon && <span className="shrink-0">{option.Icon}</span>}
-                      {option.label}
-                    </motion.button>
-                  ))
-                ) : (
-                  <div className="px-3 py-2 text-white/40 text-sm">No options</div>
-                )}
+              <div className="relative z-30 p-1.5">
+                {/* Search Input */}
+                <div className="relative mb-1.5">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
+                  />
+                </div>
+                
+                {/* Options List */}
+                <div className="max-h-48 overflow-y-auto">
+                  {filteredOptions.length > 0 ? (
+                    filteredOptions.map((option, index) => (
+                      <motion.button
+                        type="button"
+                        key={option.value}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          duration: 0.2,
+                          delay: index * 0.03,
+                          ease: "easeOut",
+                        }}
+                        onClick={() => handleSelect(option)}
+                        className={cn(
+                          "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-lg",
+                          "transition-all duration-150",
+                          option.value === value
+                            ? "bg-white/20 text-white font-medium shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_1px_1px_2px_rgba(255,255,255,0.3)]"
+                            : "text-white hover:bg-white/10"
+                        )}
+                      >
+                        {option.Icon && <span className="shrink-0">{option.Icon}</span>}
+                        {option.label}
+                      </motion.button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-white/40 text-sm">No results found</div>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>

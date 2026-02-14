@@ -85,6 +85,17 @@ function LiquidButton({
         }}
       />
 
+      {/* Hover overlay */}
+      <div
+        className={cn(
+          "absolute inset-0 z-[0] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+          borderRadius
+        )}
+        style={{
+          background: 'rgba(255, 255, 255, 0.15)',
+        }}
+      />
+
       {/* Inner border glow - liquid glass style */}
       <div
         className={cn(
@@ -131,7 +142,7 @@ function LiquidButton({
   // When asChild, wrap in a span container to hold the glass layers
   if (asChild) {
     return (
-      <span className={cn("relative inline-flex", borderRadius)}>
+      <span className={cn("relative inline-flex group", borderRadius)}>
         {glassLayers}
         <Slot
           data-slot="button"
@@ -147,7 +158,7 @@ function LiquidButton({
   return (
     <button
       data-slot="button"
-      className={buttonClasses}
+      className={cn(buttonClasses, "group")}
       {...props}
     >
       {glassLayers}

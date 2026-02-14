@@ -6,6 +6,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { HowItWorks } from "@/components/HowItWorks";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { ScrollReveal, ScrollRevealStagger, ScrollRevealItem } from "@/components/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
@@ -54,24 +55,32 @@ export default function Home() {
         {/* Hero content */}
         <div className="relative z-10 flex items-center h-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold text-primary-300 uppercase tracking-wider mb-4">
-                {stats.activeListing} items currently listed
-              </p>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05]">
-                Lost something?
-                <br />
-                <span className="text-primary-300">We&apos;ll help.</span>
-              </h1>
-              <p className="mt-6 text-lg text-white/80 leading-relaxed max-w-lg">
-                Our school&apos;s lost and found platform makes it easy to report found items,
-                search for your belongings, and earn rewards for helping.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <LiquidButton asChild variant="light" size="xl"><Link href="/report">Report Found Item</Link></LiquidButton>
-                <LiquidButton asChild variant="dark" size="xl"><Link href="/items">Search Lost Items</Link></LiquidButton>
-              </div>
-            </div>
+            <ScrollRevealStagger className="max-w-2xl" staggerDelay={0.15}>
+              <ScrollRevealItem>
+                <p className="text-sm font-semibold text-primary-300 uppercase tracking-wider mb-4">
+                  {stats.activeListing} items currently listed
+                </p>
+              </ScrollRevealItem>
+              <ScrollRevealItem>
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05]">
+                  Lost something?
+                  <br />
+                  <span className="text-primary-300">We&apos;ll help.</span>
+                </h1>
+              </ScrollRevealItem>
+              <ScrollRevealItem>
+                <p className="mt-6 text-lg text-white/80 leading-relaxed max-w-lg">
+                  Our school&apos;s lost and found platform makes it easy to report found items,
+                  search for your belongings, and earn rewards for helping.
+                </p>
+              </ScrollRevealItem>
+              <ScrollRevealItem>
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                  <LiquidButton asChild variant="light" size="xl"><Link href="/report">Report Found Item</Link></LiquidButton>
+                  <LiquidButton asChild variant="dark" size="xl"><Link href="/items">Search Lost Items</Link></LiquidButton>
+                </div>
+              </ScrollRevealItem>
+            </ScrollRevealStagger>
           </div>
         </div>
       </section>
@@ -85,21 +94,26 @@ export default function Home() {
       {/* CTA Section */}
       <section className="bg-earth-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Found something on campus?
-            </h2>
-            <p className="text-earth-400 mt-4 text-lg">
-              Report it now and help someone get their belongings back. Earn
-              points and climb the leaderboard!
-            </p>
-            <Link
-              href="/report"
-              className="inline-flex items-center mt-8 px-8 py-4 bg-white text-earth-900 text-sm font-bold tracking-wide hover:bg-earth-100 transition-colors"
-            >
-              Report an Item Now
-            </Link>
-          </div>
+          <ScrollRevealStagger className="max-w-2xl mx-auto text-center" staggerDelay={0.12}>
+            <ScrollRevealItem>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Found something on campus?
+              </h2>
+            </ScrollRevealItem>
+            <ScrollRevealItem>
+              <p className="text-earth-400 mt-4 text-lg">
+                Report it now and help someone get their belongings back. Earn
+                points and climb the leaderboard!
+              </p>
+            </ScrollRevealItem>
+            <ScrollRevealItem>
+              <div className="mt-8 flex justify-center">
+                <LiquidButton asChild variant="light" size="xl">
+                  <Link href="/report">Report an Item Now</Link>
+                </LiquidButton>
+              </div>
+            </ScrollRevealItem>
+          </ScrollRevealStagger>
         </div>
       </section>
     </div>

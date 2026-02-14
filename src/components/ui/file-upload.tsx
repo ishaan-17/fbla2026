@@ -8,13 +8,10 @@ import { useDropzone } from "react-dropzone";
 
 const mainVariant = {
   initial: {
-    x: 0,
-    y: 0,
+    scale: 1,
   },
   animate: {
-    x: 20,
-    y: -20,
-    opacity: 0.9,
+    scale: 1.08,
   },
 };
 
@@ -57,7 +54,6 @@ export const FileUpload = ({
     <div className="w-full" {...getRootProps()}>
       <motion.div
         onClick={handleClick}
-        whileHover="animate"
         className="p-10 group/file block rounded-lg cursor-pointer w-full relative overflow-hidden"
       >
         <input
@@ -72,13 +68,13 @@ export const FileUpload = ({
           <GridPattern />
         </div>
         <div className="flex flex-col items-center justify-center">
-          <p className="relative z-20 font-sans font-bold text-earth-700 text-base">
+          <p className="relative z-20 font-bold text-earth-700 text-base">
             Upload file
           </p>
-          <p className="relative z-20 font-sans font-normal text-earth-400 text-base mt-2">
+          <p className="relative z-20 font-normal text-earth-400 text-base mt-2">
             Drag or drop your files here or click to upload
           </p>
-          <div className="relative w-full mt-10 max-w-xl mx-auto">
+          <div className="relative w-full mt-4 max-w-xl mx-auto">
             {files.length > 0 &&
               files.map((file, idx) => (
                 <motion.div
@@ -133,13 +129,14 @@ export const FileUpload = ({
               <motion.div
                 layoutId="file-upload"
                 variants={mainVariant}
+                whileHover="animate"
                 transition={{
                   type: "spring",
                   stiffness: 300,
                   damping: 20,
                 }}
                 className={cn(
-                  "relative group-hover/file:shadow-2xl z-40 bg-white flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md",
+                  "relative hover:shadow-2xl z-40 bg-white flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md",
                   "shadow-[0px_10px_50px_rgba(0,0,0,0.1)] border border-earth-200"
                 )}
               >
@@ -172,26 +169,8 @@ export const FileUpload = ({
 };
 
 export function GridPattern() {
-  const columns = 41;
-  const rows = 11;
   return (
-    <div className="flex bg-earth-100 flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px scale-105">
-      {Array.from({ length: rows }).map((_, row) =>
-        Array.from({ length: columns }).map((_, col) => {
-          const index = row * columns + col;
-          return (
-            <div
-              key={`${col}-${row}`}
-              className={`w-10 h-10 flex flex-shrink-0 rounded-[2px] ${
-                index % 2 === 0
-                  ? "bg-earth-50"
-                  : "bg-earth-50 shadow-[0px_0px_1px_3px_rgba(255,255,255,1)_inset]"
-              }`}
-            />
-          );
-        })
-      )}
-    </div>
+    <div className="absolute inset-0 bg-gradient-to-br from-earth-200 via-earth-100 to-primary-200/40" />
   );
 }
 

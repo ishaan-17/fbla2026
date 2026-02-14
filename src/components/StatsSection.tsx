@@ -38,16 +38,18 @@ const BentoCard: React.FC<BentoCardProps> = ({
   return (
     <motion.div
       className="relative overflow-hidden h-full bg-earth-900 min-h-[200px]"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <AnimatedGradient colors={colors} speed={0.05} blur="heavy" />
       <motion.div
         className="relative z-10 p-6 sm:p-8 md:p-10 text-white"
         variants={container}
         initial="hidden"
-        animate="show"
+        whileInView="show"
+        viewport={{ once: true }}
       >
         <motion.h3 
           className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-wider" 

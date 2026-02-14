@@ -1,6 +1,7 @@
 "use client";
 
 import { CircularGallery, GalleryItem } from "@/components/ui/circular-gallery";
+import { ScrollReveal, ScrollRevealStagger, ScrollRevealItem } from "@/components/ScrollReveal";
 
 const steps: GalleryItem[] = [
   {
@@ -96,27 +97,37 @@ export function HowItWorks() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative text-center mb-8">
-        <span className="inline-block px-4 py-1.5 bg-primary-500/20 text-primary-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
-          Simple Process
-        </span>
-        <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-          How It Works
-        </h2>
-        <p className="text-white/70 mt-4 max-w-lg mx-auto text-lg">
-          Eight simple steps to help lost items find their owners
-        </p>
-        <p className="text-white/40 mt-2 text-sm">
-          Hover to pause • Click dots to navigate
-        </p>
-      </div>
+      <ScrollRevealStagger className="relative text-center mb-8" staggerDelay={0.1}>
+        <ScrollRevealItem>
+          <span className="inline-block px-4 py-1.5 bg-primary-500/20 text-primary-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
+            Simple Process
+          </span>
+        </ScrollRevealItem>
+        <ScrollRevealItem>
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+            How It Works
+          </h2>
+        </ScrollRevealItem>
+        <ScrollRevealItem>
+          <p className="text-white/70 mt-4 max-w-lg mx-auto text-lg">
+            Eight simple steps to help lost items find their owners
+          </p>
+        </ScrollRevealItem>
+        <ScrollRevealItem>
+          <p className="text-white/40 mt-2 text-sm">
+            Hover to pause • Click dots to navigate
+          </p>
+        </ScrollRevealItem>
+      </ScrollRevealStagger>
 
       {/* Circular Gallery Carousel */}
-      <CircularGallery
-        items={steps}
-        radius={400}
-        autoRotateSpeed={0.12}
-      />
+      <ScrollReveal delay={0.3} direction="up">
+        <CircularGallery
+          items={steps}
+          radius={400}
+          autoRotateSpeed={0.12}
+        />
+      </ScrollReveal>
     </section>
   );
 }

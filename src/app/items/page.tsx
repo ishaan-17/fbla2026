@@ -4,6 +4,7 @@ import type { Item } from "@/types";
 import SearchBar from "@/components/SearchBar";
 import Link from "next/link";
 import ItemsFocusGrid from "@/components/ItemsFocusGrid";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export const dynamic = "force-dynamic";
 
@@ -72,12 +73,11 @@ export default async function ItemsPage({ searchParams }: Props) {
               ? "Try adjusting your search or filters."
               : "No items have been listed yet. Be the first to report one!"}
           </p>
-          <Link
-            href="/report"
-            className="inline-flex items-center px-8 py-3.5 bg-earth-900 text-white text-sm font-bold tracking-wide hover:bg-earth-800 transition-colors rounded"
-          >
-            Report a Found Item
-          </Link>
+          <LiquidButton variant="dark" size="lg" asChild>
+            <Link href="/report" className="font-bold tracking-wide">
+              Report a Found Item
+            </Link>
+          </LiquidButton>
         </div>
       )}
     </div>
