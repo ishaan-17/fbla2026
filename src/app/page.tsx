@@ -133,7 +133,7 @@ export default function Home() {
               </h2>
             </ScrollRevealItem>
             <ScrollRevealItem>
-              <p className="text-earth-400 mt-4 text-lg">
+              <p className="text-white/60 mt-4 text-lg">
                 Report it now and help someone get their belongings back. Earn
                 points and climb the leaderboard!
               </p>

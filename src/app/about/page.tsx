@@ -24,7 +24,7 @@ function TableOfContents({ activeSection, isVisible }: { activeSection: string; 
 
   return (
     <div 
-      className={`hidden xl:block fixed top-32 w-48 bg-earth-800/90 backdrop-blur-sm rounded-xl p-4 border border-earth-700 transition-opacity duration-300 ${
+      className={`hidden xl:block fixed top-32 w-48 bg-neutral-800/90 backdrop-blur-sm rounded-xl p-4 border border-white/10 transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       style={{ left: "max(1rem, calc((100vw - 72rem) / 4 + 0.5rem))" }}
@@ -44,14 +44,14 @@ function TableOfContents({ activeSection, isVisible }: { activeSection: string; 
                   <ChevronRight className="w-3 h-3 text-white" />
                 </span>
               ) : (
-                <span className="w-5 flex-shrink-0 text-earth-500 text-xs">
+                <span className="w-5 flex-shrink-0 text-white/40 text-xs">
                   {index + 1}
                 </span>
               )}
               <span className={`text-xs transition-colors ${
                 isActive 
                   ? "font-semibold text-white" 
-                  : "font-normal text-earth-400 hover:text-earth-300"
+                  : "font-normal text-white/50 hover:text-white/70"
               }`}>
                 {section.label}
               </span>
@@ -169,7 +169,7 @@ export default function AboutPage() {
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
           About Reclaimr
         </h1>
-        <p className="text-earth-400 mt-4 max-w-2xl mx-auto text-lg">
+        <p className="text-white/60 mt-4 max-w-2xl mx-auto text-lg">
           Everything you need to know about how our school&apos;s lost and found system works.
         </p>
       </ScrollReveal>
@@ -185,10 +185,10 @@ export default function AboutPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-6">
               Reuniting Communities,<br />One Item at a Time
             </h2>
-            <p className="text-earth-300 leading-relaxed mb-4">
+            <p className="text-white/70 leading-relaxed mb-4">
               Our Lost & Found platform is built to help our school community reunite with their belongings quickly and efficiently. Powered by <strong className="text-white">AI image recognition</strong>, the system automatically categorizes found items to make searching easier.
             </p>
-            <p className="text-earth-300 leading-relaxed">
+            <p className="text-white/70 leading-relaxed">
               We reward students who take the time to report items they find, building a culture of <strong className="text-white">kindness and responsibility</strong>.
             </p>
           </ScrollReveal>
@@ -221,7 +221,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-extrabold text-white tracking-tight mb-4">
               30-Day Donation Policy
             </h2>
-            <p className="text-earth-400 max-w-2xl mx-auto">
+            <p className="text-white/60 max-w-2xl mx-auto">
               To keep our lost and found system manageable and give items the best chance of being useful, we have a 30-day policy on all unclaimed items.
             </p>
           </ScrollReveal>
@@ -254,18 +254,18 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 100}>
-                <div className="bg-earth-800 rounded-xl overflow-hidden border border-earth-700 h-full">
+                <div className="bg-neutral-800 rounded-xl overflow-hidden border border-white/10 h-full">
                   <div className={`h-1.5 ${item.color}`} />
                   <div className="p-6">
                     <div className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center mb-5`}>
                       <item.icon className="w-6 h-6 text-white" />
                     </div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-earth-700 rounded-full mb-4">
-                      <Clock className="w-3 h-3 text-earth-400" />
-                      <span className="text-xs font-semibold text-earth-300">{item.badge}</span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full mb-4">
+                      <Clock className="w-3 h-3 text-white/50" />
+                      <span className="text-xs font-semibold text-white/70">{item.badge}</span>
                     </div>
                     <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-sm text-earth-400 leading-relaxed">{item.desc}</p>
+                    <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -273,7 +273,7 @@ export default function AboutPage() {
           </div>
 
           <ScrollReveal delay={300}>
-            <p className="text-center text-sm text-earth-500 mt-8 max-w-2xl mx-auto">
+            <p className="text-center text-sm text-white/40 mt-8 max-w-2xl mx-auto">
               This policy helps ensure that items are either returned to their owners or go to someone who can use them. If you know you&apos;ve lost something, please check the listings regularly!
             </p>
           </ScrollReveal>
@@ -291,7 +291,7 @@ export default function AboutPage() {
                 Earn Points<br />
                 <span className="text-white">for Helping</span>
               </h2>
-              <p className="text-earth-300 leading-relaxed mb-6">
+              <p className="text-white/70 leading-relaxed mb-6">
                 We believe in recognizing people who help our community. Our points system rewards you for being a good citizen.
               </p>
               <Link
@@ -308,7 +308,7 @@ export default function AboutPage() {
 
           <div className="space-y-5">
             <ScrollReveal delay={0}>
-              <div className="bg-gradient-to-br from-earth-800 to-earth-900 rounded-xl p-6 border border-earth-700">
+              <div className="bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-xl p-6 border border-white/10">
                 <div className="flex items-start gap-5">
                   <div className="w-14 h-14 bg-primary-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Camera className="w-7 h-7 text-white" />
@@ -318,13 +318,13 @@ export default function AboutPage() {
                       <span className="text-xs font-semibold text-primary-400 uppercase tracking-wider">+10 Points</span>
                     </div>
                     <h3 className="text-lg font-bold text-white mb-1">Report a Found Item</h3>
-                    <p className="text-sm text-earth-400">Earned when you submit a report with your information. Help someone find their belongings!</p>
+                    <p className="text-sm text-white/60">Earned when you submit a report with your information. Help someone find their belongings!</p>
                   </div>
                 </div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={100}>
-              <div className="bg-gradient-to-br from-cyan-900/50 to-earth-900 rounded-xl p-6 border border-cyan-800/50">
+              <div className="bg-gradient-to-br from-cyan-900/50 to-neutral-900 rounded-xl p-6 border border-cyan-800/50">
                 <div className="flex items-start gap-5">
                   <div className="w-14 h-14 bg-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Heart className="w-7 h-7 text-white" />
@@ -334,7 +334,7 @@ export default function AboutPage() {
                       <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">+25 Points</span>
                     </div>
                     <h3 className="text-lg font-bold text-white mb-1">Item Successfully Returned</h3>
-                    <p className="text-sm text-earth-400">Bonus points when the item you found is claimed and verified by the owner.</p>
+                    <p className="text-sm text-white/60">Bonus points when the item you found is claimed and verified by the owner.</p>
                   </div>
                 </div>
               </div>
@@ -382,10 +382,10 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <ScrollReveal key={item.step} delay={i * 100}>
-                <div className={`bg-gradient-to-br ${item.color} bg-earth-800/50 rounded-xl p-6 border border-earth-700 h-full`}>
-                  <span className="text-5xl font-extrabold text-earth-700">{item.step}</span>
+                <div className={`bg-gradient-to-br ${item.color} bg-neutral-800/50 rounded-xl p-6 border border-white/10 h-full`}>
+                  <span className="text-5xl font-extrabold text-white/20">{item.step}</span>
                   <h3 className="text-lg font-bold text-white mt-4 mb-2">{item.title}</h3>
-                  <p className="text-sm text-earth-400 leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -423,13 +423,13 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 100}>
-                <div className="bg-earth-800 rounded-xl p-8 border border-earth-700 text-center h-full">
+                <div className="bg-neutral-800 rounded-xl p-8 border border-white/10 text-center h-full">
                   <div className="w-14 h-14 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-primary-500/20">
                     <item.icon className="w-6 h-6 text-primary-400" />
                   </div>
                   <h3 className="text-lg font-bold text-white mb-4">{item.title}</h3>
                   {item.lines.map((line, j) => (
-                    <p key={j} className={`text-sm ${j === 0 ? "text-earth-500" : "text-earth-300"}`}>
+                    <p key={j} className={`text-sm ${j === 0 ? "text-white/40" : "text-white/70"}`}>
                       {line}
                     </p>
                   ))}
