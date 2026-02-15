@@ -23,7 +23,21 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
   const [isLightBackground, setIsLightBackground] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+
+  // Check admin status on mount and when pathname changes (e.g., after login redirect)
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const res = await fetch("/api/claims");
+        setIsAdmin(res.ok);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, [pathname]);
 
   // Reset background detection when page changes
   useEffect(() => {
@@ -135,6 +149,9 @@ export default function Navbar() {
     : "text-white/80";
   const hamburgerColor = isLightBackground ? "bg-black" : "bg-white";
 
+  // Filter tabs based on admin status
+  const filteredTabs = navTabs.filter(tab => tab.label !== "Admin" || isAdmin);
+
   // Helper function to truncate last name to initial
   const formatName = (name: string | null | undefined) => {
     if (!name) return "User";
@@ -194,7 +211,7 @@ export default function Navbar() {
 
             {/* Desktop: Slide Tabs Navigation - Center (absolute for true center) */}
             <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2">
-              <SlideTabs tabs={navTabs} isLightBackground={isLightBackground} />
+              <SlideTabs tabs={filteredTabs} isLightBackground={isLightBackground} />
             </div>
 
             {/* User Avatar or Login Button - Right */}
@@ -210,13 +227,18 @@ export default function Navbar() {
                     {formatName(session.user.name)}
                   </span>
                   <LiquidButton
-                    variant="light"
-                    size="sm"
-                    onClick={() => signOut()}
-                    aria-label="Sign out"
-                  >
-                    <LogOut className="w-4 h-4 text-red-400" />
-                  </LiquidButton>
+                      variant="light"
+                      size="sm"
+                      onClick={async () => {
+                        // Clear admin cookie as well
+                        await fetch("/api/admin/auth", { method: "DELETE" });
+                        setIsAdmin(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                      aria-label="Sign out"
+                    >
+                      <LogOut className="w-4 h-4 text-red-400" />
+                    </LiquidButton>
                 </div>
               ) : (
                 <LiquidButton variant="light" size="default" asChild>
@@ -275,10 +297,10 @@ export default function Navbar() {
             <div className="relative p-4 overflow-hidden rounded-xl">
               {/* Links with borders */}
               <div className="relative z-10 flex flex-col">
-                {navTabs.map((tab, index) => {
+                {filteredTabs.map((tab, index) => {
                   const isActive = pathname === tab.href;
                   const isFirst = index === 0;
-                  const isLast = index === navTabs.length - 1;
+                  const isLast = index === filteredTabs.length - 1;
                   return (
                     <div key={tab.href} className="relative group">
                       {/* Hover overlay */}
@@ -327,7 +349,12 @@ export default function Navbar() {
                     <LiquidButton
                       variant="light"
                       size="default"
-                      onClick={() => signOut({ callbackUrl: '/' })}
+                      onClick={async () => {
+                        // Clear admin cookie as well
+                        await fetch("/api/admin/auth", { method: "DELETE" });
+                        setIsAdmin(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
                       className=""
                     >
                       <div className={`flex items-center`}>

@@ -42,10 +42,30 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    console.log("Continue with Google clicked");
-    // TODO: Implement Google OAuth here
-    //alert("Continue with Google clicked");
+    console.log("Continue with Google clicked (Student)");
+    localStorage.setItem("userRole", "student");
     await signIn("google", { redirectTo: "/items" });
+  };
+
+  const handleInstructorSignIn = async (password: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      if (!res.ok) {
+        return false;
+      }
+
+      // Successfully authenticated as admin/instructor
+      localStorage.setItem("userRole", "instructor");
+      router.push("/admin");
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const handleResetPassword = () => {
@@ -69,7 +89,9 @@ export default function LoginPage() {
       heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
       testimonials={sampleTestimonials}
       onGoogleSignIn={handleGoogleSignIn}
+      onInstructorSignIn={handleInstructorSignIn}
       googleOnly={true}
+      showRoleSelector={true}
     />
   );
 }
