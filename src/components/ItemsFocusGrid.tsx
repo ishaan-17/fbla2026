@@ -40,7 +40,7 @@ const ItemCard = React.memo(
         >
           {item.image_path ? (
             <img
-              src={`/${item.image_path}`}
+              src={item.image_path.startsWith('http') ? item.image_path : `/${item.image_path}`}
               alt={item.title}
               className="object-cover absolute inset-0 w-full h-full"
             />

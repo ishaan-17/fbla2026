@@ -174,7 +174,7 @@ function AdminDashboard() {
                           <div className="flex items-center gap-3">
                             {item.image_path ? (
                               <img
-                                src={`/${item.image_path}`}
+                                src={item.image_path.startsWith('http') ? item.image_path : `/${item.image_path}`}
                                 alt=""
                                 className="w-10 h-10 object-cover"
                               />

@@ -63,7 +63,7 @@ export default async function ItemDetailPage({
           <div className="bg-earth-100 overflow-hidden">
             {item.image_path ? (
               <img
-                src={`/${item.image_path}`}
+                src={item.image_path.startsWith('http') ? item.image_path : `/${item.image_path}`}
                 alt={item.title}
                 className="w-full h-auto max-h-[500px] object-cover"
               />

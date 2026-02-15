@@ -27,7 +27,7 @@ export default function ItemCard({ item }: { item: Item }) {
         <div className="relative aspect-[4/3] bg-earth-100 overflow-hidden">
           {item.image_path ? (
             <img
-              src={`/${item.image_path}`}
+              src={item.image_path.startsWith('http') ? item.image_path : `/${item.image_path}`}
               alt={item.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
