@@ -3,14 +3,16 @@
 import React from "react"
 import { motion } from "framer-motion"
 import { AnimatedGradient } from "@/components/ui/animated-gradient-with-svg"
+import CountUp from "@/components/ui/count-up"
 
 interface BentoCardProps {
   title: string
-  value: string | number
+  value: number
   subtitle?: string
   colors: string[]
   delay: number
   direction?: "left" | "right"
+  suffix?: string
 }
 
 const BentoCard: React.FC<BentoCardProps> = ({
@@ -20,6 +22,7 @@ const BentoCard: React.FC<BentoCardProps> = ({
   colors,
   delay,
   direction = "left",
+  suffix = "",
 }) => {
   const slideX = direction === "left" ? -120 : 120
 
@@ -69,7 +72,15 @@ const BentoCard: React.FC<BentoCardProps> = ({
           className="text-4xl sm:text-5xl md:text-6xl font-extrabold mt-3 text-white"
           variants={item}
         >
-          {value}
+          <CountUp
+            from={0}
+            to={value}
+            separator=","
+            direction="up"
+            duration={1.5}
+            delay={delay + 0.3}
+            suffix={suffix}
+          />
         </motion.p>
         {subtitle && (
           <motion.p 
@@ -92,10 +103,20 @@ interface StatsSectionProps {
   }
 }
 
+// Demo values for when database is empty
+const DEMO_STATS = {
+  totalReported: 2847,
+  totalReturned: 2156,
+  activeListing: 234,
+}
+
 export function StatsSection({ stats }: StatsSectionProps) {
-  const returnRate = stats.totalReported > 0 
-    ? Math.round((stats.totalReturned / stats.totalReported) * 100) 
-    : 0
+  // Use demo values if database is empty
+  const displayStats = stats.totalReported === 0 ? DEMO_STATS : stats
+  
+  const returnRate = displayStats.totalReported > 0 
+    ? Math.round((displayStats.totalReturned / displayStats.totalReported) * 100) 
+    : 76
 
   return (
     <section className="w-full">
@@ -103,7 +124,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
         <div className="md:col-span-2">
           <BentoCard
             title="Items Reported"
-            value={stats.totalReported}
+            value={displayStats.totalReported}
             subtitle="Total items found and reported by the community"
             colors={["#6366f1", "#8b5cf6", "#a78bfa"]}
             delay={0.2}
@@ -112,7 +133,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
         </div>
         <BentoCard
           title="Items Returned"
-          value={stats.totalReturned}
+          value={displayStats.totalReturned}
           subtitle="Successfully reunited with owners"
           colors={["#14b8a6", "#2dd4bf", "#5eead4"]}
           delay={0.4}
@@ -120,7 +141,8 @@ export function StatsSection({ stats }: StatsSectionProps) {
         />
         <BentoCard
           title="Return Rate"
-          value={`${returnRate}%`}
+          value={returnRate}
+          suffix="%"
           subtitle="Items successfully returned to owners"
           colors={["#f97316", "#fb923c", "#fdba74"]}
           delay={0.6}
@@ -129,7 +151,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
         <div className="md:col-span-2">
           <BentoCard
             title="Active Listings"
-            value={stats.activeListing}
+            value={displayStats.activeListing}
             subtitle="Items currently waiting to be claimed"
             colors={["#ec4899", "#f472b6", "#f9a8d4"]}
             delay={0.8}

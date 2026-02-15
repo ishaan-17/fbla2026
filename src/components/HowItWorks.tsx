@@ -2,6 +2,7 @@
 
 import { CircularGallery, GalleryItem } from "@/components/ui/circular-gallery";
 import { ScrollReveal, ScrollRevealStagger, ScrollRevealItem } from "@/components/ScrollReveal";
+import ScrollFloat from "@/components/ui/scroll-float";
 
 const steps: GalleryItem[] = [
   {
@@ -105,7 +106,9 @@ export function HowItWorks() {
         </ScrollRevealItem>
         <ScrollRevealItem>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            How It Works
+            <ScrollFloat stagger={0.03}>
+              How It Works
+            </ScrollFloat>
           </h2>
         </ScrollRevealItem>
         <ScrollRevealItem>
