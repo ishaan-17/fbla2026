@@ -11,6 +11,8 @@ import {
   ScrollRevealStagger,
   ScrollRevealItem,
 } from "@/components/ScrollReveal";
+import TextType from "@/components/TextType";
+import GradientText from "@/components/GradientText";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +59,7 @@ export default function Home() {
         </div>
 
         {/* Subtle overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent z-[2]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-transparent z-[2]" />
 
         {/* Hero content */}
         <div className="relative z-10 flex items-center h-full">
@@ -69,10 +71,25 @@ export default function Home() {
                 </p>
               </ScrollRevealItem>
               <ScrollRevealItem>
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05]">
-                  Lost something?
-                  <br />
-                  <span className="text-primary-300">We&apos;ll help.</span>
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
+                  <span className="block min-h-[1.2em] text-white">
+                    <TextType
+                      text={["Lost something?", "Missing your keys?", "Can't find it?"]}
+                      typingSpeed={70}
+                      deletingSpeed={40}
+                      pauseDuration={2000}
+                      showCursor
+                      cursorCharacter="_"
+                      cursorBlinkDuration={0.5}
+                      cursorClassName="text-primary-300 font-light"
+                    />
+                  </span>
+                  <GradientText
+                    colors={["#9fb3c8", "#d9e2ec", "#829ab1", "#bcccdc"]}
+                    animationSpeed={5}
+                  >
+                    We&apos;ll help.
+                  </GradientText>
                 </h1>
               </ScrollRevealItem>
               <ScrollRevealItem>

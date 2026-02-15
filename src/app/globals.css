@@ -244,3 +244,29 @@ main {
   border-color: rgb(139 92 246);
   background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
 }
+
+/* Cursor blink animation for TextType */
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 1s ease-in-out infinite;
+}
+
+/* Gradient text inheritance for nested elements */
+.gradient-text-wrapper {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.gradient-text-wrapper * {
+  -webkit-text-fill-color: inherit !important;
+  color: inherit !important;
+}
+
+.gradient-text-wrapper .animate-cursor-blink {
+  -webkit-text-fill-color: initial !important;
+}
