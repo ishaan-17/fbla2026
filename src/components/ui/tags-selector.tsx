@@ -160,7 +160,7 @@ export function TagsSelector({
 
       {/* Selected tags container */}
       <div
-        className="w-full flex items-center justify-start gap-2 min-h-[3rem] mb-3 overflow-x-auto p-2 no-scrollbar rounded-xl bg-white/5 border border-white/10"
+        className="w-full flex items-center justify-start gap-2 min-h-[3rem] mb-3 overflow-x-auto p-2 no-scrollbar rounded-xl bg-white/10 border border-white/20"
         ref={selectedsContainerRef}
       >
         <AnimatePresence mode="popLayout">
@@ -179,7 +179,7 @@ export function TagsSelector({
       </div>
 
       {/* Search and available tags */}
-      <div className="p-3 w-full rounded-xl bg-white/5 border border-white/10">
+      <div className="p-3 w-full rounded-xl bg-white/10 border border-white/20">
         {/* Search Input */}
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
