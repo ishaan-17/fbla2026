@@ -161,14 +161,14 @@ const DropdownMenu = ({
               <div className="relative z-30 p-1.5">
                 {/* Search Input */}
                 <div className="relative mb-1.5">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/40" />
                   <input
                     ref={inputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full pl-9 pr-3 py-2 text-sm text-black placeholder:text-black/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
                   />
                 </div>
                 
@@ -191,8 +191,8 @@ const DropdownMenu = ({
                           "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-lg",
                           "transition-all duration-150",
                           option.value === value
-                            ? "bg-white/20 text-white font-medium shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_1px_1px_2px_rgba(255,255,255,0.3)]"
-                            : "text-white hover:bg-white/10"
+                            ? "bg-white/20 text-black font-medium shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_1px_1px_2px_rgba(255,255,255,0.3)]"
+                            : "text-black hover:bg-white/10"
                         )}
                       >
                         {option.Icon && <span className="shrink-0">{option.Icon}</span>}
@@ -200,7 +200,7 @@ const DropdownMenu = ({
                       </motion.button>
                     ))
                   ) : (
-                    <div className="px-3 py-2 text-white/40 text-sm">No results found</div>
+                    <div className="px-3 py-2 text-black/40 text-sm">No results found</div>
                   )}
                 </div>
               </div>
