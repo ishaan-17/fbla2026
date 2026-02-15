@@ -128,7 +128,7 @@ export default async function ItemDetailPage({
                   {aiTags.map((tag: string, i: number) => (
                     <span
                       key={i}
-                      className="px-3 py-1 bg-primary-50 text-primary-700 text-xs font-semibold"
+                      className="px-3 py-1 bg-primary-50 text-primary-700 text-xs font-semibold capitalize"
                     >
                       {tag}
                     </span>

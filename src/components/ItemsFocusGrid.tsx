@@ -52,17 +52,27 @@ const ItemCard = React.memo(
             </div>
           )}
           
-          {/* Urgent badge */}
+          {/* Urgent badge - visible on hover */}
           {isUrgent && (
-            <div className="absolute top-3 left-3 z-10">
+            <div
+              className={cn(
+                "absolute top-3 left-3 z-10 transition-opacity duration-300",
+                hovered === index ? "opacity-100" : "opacity-0"
+              )}
+            >
               <span className="text-xs font-bold px-3 py-1 bg-primary-500 text-white rounded">
                 {daysLeft === 0 ? "Expires today" : `${daysLeft}d left`}
               </span>
             </div>
           )}
 
-          {/* Category badge */}
-          <div className="absolute top-3 right-3 z-10">
+          {/* Category badge - visible on hover */}
+          <div
+            className={cn(
+              "absolute top-3 right-3 z-10 transition-opacity duration-300",
+              hovered === index ? "opacity-100" : "opacity-0"
+            )}
+          >
             <span className="text-xs font-semibold px-2 py-1 bg-white/90 text-earth-700 rounded backdrop-blur-sm">
               {getCategoryLabel(item.category)}
             </span>
@@ -81,32 +91,17 @@ const ItemCard = React.memo(
             <p className="text-sm text-white/80 line-clamp-3 mb-3">
               {item.description}
             </p>
-            <div className="flex items-center gap-3 text-xs text-white/60">
+            <div className="flex items-center gap-3 text-xs text-white/60 mb-3">
               <span>{item.location_found}</span>
               <span>•</span>
               <span>{new Date(item.date_found).toLocaleDateString()}</span>
             </div>
-          </div>
-
-          {/* Title visible when not hovered */}
-          <div
-            className={cn(
-              "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transition-opacity duration-300",
-              hovered === index ? "opacity-0" : "opacity-100"
-            )}
-          >
-            <h3 className="text-lg font-bold text-white truncate">
-              {item.title}
-            </h3>
-            <p className="text-xs text-white/70 mt-1">
-              {item.location_found}
-            </p>
             {item.ai_tags && JSON.parse(item.ai_tags).length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-1.5">
                 {JSON.parse(item.ai_tags).slice(0, 3).map((tag: string, i: number) => (
                   <span
                     key={i}
-                    className="text-[10px] font-medium px-2 py-0.5 bg-white/20 text-white/90 rounded backdrop-blur-sm"
+                    className="text-[10px] font-medium px-2 py-0.5 bg-white/20 text-white/90 rounded backdrop-blur-sm capitalize"
                   >
                     {tag}
                   </span>
