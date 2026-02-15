@@ -5,17 +5,26 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 
+// Sort options
+const SORT_OPTIONS = [
+  { value: "newest", label: "Recently Added" },
+  { value: "expiring", label: "Expiring Soon" },
+  { value: "a-z", label: "Title A-Z" },
+];
+
 export default function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "");
+  const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
   const updateSearch = useCallback(
-    (newSearch: string, newCategory: string) => {
+    (newSearch: string, newCategory: string, newSort: string) => {
       const params = new URLSearchParams();
       if (newSearch) params.set("search", newSearch);
       if (newCategory) params.set("category", newCategory);
+      if (newSort && newSort !== "newest") params.set("sort", newSort);
       router.push(`/items?${params.toString()}`);
     },
     [router]
@@ -23,18 +32,24 @@ export default function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSearch(search, category);
+    updateSearch(search, category, sort);
   };
 
   const handleClear = () => {
     setSearch("");
     setCategory("");
+    setSort("newest");
     router.push("/items");
   };
 
   const handleCategoryChange = (value: string) => {
     setCategory(value);
-    updateSearch(search, value);
+    updateSearch(search, value, sort);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSort(value);
+    updateSearch(search, category, value);
   };
 
   // Category options for dropdown
@@ -69,12 +84,22 @@ export default function SearchBar() {
         </div>
 
         {/* Category filter - liquid glass dropdown */}
-        <div className="min-w-[180px]">
+        <div className="min-w-[160px]">
           <DropdownMenu
             value={category}
             onChange={handleCategoryChange}
             placeholder="All Categories"
             options={categoryOptions}
+          />
+        </div>
+
+        {/* Sort dropdown */}
+        <div className="min-w-[150px]">
+          <DropdownMenu
+            value={sort}
+            onChange={handleSortChange}
+            placeholder="Sort by"
+            options={SORT_OPTIONS}
           />
         </div>
 

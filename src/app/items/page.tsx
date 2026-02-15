@@ -9,13 +9,27 @@ import { LiquidButton } from "@/components/ui/liquid-glass-button";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  searchParams: Promise<{ search?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ search?: string; category?: string; page?: string; sort?: string }>;
+}
+
+// Get ORDER BY clause based on sort option
+function getOrderByClause(sort: string): string {
+  switch (sort) {
+    case "expiring":
+      return "ORDER BY date_found ASC";
+    case "a-z":
+      return "ORDER BY title ASC";
+    case "newest":
+    default:
+      return "ORDER BY created_at DESC";
+  }
 }
 
 export default async function ItemsPage({ searchParams }: Props) {
   const params = await searchParams;
   const search = params.search || "";
   const category = params.category || "";
+  const sort = params.sort || "newest";
 
   let whereClause = "WHERE status = 'approved'";
   const queryParams: (string | number)[] = [];
@@ -36,10 +50,12 @@ export default async function ItemsPage({ searchParams }: Props) {
     .prepare(`SELECT COUNT(*) as total FROM items ${whereClause}`)
     .get(...queryParams) as { total: number };
 
+  const orderByClause = getOrderByClause(sort);
+
   // Get all items for parallax scroll (no pagination needed with scroll)
   let items = db
     .prepare(
-      `SELECT * FROM items ${whereClause} ORDER BY created_at DESC LIMIT 50`,
+      `SELECT * FROM items ${whereClause} ${orderByClause} LIMIT 50`,
     )
     .all(...queryParams) as Item[];
 
@@ -123,6 +139,11 @@ export default async function ItemsPage({ searchParams }: Props) {
         created_at: new Date().toISOString(),
       },
     ] as Item[];
+
+    // Sort mock items based on sort parameter
+    if (sort === "a-z") {
+      items.sort((a, b) => a.title.localeCompare(b.title));
+    }
   }
 
   return (
@@ -133,8 +154,8 @@ export default async function ItemsPage({ searchParams }: Props) {
           Found Items
         </h1>
         <p className="text-[#E6E6E6] mt-2">
-          Browse {countResult.total} item{countResult.total !== 1 ? "s" : ""}{" "}
-          currently listed. Spot yours? Click to claim it.
+          Displaying {items.length} item{items.length !== 1 ? "s" : ""}.
+          Spot yours? Click to claim it.
         </p>
       </div>
 
