@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { SlideTabs } from "@/components/ui/slide-tabs";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
-import { LogIn, LogOut, Shield } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 const navTabs = [
@@ -241,23 +241,17 @@ export default function Navbar() {
                     </LiquidButton>
                 </div>
               ) : isAdmin ? (
-                <div className="flex items-center justify-center gap-3">
-                  <Shield className="w-5 h-5 text-white/80 ml-[17px]" fillOpacity={0} />
-                  <span className="font-semibold text-white/[0.99] text-center">
-                    Admin
-                  </span>
-                  <LiquidButton
-                    variant="light"
-                    size="sm"
-                    onClick={async () => {
-                      await fetch("/api/admin/auth", { method: "DELETE" });
-                      setIsAdmin(false);
-                    }}
-                    aria-label="Sign out"
-                  >
-                    <LogOut className="w-4 h-4 text-red-400" />
-                  </LiquidButton>
-                </div>
+                <LiquidButton
+                  variant="light"
+                  size="sm"
+                  onClick={async () => {
+                    await fetch("/api/admin/auth", { method: "DELETE" });
+                    setIsAdmin(false);
+                  }}
+                  aria-label="Sign out"
+                >
+                  <LogOut className="w-4 h-4 text-red-400" />
+                </LiquidButton>
               ) : (
                 <LiquidButton variant="light" size="default" asChild>
                   <Link href="/login" className="flex items-center gap-2">
@@ -382,27 +376,19 @@ export default function Navbar() {
                     </LiquidButton>
                   </div>
                 ) : isAdmin ? (
-                  <div className="flex flex-row items-center justify-center gap-3">
-                    <div className="flex items-center gap-3">
-<Shield className="w-5 h-5 text-white/80 fill-white mr-[1px]" />
-                      <span className="text-white/80 font-semibold">
-                        Admin
-                      </span>
+                  <LiquidButton
+                    variant="light"
+                    size="default"
+                    onClick={async () => {
+                      await fetch("/api/admin/auth", { method: "DELETE" });
+                      setIsAdmin(false);
+                    }}
+                  >
+                    <div className="flex items-center">
+                      <LogOut className="w-4 h-4 mr-2 text-red-400" />
+                      Sign Out
                     </div>
-                    <LiquidButton
-                      variant="light"
-                      size="default"
-                      onClick={async () => {
-                        await fetch("/api/admin/auth", { method: "DELETE" });
-                        setIsAdmin(false);
-                      }}
-                    >
-                      <div className="flex items-center">
-                        <LogOut className="w-4 h-4 mr-2 text-red-400" />
-                        Sign Out
-                      </div>
-                    </LiquidButton>
-                  </div>
+                  </LiquidButton>
                 ) : (
                   <LiquidButton variant="light" size="lg" asChild>
                     <Link

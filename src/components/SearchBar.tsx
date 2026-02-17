@@ -63,9 +63,9 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         {/* Search input - liquid glass style */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 h-[46px]">
           <svg
             className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 z-10 pointer-events-none"
             fill="none"
@@ -84,7 +84,7 @@ export default function SearchBar() {
         </div>
 
         {/* Category filter - liquid glass dropdown */}
-        <div className="min-w-[160px]">
+        <div className="min-w-[160px] h-[46px]">
           <DropdownMenu
             value={category}
             onChange={handleCategoryChange}
@@ -94,7 +94,7 @@ export default function SearchBar() {
         </div>
 
         {/* Sort dropdown */}
-        <div className="min-w-[150px]">
+        <div className="min-w-[160px] h-[46px]">
           <DropdownMenu
             value={sort}
             onChange={handleSortChange}
@@ -104,7 +104,7 @@ export default function SearchBar() {
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 h-[46px]">
           <button
             type="submit"
             className="h-[46px] px-6 rounded-xl text-sm font-semibold text-white transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] hover:bg-white/15 hover:border-white/30"
