@@ -44,12 +44,6 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     }
   };
 
-  const handleLogout = async () => {
-    await fetch("/api/admin/auth", { method: "DELETE" });
-    setAuthenticated(false);
-    setPassword("");
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -93,17 +87,5 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     );
   }
 
-  return (
-    <div>
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleLogout}
-          className="text-sm font-semibold text-earth-400 hover:text-earth-900 transition-colors"
-        >
-          Log Out
-        </button>
-      </div>
-      {children}
-    </div>
-  );
+  return <>{children}</>;
 }
