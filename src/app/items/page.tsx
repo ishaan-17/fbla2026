@@ -71,7 +71,7 @@ export default async function ItemsPage({ searchParams }: Props) {
         location_found: "Gym",
         date_found: today,
         image_path:
-          "https://media.discordapp.net/attachments/954109830338052156/1472704707054141667/image.png?ex=69938aa3&is=69923923&hm=86ade180304532a35d1a6035432df144d57a38957669614a1f2b4caf3134e501&=&format=webp&quality=lossless&width=2213&height=1236",
+          "https://i.imgur.com/lFBmvfK.png",
         reporter_name: "John Doe",
         reporter_email: "john@school.edu",
         status: "approved",
@@ -86,7 +86,7 @@ export default async function ItemsPage({ searchParams }: Props) {
         location_found: "Library",
         date_found: today,
         image_path:
-          "https://media.discordapp.net/attachments/954109830338052156/1472705914292404285/image.png?ex=69938bc3&is=69923a43&hm=02e62ed316ee926c3e19756bfda1b2f0f246d0c2e9eb4cab05a2b7889e7ef972&=&format=webp&quality=lossless&width=2407&height=1340",
+          "https://i.imgur.com/FvXBGb2.png",
         reporter_name: "Jane Smith",
         reporter_email: "jane@school.edu",
         status: "approved",
@@ -101,7 +101,7 @@ export default async function ItemsPage({ searchParams }: Props) {
         location_found: "Math Classroom 205",
         date_found: today,
         image_path:
-          "https://media.discordapp.net/attachments/954109830338052156/1472705970483237098/image.png?ex=69938bd0&is=69923a50&hm=35ad1bf904181ea5d9e066ccba5680b2214692eb4bb1f0585a687abe4cd745a7&=&format=webp&quality=lossless&width=2396&height=1340",
+          "https://i.imgur.com/swqqEV3.png",
         reporter_name: "Mike Johnson",
         reporter_email: "mike@school.edu",
         status: "approved",
@@ -116,7 +116,7 @@ export default async function ItemsPage({ searchParams }: Props) {
         location_found: "Cafeteria",
         date_found: today,
         image_path:
-          "https://media.discordapp.net/attachments/954109830338052156/1472706007749755046/image.png?ex=69938bd9&is=69923a59&hm=03964831dc124c312c91c75fa7b7d9abc5cadc430a8e145087051d554519b912&=&format=webp&quality=lossless&width=2400&height=1340",
+          "https://i.imgur.com/pv9TfEb.png",
         reporter_name: "Sarah Wilson",
         reporter_email: "sarah@school.edu",
         status: "approved",
@@ -131,7 +131,7 @@ export default async function ItemsPage({ searchParams }: Props) {
         location_found: "Student Center",
         date_found: today,
         image_path:
-          "https://media.discordapp.net/attachments/954109830338052156/1472706874510938143/image.png?ex=69938ca8&is=69923b28&hm=499a12854db08ef6e365f5d8a0302f79b3768740d03f95e9f879293d9ee4f3b4&=&format=webp&quality=lossless&width=1993&height=1109",
+          "https://i.imgur.com/mBRZP8i.png",
         reporter_name: "David Lee",
         reporter_email: "david@school.edu",
         status: "approved",
