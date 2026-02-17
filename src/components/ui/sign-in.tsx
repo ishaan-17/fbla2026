@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, GraduationCap, BookOpen } from 'lucide-react';
+import { LiquidButton } from '@/components/ui/liquid-glass-button';
 
 // --- HELPER COMPONENTS (ICONS) ---
 const GoogleIcon = () => (
@@ -95,13 +96,20 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col md:flex-row w-[100dvw] bg-earth-900">
+    <div className="h-[100dvh] flex flex-col md:flex-row w-[100dvw] bg-[#121212] relative overflow-hidden">
+      {/* Background gradient effects - matching HowItWorks section */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-400/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Left column: sign-in form */}
-      <section className="flex-1 flex items-center justify-center p-8">
+      <section className="relative flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight text-white">{title}</h1>
-            <p className="animate-element animate-delay-200 text-earth-300">{description}</p>
+            <p className="animate-element animate-delay-200 text-white">{description}</p>
 
             {!googleOnly ? (
               <>
@@ -133,20 +141,24 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-primary-400 transition-colors">Reset password</a>
                   </div>
 
-                  <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-primary-500 py-4 font-medium text-white hover:bg-primary-600 transition-colors">
-                    Sign In
-                  </button>
+                  <div className="animate-element animate-delay-600">
+                    <LiquidButton type="submit" variant="light" size="full">
+                      Sign In
+                    </LiquidButton>
+                  </div>
                 </form>
 
                 <div className="animate-element animate-delay-700 relative flex items-center justify-center">
                   <span className="w-full border-t border-earth-700"></span>
-                  <span className="px-4 text-sm text-earth-400 bg-earth-900 absolute">Or continue with</span>
+                  <span className="px-4 text-sm text-earth-400 bg-[#121212] absolute">Or continue with</span>
                 </div>
 
-                <button onClick={() => onGoogleSignIn?.()} className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-earth-700 rounded-2xl py-4 hover:bg-earth-800 transition-colors text-white">
+                <div className="animate-element animate-delay-800">
+                  <LiquidButton onClick={() => onGoogleSignIn?.()} variant="dark" size="full">
                     <GoogleIcon />
                     Continue with Google
-                </button>
+                  </LiquidButton>
+                </div>
 
                 <p className="animate-element animate-delay-900 text-center text-sm text-earth-400">
                   New to our platform? <a href="#" onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} className="text-primary-400 hover:underline transition-colors">Create Account</a>
@@ -156,66 +168,64 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <>
                 {showRoleSelector && (
                   <div className="animate-element animate-delay-300 space-y-3">
-                    <label className="text-sm font-medium text-earth-400">I am a</label>
+                    <label className="text-sm font-medium text-white relative -top-[4.5px]">I am a</label>
                     <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => { setSelectedRole('student'); setLocalError(''); }}
-                        className={`flex items-center justify-center gap-2 py-4 px-4 rounded-2xl border transition-all duration-200 ${
-                          selectedRole === 'student'
-                            ? 'border-primary-400 bg-primary-500/15 text-white'
-                            : 'border-earth-700 bg-earth-800/30 text-earth-300 hover:border-earth-600 hover:bg-earth-800/50'
-                        }`}
-                      >
-                        <GraduationCap className="w-5 h-5" />
-                        <span className="font-medium">Student</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setSelectedRole('instructor'); setLocalError(''); }}
-                        className={`flex items-center justify-center gap-2 py-4 px-4 rounded-2xl border transition-all duration-200 ${
-                          selectedRole === 'instructor'
-                            ? 'border-primary-400 bg-primary-500/15 text-white'
-                            : 'border-earth-700 bg-earth-800/30 text-earth-300 hover:border-earth-600 hover:bg-earth-800/50'
-                        }`}
-                      >
-                        <BookOpen className="w-5 h-5" />
-                        <span className="font-medium">Instructor</span>
-                      </button>
+                      <div className={`rounded-2xl transition-all duration-200 ${selectedRole === 'student' ? 'ring-1 ring-primary-400' : ''}`}>
+                        <LiquidButton
+                          type="button"
+                          onClick={() => { setSelectedRole('student'); setLocalError(''); }}
+                          variant={selectedRole === 'student' ? 'light' : 'dark'}
+                          size="full"
+                        >
+                          <GraduationCap className="w-5 h-5" />
+                          Student
+                        </LiquidButton>
+                      </div>
+                      <div className={`rounded-2xl transition-all duration-200 ${selectedRole === 'instructor' ? 'ring-1 ring-primary-400' : ''}`}>
+                        <LiquidButton
+                          type="button"
+                          onClick={() => { setSelectedRole('instructor'); setLocalError(''); }}
+                          variant={selectedRole === 'instructor' ? 'light' : 'dark'}
+                          size="full"
+                        >
+                          <BookOpen className="w-5 h-5" />
+                          Instructor
+                        </LiquidButton>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {selectedRole === 'student' ? (
                   <>
-                    <button onClick={() => onGoogleSignIn?.()} className={`animate-element ${showRoleSelector ? 'animate-delay-400' : 'animate-delay-300'} w-full flex items-center justify-center gap-3 border border-earth-700 rounded-2xl py-5 hover:bg-earth-800 transition-colors text-white text-lg font-medium`}>
+                    <div className={`animate-element ${showRoleSelector ? 'animate-delay-400' : 'animate-delay-300'}`}>
+                      <LiquidButton onClick={() => onGoogleSignIn?.()} variant="dark" size="full">
                         <GoogleIcon />
                         Continue with Google
-                    </button>
+                      </LiquidButton>
+                    </div>
 
-                    <p className={`animate-element ${showRoleSelector ? 'animate-delay-500' : 'animate-delay-400'} text-center text-sm text-earth-400`}>
+                    <p className={`animate-element ${showRoleSelector ? 'animate-delay-500' : 'animate-delay-400'} text-center text-sm text-white`}>
                       Sign in with your Google account to get started
                     </p>
                   </>
                 ) : (
                   <>
                     <div className={`animate-element ${showRoleSelector ? 'animate-delay-400' : 'animate-delay-300'} space-y-3`}>
-                      <label className="text-sm font-medium text-earth-400">Admin Password</label>
-                      <GlassInputWrapper>
-                        <div className="relative">
-                          <input
-                            type={showPassword ? 'text' : 'password'}
-                            value={adminPassword}
-                            onChange={(e) => setAdminPassword(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleInstructorSubmit()}
-                            placeholder="Enter admin password"
-                            className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none text-white placeholder:text-earth-500"
-                          />
-                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
-                            {showPassword ? <EyeOff className="w-5 h-5 text-earth-400 hover:text-white transition-colors" /> : <Eye className="w-5 h-5 text-earth-400 hover:text-white transition-colors" />}
-                          </button>
-                        </div>
-                      </GlassInputWrapper>
+                      <label className="text-sm font-medium text-white relative -top-1">Admin Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={adminPassword}
+                          onChange={(e) => setAdminPassword(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleInstructorSubmit()}
+                          placeholder="Enter admin password"
+                          className="w-full px-4 py-3 pr-12 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
+                        />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
+                          {showPassword ? <EyeOff className="w-5 h-5 text-white/40 hover:text-white transition-colors" /> : <Eye className="w-5 h-5 text-white/40 hover:text-white transition-colors" />}
+                        </button>
+                      </div>
                     </div>
 
                     {(localError || instructorError) && (
@@ -224,15 +234,18 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       </div>
                     )}
 
-                    <button
-                      onClick={handleInstructorSubmit}
-                      disabled={isSubmitting}
-                      className={`animate-element ${showRoleSelector ? 'animate-delay-500' : 'animate-delay-400'} w-full rounded-2xl bg-primary-500 py-5 font-medium text-white text-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {isSubmitting ? 'Signing in...' : 'Sign In as Instructor'}
-                    </button>
+                    <div className={`animate-element ${showRoleSelector ? 'animate-delay-500' : 'animate-delay-400'}`}>
+                      <LiquidButton
+                        onClick={handleInstructorSubmit}
+                        disabled={isSubmitting}
+                        variant="light"
+                        size="full"
+                      >
+                        {isSubmitting ? 'Signing in...' : 'Sign In as Instructor'}
+                      </LiquidButton>
+                    </div>
 
-                    <p className={`animate-element ${showRoleSelector ? 'animate-delay-600' : 'animate-delay-500'} text-center text-sm text-earth-400`}>
+                    <p className={`animate-element ${showRoleSelector ? 'animate-delay-600' : 'animate-delay-500'} text-center text-sm text-white`}>
                       Enter your instructor credentials to access admin features
                     </p>
                   </>

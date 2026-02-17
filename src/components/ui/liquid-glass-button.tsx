@@ -163,7 +163,7 @@ function LiquidButton({
     >
       {glassLayers}
       {/* Content */}
-      <span className="relative z-10">
+      <span className="relative z-10 inline-flex items-center justify-center gap-2">
         {children}
       </span>
     </button>
