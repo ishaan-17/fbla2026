@@ -18,6 +18,12 @@ import { CTASection } from "@/components/CTASection";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
+  const dbActiveCount = (
+    db
+      .prepare("SELECT COUNT(*) as c FROM items WHERE status = 'approved'")
+      .get() as { c: number }
+  ).c;
+
   const stats = {
     totalReported: (
       db.prepare("SELECT COUNT(*) as c FROM items").get() as { c: number }
@@ -27,11 +33,8 @@ export default function Home() {
         .prepare("SELECT COUNT(*) as c FROM items WHERE status = 'claimed'")
         .get() as { c: number }
     ).c,
-    activeListing: (
-      db
-        .prepare("SELECT COUNT(*) as c FROM items WHERE status = 'approved'")
-        .get() as { c: number }
-    ).c,
+    // Show mock item count (5) if no real items exist, matching browse page behavior
+    activeListing: dbActiveCount > 0 ? dbActiveCount : 5,
   };
 
   return (
