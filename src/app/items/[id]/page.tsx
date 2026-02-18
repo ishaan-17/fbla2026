@@ -3,7 +3,7 @@ import db from "@/lib/db";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 import ClaimForm from "@/components/ClaimForm";
-import InquiryModal from "@/components/InquiryModal";
+import CollapsibleInquiry from "@/components/CollapsibleInquiry";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -249,41 +249,45 @@ export default async function ItemDetailPage({
               </div>
             </div>
 
-            {/* Posted By */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
-                <svg className="w-5 h-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
-                  Posted By
-                </p>
-                <p className="text-sm font-semibold text-white">
-                  {item.reporter_name || "Anonymous"}
-                </p>
-              </div>
-            </div>
-
-            {/* AI Tags */}
-            {aiTags.length > 0 && (
-              <div className="mt-6">
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-3">
-                  AI-detected tags
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {aiTags.map((tag: string, i: number) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1.5 bg-primary-500/10 text-primary-400 text-xs font-semibold capitalize rounded-full border border-primary-500/20"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+            {/* Posted By & AI Tags */}
+            <div className="mt-6 flex items-start gap-6">
+              <div className="flex-1 flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/10 shrink-0">
+                  <svg className="w-5 h-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
+                    Posted By
+                  </p>
+                  <p className="text-sm font-semibold text-white">
+                    {item.reporter_name || "Anonymous"}
+                  </p>
                 </div>
               </div>
-            )}
+
+              {aiTags.length > 0 && (
+                <>
+                  <div className="w-px self-stretch bg-white/10" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">
+                      AI-detected tags
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {aiTags.map((tag: string, i: number) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 bg-primary-500/10 text-primary-400 text-xs font-semibold capitalize rounded-full border border-primary-500/20"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -303,7 +307,7 @@ export default async function ItemDetailPage({
               )}
             </div>
 
-            <InquiryModal itemId={item.id} />
+            <CollapsibleInquiry itemId={item.id} />
           </div>
         </div>
       </div>

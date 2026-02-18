@@ -64,7 +64,7 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-4 py-3 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
+          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
           placeholder="Enter your name"
         />
       </div>
@@ -76,7 +76,7 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-4 py-3 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
+          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
           placeholder="your.email@school.edu"
         />
       </div>
@@ -90,7 +90,7 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
           onChange={(e) => setMessage(e.target.value)}
           required
           rows={3}
-          className="w-full px-4 py-3 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors resize-none"
+          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30 resize-none"
           placeholder="Ask about this item..."
         />
       </div>
