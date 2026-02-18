@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import ImageUploader from "@/components/ImageUploader";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
@@ -130,6 +131,7 @@ const COMMON_TAGS = [
 
 export default function ReportPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState("");
   const [aiDetectedTags, setAiDetectedTags] = useState<MappedTag[]>([]);
@@ -137,15 +139,30 @@ export default function ReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [dateFound, setDateFound] = useState<Date | undefined>(new Date());
   const [form, setForm] = useState({
     title: "",
     description: "",
     location_found: "",
-    reporter_name: "",
-    reporter_email: "",
   });
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetch("/api/admin/check");
+        if (res.ok) {
+          const data = await res.json();
+          setIsAdmin(data.isAdmin);
+        }
+      } catch {
+        // Not admin
+      }
+    };
+    checkAdmin();
+  }, []);
 
   // Clear field error when user starts typing
   const handleFieldChange = (field: string, value: string) => {
@@ -230,6 +247,9 @@ export default function ReportPage() {
           category: category || "other",
           image_path: imagePath,
           ai_tags: selectedTags.map((t) => t.label),
+          reporter_name: session?.user?.name || "",
+          reporter_email: session?.user?.email || "",
+          auto_approve: isAdmin,
         }),
       });
 
@@ -392,37 +412,6 @@ export default function ReportPage() {
             </div>
           </div>
 
-          {/* Reporter Info */}
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Your Info</h2>
-              <p className="text-sm text-white/50 mt-1">Optional — provide your info to earn reward points</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-semibold text-white/80 mb-1.5">Your Name</label>
-                <input
-                  type="text"
-                  value={form.reporter_name}
-                  onChange={(e) => setForm({ ...form, reporter_name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
-                  placeholder="Your full name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-white/80 mb-1.5">Your Email</label>
-                <input
-                  type="email"
-                  value={form.reporter_email}
-                  onChange={(e) => setForm({ ...form, reporter_email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
-                  placeholder="your.email@school.edu"
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Submit */}
           <div className="pt-2">
             <LiquidButton
@@ -442,7 +431,10 @@ export default function ReportPage() {
               )}
             </LiquidButton>
             <p className="text-xs text-center text-white/40 mt-3">
-              Your report will be reviewed by an admin before appearing publicly.
+              {isAdmin 
+                ? "As an admin, your report will be published immediately."
+                : "Your report will be reviewed by an admin before appearing publicly."
+              }
             </p>
           </div>
         </form>

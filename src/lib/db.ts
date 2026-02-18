@@ -72,6 +72,20 @@ function getDb(): Database.Database {
       );
 
       CREATE INDEX IF NOT EXISTS idx_rewards_email ON rewards(email);
+
+      CREATE TABLE IF NOT EXISTS inquiries (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_id         INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+        inquirer_name   TEXT NOT NULL,
+        inquirer_email  TEXT NOT NULL,
+        message         TEXT NOT NULL,
+        status          TEXT NOT NULL DEFAULT 'pending'
+                          CHECK (status IN ('pending', 'read', 'replied')),
+        created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_inquiries_item_id ON inquiries(item_id);
+      CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries(status);
     `);
 
     const insertCat = _db.prepare(

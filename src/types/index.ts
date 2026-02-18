@@ -61,3 +61,17 @@ export interface LeaderboardEntry {
   total_points: number;
   items_reported: number;
 }
+
+export interface Inquiry {
+  id: number;
+  item_id: number;
+  inquirer_name: string;
+  inquirer_email: string;
+  message: string;
+  status: "pending" | "read" | "replied";
+  created_at: string;
+}
+
+export interface InquiryWithItem extends Inquiry {
+  item_title: string;
+}

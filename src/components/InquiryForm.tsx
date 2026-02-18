@@ -16,11 +16,23 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
     setSubmitting(true);
     setError("");
 
-    // Simulate API call - you can wire this up to a real endpoint
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // In production, you'd send this to an API endpoint
-      console.log("Inquiry submitted:", { itemId, name, email, message });
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          item_id: itemId,
+          inquirer_name: name,
+          inquirer_email: email,
+          message,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send message");
+      }
+
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

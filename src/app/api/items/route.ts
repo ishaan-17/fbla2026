@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { isAdmin } from "@/lib/auth";
 import type { Item } from "@/types";
 
 export async function GET(request: Request) {
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email } = body;
+    const { title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email, auto_approve } = body;
 
     if (!title || !description || !location_found || !date_found) {
       return NextResponse.json(
@@ -70,10 +71,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Auto-approve if user is admin (verify server-side)
+    const adminUser = await isAdmin();
+    const status = (auto_approve && adminUser) ? "approved" : "pending";
+
     const result = db
       .prepare(
-        `INSERT INTO items (title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO items (title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         title,
@@ -84,7 +89,8 @@ export async function POST(request: Request) {
         image_path || null,
         ai_tags ? JSON.stringify(ai_tags) : null,
         reporter_name || "",
-        reporter_email || ""
+        reporter_email || "",
+        status
       );
 
     // Award 10 points for reporting a found item
