@@ -35,7 +35,7 @@ const ItemCard = React.memo(
           onMouseLeave={() => setHovered(null)}
           className={cn(
             "rounded-lg relative bg-earth-100 overflow-hidden h-72 md:h-80 w-full transition-all duration-300 ease-out cursor-pointer",
-            hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
+            hovered !== null && hovered !== index && "blur-[2px] scale-[0.98]"
           )}
         >
           {item.image_path ? (
@@ -76,6 +76,13 @@ const ItemCard = React.memo(
             <span className="text-xs font-semibold px-2 py-1 bg-white/90 text-earth-700 rounded backdrop-blur-sm">
               {getCategoryLabel(item.category)}
             </span>
+          </div>
+
+          {/* Always-visible title bar */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-earth-900/80 to-transparent px-4 py-3">
+            <h3 className="text-base font-semibold text-white truncate">
+              {item.title}
+            </h3>
           </div>
 
           {/* Hover overlay with full details */}
