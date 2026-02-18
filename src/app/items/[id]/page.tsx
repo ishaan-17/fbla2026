@@ -128,7 +128,7 @@ export default async function ItemDetailPage({
 
   return (
     <CollapsibleProvider>
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {/* Back link */}
       <Link
         href="/items"
@@ -164,7 +164,7 @@ export default async function ItemDetailPage({
                     : `/${item.image_path}`
                 }
                 alt={item.title}
-                className="w-[660px] h-[367px] object-cover"
+                className="w-full h-[367px] object-cover"
               />
             ) : (
               <div className="h-64 flex items-center justify-center">
@@ -199,26 +199,9 @@ export default async function ItemDetailPage({
               {item.description}
             </p>
           </div>
-        </div>
 
-        {/* Right: Claim & Inquiry */}
-        <div className="lg:col-span-1 ml-[19px] space-y-3">
-          <CollapsibleClaim 
-            itemId={item.id} 
-            itemStatus={item.status}
-            statusLabel={status.label}
-            statusDescription={status.description}
-          />
-          <CollapsibleInquiry itemId={item.id} />
-        </div>
-      </div>
-
-      {/* Bottom Row: Metadata/Posted By */}
-      <div className="mt-8">
-        {/* Metadata + Posted By */}
-        <div className="space-y-6">
           {/* Metadata Grid */}
-          <div className="bg-neutral-800 rounded-xl border border-white/10 overflow-hidden min-w-[780px]">
+          <div className="bg-neutral-800 rounded-xl border border-white/10 overflow-hidden">
             <div className="grid grid-cols-2 sm:grid-cols-4">
               <div className="p-5 border-r border-b sm:border-b-0 border-white/10">
                 <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
@@ -309,6 +292,16 @@ export default async function ItemDetailPage({
           </div>
         </div>
 
+        {/* Right: Claim & Inquiry */}
+        <div className="lg:col-span-1 ml-[19px] space-y-3">
+          <CollapsibleClaim 
+            itemId={item.id} 
+            itemStatus={item.status}
+            statusLabel={status.label}
+            statusDescription={status.description}
+          />
+          <CollapsibleInquiry itemId={item.id} />
+        </div>
       </div>
     </div>
     </CollapsibleProvider>
