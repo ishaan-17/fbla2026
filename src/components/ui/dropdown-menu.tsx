@@ -158,17 +158,18 @@ const DropdownMenu = ({
               />
 
               {/* Content */}
-              <div className="relative z-30 p-1.5">
+              <div className="relative z-30 p-2">
                 {/* Search Input */}
-                <div className="relative mb-1.5">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/40" />
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
                   <input
                     ref={inputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-9 pr-3 py-2 text-sm text-black placeholder:text-black/40 bg-white/10 rounded-lg border border-white/10 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-white/40 bg-black/20 rounded-xl border border-white/15 focus:outline-none focus:border-white/30 focus:bg-black/25 transition-all"
+                    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
                   />
                 </div>
                 
@@ -188,19 +189,20 @@ const DropdownMenu = ({
                         }}
                         onClick={() => handleSelect(option)}
                         className={cn(
-                          "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-lg",
+                          "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-xl",
                           "transition-all duration-150",
                           option.value === value
-                            ? "bg-white/20 text-black font-medium shadow-[0_2px_8px_rgba(0,0,0,0.1),inset_1px_1px_2px_rgba(255,255,255,0.3)]"
-                            : "text-black hover:bg-white/10"
+                            ? "bg-white/25 text-white font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                            : "text-white/90 hover:bg-white/15 hover:text-white"
                         )}
+                        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
                       >
                         {option.Icon && <span className="shrink-0">{option.Icon}</span>}
                         {option.label}
                       </motion.button>
                     ))
                   ) : (
-                    <div className="px-3 py-2 text-black/40 text-sm">No results found</div>
+                    <div className="px-3 py-2 text-white/50 text-sm">No results found</div>
                   )}
                 </div>
               </div>
