@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import db from "@/lib/db";
 import type { Item } from "@/types";
 import SearchBar from "@/components/SearchBar";
@@ -8,8 +9,19 @@ import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: "Browse Found Items — Reclaimr",
+  description:
+    "Search and browse lost items reported by the school community. Filter by category, keyword, or sort order to find your belongings.",
+};
+
 interface Props {
-  searchParams: Promise<{ search?: string; category?: string; page?: string; sort?: string }>;
+  searchParams: Promise<{
+    search?: string;
+    category?: string;
+    page?: string;
+    sort?: string;
+  }>;
 }
 
 // Get ORDER BY clause based on sort option
@@ -46,17 +58,11 @@ export default async function ItemsPage({ searchParams }: Props) {
     queryParams.push(pattern, pattern, pattern);
   }
 
-  const countResult = db
-    .prepare(`SELECT COUNT(*) as total FROM items ${whereClause}`)
-    .get(...queryParams) as { total: number };
-
   const orderByClause = getOrderByClause(sort);
 
   // Get all items for parallax scroll (no pagination needed with scroll)
-  let items = db
-    .prepare(
-      `SELECT * FROM items ${whereClause} ${orderByClause} LIMIT 50`,
-    )
+  const items = db
+    .prepare(`SELECT * FROM items ${whereClause} ${orderByClause} LIMIT 50`)
     .all(...queryParams) as Item[];
 
   return (
@@ -67,8 +73,8 @@ export default async function ItemsPage({ searchParams }: Props) {
           Found Items
         </h1>
         <p className="text-[#E6E6E6] mt-2">
-          Displaying {items.length} item{items.length !== 1 ? "s" : ""}.
-          Spot yours? Click to claim it.
+          Displaying {items.length} item{items.length !== 1 ? "s" : ""}. Spot
+          yours? Click to claim it.
         </p>
       </div>
 

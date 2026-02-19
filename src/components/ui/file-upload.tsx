@@ -33,8 +33,8 @@ export const FileUpload = ({
     multiple: false,
     noClick: true,
     onDrop: handleFileChange,
-    onDropRejected: (error) => {
-      console.log(error);
+    onDropRejected: () => {
+      // Silently handle rejected files (e.g., wrong type or too large)
     },
   });
 
@@ -63,13 +63,13 @@ export const FileUpload = ({
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
-        
+
         {/* Outer liquid glass container */}
-        <div 
+        <div
           className="relative p-6 rounded-2xl overflow-hidden border border-white/[0.08]"
           style={{
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            backdropFilter: "blur(24px) saturate(150%)",
+            WebkitBackdropFilter: "blur(24px) saturate(150%)",
             background: `linear-gradient(
               135deg,
               rgba(255, 255, 255, 0.08) 0%,
@@ -87,35 +87,38 @@ export const FileUpload = ({
           {/* Top section with icon and text */}
           <div className="flex items-start gap-4 mb-5">
             {/* Glass Icon */}
-            <div 
+            <div
               className="relative flex-shrink-0 w-[4em] h-[4em] group/icon"
-              style={{ perspective: '24em', transformStyle: 'preserve-3d' }}
+              style={{ perspective: "24em", transformStyle: "preserve-3d" }}
             >
               {/* Gradient background layer */}
               <span
                 className="absolute top-0 left-0 w-full h-full rounded-[1em] block transition-all duration-300 ease-[cubic-bezier(0.83,0,0.17,1)] origin-[100%_100%] rotate-[15deg] group-hover/icon:rotate-[25deg] group-hover/icon:translate-x-[-0.4em] group-hover/icon:translate-y-[-0.4em]"
                 style={{
-                  background: 'linear-gradient(hsl(0, 0%, 45%), hsl(0, 0%, 25%))',
-                  boxShadow: '0.4em -0.4em 0.6em hsla(0, 0%, 10%, 0.25)'
+                  background:
+                    "linear-gradient(hsl(0, 0%, 45%), hsl(0, 0%, 25%))",
+                  boxShadow: "0.4em -0.4em 0.6em hsla(0, 0%, 10%, 0.25)",
                 }}
               />
               {/* Frosted glass layer with icon */}
               <span
                 className="absolute top-0 left-0 w-full h-full rounded-[1em] flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.83,0,0.17,1)] origin-[80%_50%] group-hover/icon:translate-z-[1.5em]"
                 style={{
-                  background: 'hsla(0, 0%, 100%, 0.15)',
-                  backdropFilter: 'blur(0.75em)',
-                  WebkitBackdropFilter: 'blur(0.75em)',
-                  boxShadow: '0 0 0 0.1em hsla(0, 0%, 100%, 0.3) inset'
+                  background: "hsla(0, 0%, 100%, 0.15)",
+                  backdropFilter: "blur(0.75em)",
+                  WebkitBackdropFilter: "blur(0.75em)",
+                  boxShadow: "0 0 0 0.1em hsla(0, 0%, 100%, 0.3) inset",
                 }}
               >
                 <Cloud className="w-7 h-7 text-white" strokeWidth={1.5} />
               </span>
             </div>
-            
+
             {/* Text content */}
             <div className="pt-2 ml-3.5">
-              <h3 className="text-xl font-bold text-white mb-1 mt-1">Upload files</h3>
+              <h3 className="text-xl font-bold text-white mb-1 mt-1">
+                Upload files
+              </h3>
               <p className="text-sm text-white/50 font-medium">
                 Drag & drop, browse files, or take a photo
               </p>
@@ -123,14 +126,14 @@ export const FileUpload = ({
           </div>
 
           {/* Inner drop zone - liquid glass style */}
-          <div 
+          <div
             className={cn(
               "relative rounded-xl p-6 transition-all duration-200 border border-white/[0.06]",
-              isDragActive && "border-white/20"
+              isDragActive && "border-white/20",
             )}
             style={{
-              backdropFilter: 'blur(20px) saturate(130%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(130%)',
+              backdropFilter: "blur(20px) saturate(130%)",
+              WebkitBackdropFilter: "blur(20px) saturate(130%)",
               background: `linear-gradient(
                 135deg,
                 rgba(0, 0, 0, 0.4) 0%,
@@ -154,22 +157,24 @@ export const FileUpload = ({
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.08]"
                     style={{
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                      backdropFilter: "blur(12px)",
+                      WebkitBackdropFilter: "blur(12px)",
+                      background: "rgba(255, 255, 255, 0.05)",
+                      boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.05)",
                     }}
                   >
-                    <div 
+                    <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center border border-white/[0.1]"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
+                        background: "rgba(255, 255, 255, 0.08)",
                       }}
                     >
                       <ImageIcon className="w-5 h-5 text-white/60" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{file.name}</p>
+                      <p className="text-sm font-semibold text-white truncate">
+                        {file.name}
+                      </p>
                       <p className="text-xs text-white/40 font-medium">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </p>
@@ -189,8 +194,8 @@ export const FileUpload = ({
                     whileTap={{ scale: 0.98 }}
                     className="relative flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm tracking-wide text-white transition-all overflow-hidden border border-white/[0.15]"
                     style={{
-                      backdropFilter: 'blur(24px) saturate(150%)',
-                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                      backdropFilter: "blur(24px) saturate(150%)",
+                      WebkitBackdropFilter: "blur(24px) saturate(150%)",
                       background: `linear-gradient(
                         135deg,
                         rgba(255, 255, 255, 0.12) 0%,
@@ -218,8 +223,8 @@ export const FileUpload = ({
                     whileTap={{ scale: 0.98 }}
                     className="relative flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm tracking-wide text-white transition-all overflow-hidden border border-white/[0.15]"
                     style={{
-                      backdropFilter: 'blur(24px) saturate(150%)',
-                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                      backdropFilter: "blur(24px) saturate(150%)",
+                      WebkitBackdropFilter: "blur(24px) saturate(150%)",
                       background: `linear-gradient(
                         135deg,
                         rgba(255, 255, 255, 0.12) 0%,

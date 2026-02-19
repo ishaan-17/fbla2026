@@ -44,6 +44,7 @@ export default function ImageUploader({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tags, setTags] = useState<MappedTag[]>([]);
   const [safeSearchResult, setSafeSearchResult] = useState<object | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const analyzeImage = useCallback(async () => {
     setIsAnalyzing(true);
@@ -78,7 +79,6 @@ export default function ImageUploader({
       }
 
       const data = await response.json();
-      console.log("DATA SAFE SEARCH:", data);
       setSafeSearchResult(data);
     } catch (error) {
       console.error("Error during safe image search:", error);
@@ -90,12 +90,14 @@ export default function ImageUploader({
       const file = files[0];
       if (!file) return;
 
+      setUploadError(null);
+
       if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
+        setUploadError("Please select an image file.");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert("Image must be under 5MB");
+        setUploadError("Image must be under 5MB.");
         return;
       }
 
@@ -118,9 +120,8 @@ export default function ImageUploader({
         }
       };
 
-      reader.onerror = (error) => {
-        console.error("Error reading file:", error);
-        alert("Failed to read image file.");
+      reader.onerror = () => {
+        setUploadError("Failed to read image file. Please try again.");
       };
 
       reader.readAsDataURL(file);
@@ -130,6 +131,16 @@ export default function ImageUploader({
 
   return (
     <div className="space-y-4">
+      {/* Upload Error */}
+      {uploadError && (
+        <div
+          role="alert"
+          className="p-3 rounded-xl text-sm text-red-300 bg-red-500/20 border border-red-500/30"
+        >
+          {uploadError}
+        </div>
+      )}
+
       {/* File Upload */}
       <div className="rounded-2xl overflow-hidden">
         <FileUpload onChange={handleFileUpload} />

@@ -32,17 +32,14 @@ export default function LoginPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    console.log("Sign In submitted:", data);
-
-    // TODO: Implement actual authentication logic here
-    alert(`Sign In Submitted! Email: ${data.email}`);
 
     // Redirect to home page after successful login
-    // router.push('/');
+    if (data.email) {
+      router.push("/");
+    }
   };
 
   const handleGoogleSignIn = async () => {
-    console.log("Continue with Google clicked (Student)");
     localStorage.setItem("userRole", "student");
     await signIn("google", { redirectTo: "/items" });
   };
@@ -69,13 +66,12 @@ export default function LoginPage() {
   };
 
   const handleResetPassword = () => {
-    // TODO: Navigate to password reset page
-    alert("Reset Password clicked");
+    // Password reset is not applicable — students use Google OAuth
   };
 
   const handleCreateAccount = () => {
-    // TODO: Navigate to signup page
-    router.push("/signup");
+    // Account creation is handled via Google OAuth
+    router.push("/login");
   };
 
   return (

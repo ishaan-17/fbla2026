@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import db from "@/lib/db";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -11,6 +12,33 @@ import {
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const item = db
+    .prepare(
+      "SELECT title, description, category, location_found FROM items WHERE id = ?",
+    )
+    .get(id) as
+    | Pick<Item, "title" | "description" | "category" | "location_found">
+    | undefined;
+
+  if (!item) {
+    return {
+      title: "Item Not Found — Reclaimr",
+      description: "This item could not be found in our database.",
+    };
+  }
+
+  return {
+    title: `${item.title} — Reclaimr`,
+    description: `${item.description} Found at ${item.location_found}. Category: ${getCategoryLabel(item.category)}.`,
+  };
+}
 
 const statusConfig: Record<string, { label: string; description: string }> = {
   pending: {

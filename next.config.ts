@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   },
   turbopack: {},
   images: {
+    // Only allow image optimization from trusted external domains
     remotePatterns: [
       {
         protocol: "https",
@@ -17,15 +18,19 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**.googleusercontent.com",
+        hostname: "lh3.googleusercontent.com",
       },
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "*.googleusercontent.com",
       },
       {
-        protocol: "http",
-        hostname: "**",
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
       },
     ],
   },
