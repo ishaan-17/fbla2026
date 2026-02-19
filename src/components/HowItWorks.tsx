@@ -100,11 +100,6 @@ export function HowItWorks() {
 
       <ScrollRevealStagger className="relative text-center mb-8" staggerDelay={0.1}>
         <ScrollRevealItem>
-          <span className="inline-block px-4 py-1.5 bg-primary-500/20 text-primary-300 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
-            Simple Process
-          </span>
-        </ScrollRevealItem>
-        <ScrollRevealItem>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
             <ScrollFloat stagger={0.03}>
               How It Works
