@@ -36,7 +36,7 @@ export default function RootLayout({
           <Navbar />
           <main className="min-h-[calc(100vh-4rem)]">{children}</main>
         </SessionProvider>
-        <div className="mt-16 bg-earth-900">
+        <div className="bg-earth-900">
           <Footer />
         </div>
       </body>
