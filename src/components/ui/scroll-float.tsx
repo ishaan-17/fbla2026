@@ -28,7 +28,7 @@ const ScrollFloat: React.FC<ScrollFloatProps> = ({
   return (
     <span 
       ref={containerRef} 
-      className={`overflow-hidden inline-block ${containerClassName}`}
+      className={`overflow-hidden inline-block pb-[0.15em] ${containerClassName}`}
     >
       <span className={`inline-block ${textClassName}`}>
         {characters.map((char, index) => (
