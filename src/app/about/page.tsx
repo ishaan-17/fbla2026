@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, Users, Trophy, Heart, MapPin, Mail, Phone, Search, AlertCircle, Gift, Clock, ChevronRight } from "lucide-react";
+import { Camera, Users, Trophy, Heart, MapPin, Mail, Phone, Search, AlertCircle, Gift, Clock, ChevronRight, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, ReactNode } from "react";
+import CardSwap, { Card } from "@/components/CardSwap";
 
 // Table of Contents sections (in page order)
 const tocSections = [
@@ -192,21 +193,63 @@ export default function AboutPage() {
               We reward students who take the time to report items they find, building a culture of <strong className="text-white">kindness and responsibility</strong>.
             </p>
           </ScrollReveal>
-          <ScrollReveal delay={150}>
-            <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Camera, label: "AI Recognition" },
-                  { icon: Users, label: "Community Driven" },
-                  { icon: Trophy, label: "Rewards System" },
-                  { icon: Heart, label: "Give Back" },
-                ].map((item, i) => (
-                  <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center text-center border border-white/20">
-                    <item.icon className="w-8 h-8 text-white/80 mb-3" strokeWidth={1.5} />
-                    <span className="text-sm font-semibold text-white">{item.label}</span>
+          <ScrollReveal delay={150} className="flex items-center justify-center">
+            <div className="h-[380px] w-full relative flex items-center justify-center" style={{ clipPath: "inset(-100px -100px 0 -100px)" }}>
+              <CardSwap
+                width={280}
+                height={180}
+                cardDistance={50}
+                verticalDistance={50}
+                dropDistance={220}
+                delay={3000}
+                pauseOnHover={true}
+                easing="elastic"
+              >
+                <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-10" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+                  <div className="relative p-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 shadow-lg">
+                      <Sparkles className="w-6 h-6 text-white" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">AI Recognition</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">Smart auto-categorization powered by machine learning</p>
                   </div>
-                ))}
-              </div>
+                </Card>
+                <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 opacity-10" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500" />
+                  <div className="relative p-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4 shadow-lg">
+                      <Users className="w-6 h-6 text-white" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Community Driven</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">Built for students, by students</p>
+                  </div>
+                </Card>
+                <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 opacity-10" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+                  <div className="relative p-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
+                      <Trophy className="w-6 h-6 text-white" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Rewards System</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">Earn points for helping others</p>
+                  </div>
+                </Card>
+                <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-red-500 opacity-10" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-red-500" />
+                  <div className="relative p-6">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center mb-4 shadow-lg">
+                      <Heart className="w-6 h-6 text-white" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Give Back</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">30-day donation policy for unclaimed items</p>
+                  </div>
+                </Card>
+              </CardSwap>
             </div>
           </ScrollReveal>
         </section>
