@@ -1,7 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, Users, Trophy, Heart, MapPin, Mail, Phone, Search, AlertCircle, Gift, Clock, ChevronRight, Sparkles } from "lucide-react";
+import {
+  Camera,
+  Users,
+  Trophy,
+  Heart,
+  MapPin,
+  Mail,
+  Phone,
+  Search,
+  AlertCircle,
+  Gift,
+  Clock,
+  ChevronRight,
+  Sparkles,
+  List,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import CardSwap, { Card } from "@/components/CardSwap";
 
@@ -15,62 +31,141 @@ const tocSections = [
 ];
 
 // Table of Contents component
-function TableOfContents({ activeSection, isVisible }: { activeSection: string; isVisible: boolean }) {
+function TableOfContents({
+  activeSection,
+  isVisible,
+}: {
+  activeSection: string;
+  isVisible: boolean;
+}) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
   const handleClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    setMobileOpen(false);
   };
 
-  return (
-    <div 
-      className={`hidden xl:block fixed top-32 w-48 bg-neutral-800/90 backdrop-blur-sm rounded-xl p-4 border border-white/10 transition-opacity duration-300 ${
-        isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
-      style={{ left: "max(1rem, calc((100vw - 72rem) / 4 + 0.5rem))" }}
-    >
-      <h3 className="text-sm font-bold text-white mb-3">Table of Contents</h3>
-      <nav className="space-y-1">
-        {tocSections.map((section, index) => {
-          const isActive = activeSection === section.id;
-          return (
-            <button
-              key={section.id}
-              onClick={() => handleClick(section.id)}
-              className="flex items-center gap-2 w-full text-left transition-all duration-200"
-            >
-              {isActive ? (
-                <span className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center flex-shrink-0">
-                  <ChevronRight className="w-3 h-3 text-white" />
-                </span>
-              ) : (
-                <span className="w-5 flex-shrink-0 text-white/40 text-xs">
-                  {index + 1}
-                </span>
-              )}
-              <span className={`text-xs transition-colors ${
-                isActive 
-                  ? "font-semibold text-white" 
-                  : "font-normal text-white/50 hover:text-white/70"
-              }`}>
-                {section.label}
+  // Close popover on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
+    }
+    if (mobileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileOpen]);
+
+  // Close popover on scroll
+  useEffect(() => {
+    if (mobileOpen) {
+      const close = () => setMobileOpen(false);
+      window.addEventListener("scroll", close, { passive: true });
+      return () => window.removeEventListener("scroll", close);
+    }
+  }, [mobileOpen]);
+
+  const tocList = (
+    <nav className="space-y-1">
+      {tocSections.map((section, index) => {
+        const isActive = activeSection === section.id;
+        return (
+          <button
+            key={section.id}
+            onClick={() => handleClick(section.id)}
+            className="flex items-center gap-2 w-full text-left transition-all duration-200"
+          >
+            {isActive ? (
+              <span className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center flex-shrink-0">
+                <ChevronRight className="w-3 h-3 text-white" />
               </span>
-            </button>
-          );
-        })}
-      </nav>
-    </div>
+            ) : (
+              <span className="w-5 flex-shrink-0 text-white/40 text-xs">
+                {index + 1}
+              </span>
+            )}
+            <span
+              className={`text-xs transition-colors ${
+                isActive
+                  ? "font-semibold text-white"
+                  : "font-normal text-white/50 hover:text-white/70"
+              }`}
+            >
+              {section.label}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar (xl+) */}
+      <div
+        className={`hidden xl:block fixed top-32 w-48 bg-neutral-800/90 backdrop-blur-sm rounded-xl p-4 border border-white/10 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        style={{ left: "calc(50% - 36rem)" }}
+      >
+        <h3 className="text-sm font-bold text-white mb-3">Table of Contents</h3>
+        {tocList}
+      </div>
+
+      {/* Mobile floating button + popover (below xl) */}
+      <div
+        ref={popoverRef}
+        className={`xl:hidden fixed top-24 right-4 z-50 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <button
+          onClick={() => setMobileOpen((o) => !o)}
+          className="flex items-center gap-1.5 bg-neutral-800/95 backdrop-blur-sm border border-white/10 rounded-full px-3 py-2 shadow-lg shadow-black/30 transition-colors hover:bg-neutral-700/95"
+          aria-label="Table of Contents"
+        >
+          {mobileOpen ? (
+            <X className="w-4 h-4 text-white/70" />
+          ) : (
+            <List className="w-4 h-4 text-white/70" />
+          )}
+          <span className="text-xs font-medium text-white/80">Contents</span>
+        </button>
+
+        {/* Popover dropdown */}
+        <div
+          className={`absolute right-0 mt-2 w-56 bg-neutral-800/95 backdrop-blur-sm rounded-xl p-4 border border-white/10 shadow-xl shadow-black/40 transition-all duration-200 origin-top-right ${
+            mobileOpen
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-95 pointer-events-none"
+          }`}
+        >
+          <h3 className="text-sm font-bold text-white mb-3">
+            Table of Contents
+          </h3>
+          {tocList}
+        </div>
+      </div>
+    </>
   );
 }
 
 // Scroll animation component
-function ScrollReveal({ 
-  children, 
+function ScrollReveal({
+  children,
   className = "",
-  delay = 0 
-}: { 
-  children: ReactNode; 
+  delay = 0,
+}: {
+  children: ReactNode;
   className?: string;
   delay?: number;
 }) {
@@ -94,7 +189,7 @@ function ScrollReveal({
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -100px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -100px 0px" },
     );
 
     if (ref.current) {
@@ -110,8 +205,14 @@ function ScrollReveal({
       className={className}
       style={{
         opacity: hasMounted ? (isVisible ? 1 : 0) : 0,
-        transform: hasMounted ? (isVisible ? "translateY(0)" : "translateY(40px)") : "translateY(40px)",
-        transition: hasMounted ? `opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms` : "none",
+        transform: hasMounted
+          ? isVisible
+            ? "translateY(0)"
+            : "translateY(40px)"
+          : "translateY(40px)",
+        transition: hasMounted
+          ? `opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`
+          : "none",
       }}
     >
       {children}
@@ -129,7 +230,7 @@ export default function AboutPage() {
       const scrollPosition = window.scrollY + window.innerHeight;
       const pageHeight = document.documentElement.scrollHeight;
       const footerBuffer = 300; // Hide when within 300px of bottom
-      
+
       setTocVisible(scrollPosition < pageHeight - footerBuffer);
     };
 
@@ -140,7 +241,7 @@ export default function AboutPage() {
   // Track which section is currently in view
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
-    
+
     tocSections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) {
@@ -150,7 +251,7 @@ export default function AboutPage() {
               setActiveSection(section.id);
             }
           },
-          { threshold: 0.1, rootMargin: "-10% 0px -50% 0px" }
+          { threshold: 0.1, rootMargin: "-10% 0px -50% 0px" },
         );
         observer.observe(element);
         observers.push(observer);
@@ -171,30 +272,53 @@ export default function AboutPage() {
           About Reclaimr
         </h1>
         <p className="text-white/60 mt-4 max-w-2xl mx-auto text-lg">
-          Everything you need to know about how our school&apos;s lost and found system works.
+          Everything you need to know about how our school&apos;s lost and found
+          system works.
         </p>
       </ScrollReveal>
 
       <div className="space-y-24">
         {/* Mission - Split Layout */}
-        <section id="mission" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <section
+          id="mission"
+          className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"
+        >
           <ScrollReveal>
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-4 h-4 text-primary-500" />
-              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">Our Mission</span>
+              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                Our Mission
+              </span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-6">
-              Reuniting Communities,<br />One Item at a Time
+              Reuniting Communities,
+              <br />
+              One Item at a Time
             </h2>
             <p className="text-white/70 leading-relaxed mb-4">
-              Our Lost & Found platform is built to help our school community reunite with their belongings quickly and efficiently. Powered by <strong className="text-white">AI image recognition</strong>, the system automatically categorizes found items to make searching easier.
+              Our Lost & Found platform is built to help our school community
+              reunite with their belongings quickly and efficiently. Powered by{" "}
+              <strong className="text-white">AI image recognition</strong>, the
+              system automatically categorizes found items to make searching
+              easier.
             </p>
             <p className="text-white/70 leading-relaxed">
-              We reward students who take the time to report items they find, building a culture of <strong className="text-white">kindness and responsibility</strong>.
+              We reward students who take the time to report items they find,
+              building a culture of{" "}
+              <strong className="text-white">
+                kindness and responsibility
+              </strong>
+              .
             </p>
           </ScrollReveal>
-          <ScrollReveal delay={150} className="flex items-center justify-center">
-            <div className="h-[380px] w-full relative flex items-center justify-center pt-12" style={{ clipPath: "inset(-100px -100px 0 -100px)" }}>
+          <ScrollReveal
+            delay={150}
+            className="flex items-center justify-center"
+          >
+            <div
+              className="h-[380px] w-full relative flex items-center justify-center pt-12"
+              style={{ clipPath: "inset(-100px -100px 0 -100px)" }}
+            >
               <CardSwap
                 width={280}
                 height={180}
@@ -210,10 +334,17 @@ export default function AboutPage() {
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
                   <div className="relative p-6">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 shadow-lg">
-                      <Sparkles className="w-6 h-6 text-white" strokeWidth={2} />
+                      <Sparkles
+                        className="w-6 h-6 text-white"
+                        strokeWidth={2}
+                      />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">AI Recognition</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">Smart auto-categorization powered by machine learning</p>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      AI Recognition
+                    </h3>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      Smart auto-categorization powered by machine learning
+                    </p>
                   </div>
                 </Card>
                 <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
@@ -223,8 +354,12 @@ export default function AboutPage() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4 shadow-lg">
                       <Users className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Community Driven</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">Built for students, by students</p>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      Community Driven
+                    </h3>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      Built for students, by students
+                    </p>
                   </div>
                 </Card>
                 <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
@@ -234,8 +369,12 @@ export default function AboutPage() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
                       <Trophy className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Rewards System</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">Earn points for helping others</p>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      Rewards System
+                    </h3>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      Earn points for helping others
+                    </p>
                   </div>
                 </Card>
                 <Card className="group relative bg-neutral-800/95 backdrop-blur-sm border border-white/10 overflow-hidden">
@@ -245,8 +384,12 @@ export default function AboutPage() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center mb-4 shadow-lg">
                       <Heart className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Give Back</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">30-day donation policy for unclaimed items</p>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      Give Back
+                    </h3>
+                    <p className="text-sm text-white/60 leading-relaxed">
+                      30-day donation policy for unclaimed items
+                    </p>
                   </div>
                 </Card>
               </CardSwap>
@@ -259,13 +402,17 @@ export default function AboutPage() {
           <ScrollReveal className="text-center mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Gift className="w-4 h-4 text-primary-500" />
-              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">Donation Policy</span>
+              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                Donation Policy
+              </span>
             </div>
             <h2 className="text-3xl font-extrabold text-white tracking-tight mb-4">
               30-Day Donation Policy
             </h2>
             <p className="text-white/60 max-w-2xl mx-auto">
-              To keep our lost and found system manageable and give items the best chance of being useful, we have a 30-day policy on all unclaimed items.
+              To keep our lost and found system manageable and give items the
+              best chance of being useful, we have a 30-day policy on all
+              unclaimed items.
             </p>
           </ScrollReveal>
 
@@ -298,9 +445,10 @@ export default function AboutPage() {
                   key={i}
                   className={`relative flex-1 ${item.color} flex flex-col items-center justify-center text-center px-8 py-8 md:py-10 min-h-[200px]`}
                   style={{
-                    clipPath: i === arr.length - 1
-                      ? "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)"
-                      : "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)",
+                    clipPath:
+                      i === arr.length - 1
+                        ? "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)"
+                        : "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)",
                     marginLeft: i === 0 ? "0" : "-14px",
                   }}
                 >
@@ -323,33 +471,52 @@ export default function AboutPage() {
 
           <ScrollReveal delay={200}>
             <p className="text-center text-sm text-white/40 mt-8 max-w-2xl mx-auto">
-              This policy helps ensure that items are either returned to their owners or go to someone who can use them. If you know you&apos;ve lost something, please check the listings regularly!
+              This policy helps ensure that items are either returned to their
+              owners or go to someone who can use them. If you know you&apos;ve
+              lost something, please check the listings regularly!
             </p>
           </ScrollReveal>
         </section>
 
         {/* Rewards - Split Layout */}
-        <section id="rewards" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <section
+          id="rewards"
+          className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start"
+        >
           <ScrollReveal>
             <div className="lg:sticky lg:top-32">
               <div className="flex items-center gap-2 mb-4">
                 <Trophy className="w-4 h-4 text-primary-500" />
-                <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">Rewards</span>
+                <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                  Rewards
+                </span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-6">
-                Earn Points<br />
+                Earn Points
+                <br />
                 <span className="text-white">for Helping</span>
               </h2>
               <p className="text-white/70 leading-relaxed mb-6">
-                We believe in recognizing people who help our community. Our points system rewards you for being a good citizen.
+                We believe in recognizing people who help our community. Our
+                points system rewards you for being a good citizen.
               </p>
               <Link
                 href="/leaderboard"
                 className="inline-flex items-center gap-2 text-sm font-bold text-primary-400 hover:text-primary-300 transition-colors"
               >
                 View the leaderboard
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
             </div>
@@ -361,7 +528,9 @@ export default function AboutPage() {
                 {/* Points badge */}
                 <div className="relative">
                   <div className="border-2 border-[#4AB89D] rounded-full px-8 py-4">
-                    <span className="text-2xl font-bold text-[#4AB89D]">+10 pts</span>
+                    <span className="text-2xl font-bold text-[#4AB89D]">
+                      +10 pts
+                    </span>
                   </div>
                   {/* Vertical line */}
                   <div className="absolute left-1/2 -translate-x-1/2 top-full w-0.5 h-8 bg-[#4AB89D]"></div>
@@ -370,8 +539,13 @@ export default function AboutPage() {
                 </div>
                 {/* Content */}
                 <div className="mt-12 text-center">
-                  <h3 className="text-xl font-bold text-white">01 Item Reported</h3>
-                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">Submit a found item report with photo and details to help reunite it with the owner.</p>
+                  <h3 className="text-xl font-bold text-white">
+                    01 Item Reported
+                  </h3>
+                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">
+                    Submit a found item report with photo and details to help
+                    reunite it with the owner.
+                  </p>
                 </div>
               </div>
             </ScrollReveal>
@@ -380,7 +554,9 @@ export default function AboutPage() {
                 {/* Points badge */}
                 <div className="relative">
                   <div className="border-2 border-[#35A7BF] rounded-full px-8 py-4">
-                    <span className="text-2xl font-bold text-[#35A7BF]">+25 pts</span>
+                    <span className="text-2xl font-bold text-[#35A7BF]">
+                      +25 pts
+                    </span>
                   </div>
                   {/* Vertical line */}
                   <div className="absolute left-1/2 -translate-x-1/2 top-full w-0.5 h-8 bg-[#35A7BF]"></div>
@@ -389,8 +565,13 @@ export default function AboutPage() {
                 </div>
                 {/* Content */}
                 <div className="mt-12 text-center">
-                  <h3 className="text-xl font-bold text-white">02 Item Returned</h3>
-                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">Bonus points when your found item is successfully claimed and verified by the owner.</p>
+                  <h3 className="text-xl font-bold text-white">
+                    02 Item Returned
+                  </h3>
+                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">
+                    Bonus points when your found item is successfully claimed
+                    and verified by the owner.
+                  </p>
                 </div>
               </div>
             </ScrollReveal>
@@ -402,7 +583,9 @@ export default function AboutPage() {
           <ScrollReveal className="text-center mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Search className="w-4 h-4 text-primary-500" />
-              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">Process</span>
+              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                Process
+              </span>
             </div>
             <h2 className="text-3xl font-extrabold text-white tracking-tight">
               How It Works
@@ -441,18 +624,23 @@ export default function AboutPage() {
                   key={i}
                   className={`relative flex-1 ${item.color} flex items-center justify-center text-center px-8 py-5 min-h-[100px]`}
                   style={{
-                    clipPath: i === 0
-                      ? "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)"
-                      : i === arr.length - 1
-                      ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%)"
-                      : "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)",
+                    clipPath:
+                      i === 0
+                        ? "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)"
+                        : i === arr.length - 1
+                          ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%)"
+                          : "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)",
                     marginLeft: i === 0 ? "0" : "-10px",
                   }}
                 >
                   <div>
-                    <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">{item.step}</span>
+                    <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
+                      {item.step}
+                    </span>
                     <p className="text-sm font-bold text-white">{item.title}</p>
-                    <p className="text-[11px] text-white/70 mt-1 leading-tight">{item.desc}</p>
+                    <p className="text-[11px] text-white/70 mt-1 leading-tight">
+                      {item.desc}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -465,7 +653,9 @@ export default function AboutPage() {
           <ScrollReveal className="text-center mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
               <MapPin className="w-4 h-4 text-primary-500" />
-              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">Get in Touch</span>
+              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                Get in Touch
+              </span>
             </div>
             <h2 className="text-3xl font-extrabold text-white tracking-tight">
               Contact & Location
@@ -482,12 +672,20 @@ export default function AboutPage() {
               {
                 icon: Mail,
                 title: "Email Us",
-                lines: ["General Inquiries:", "montavista@fuhsd.org", "We reply within 24 hours"],
+                lines: [
+                  "General Inquiries:",
+                  "montavista@fuhsd.org",
+                  "We reply within 24 hours",
+                ],
               },
               {
                 icon: Phone,
                 title: "Call Us",
-                lines: ["Office Phone:", "(408) 366-7600", "During office hours"],
+                lines: [
+                  "Office Phone:",
+                  "(408) 366-7600",
+                  "During office hours",
+                ],
               },
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 100}>
@@ -495,9 +693,14 @@ export default function AboutPage() {
                   <div className="w-14 h-14 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-primary-500/20">
                     <item.icon className="w-6 h-6 text-primary-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4">{item.title}</h3>
+                  <h3 className="text-lg font-bold text-white mb-4">
+                    {item.title}
+                  </h3>
                   {item.lines.map((line, j) => (
-                    <p key={j} className={`text-sm ${j === 0 ? "text-white/40" : "text-white/70"}`}>
+                    <p
+                      key={j}
+                      className={`text-sm ${j === 0 ? "text-white/40" : "text-white/70"}`}
+                    >
                       {line}
                     </p>
                   ))}
