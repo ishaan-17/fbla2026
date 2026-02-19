@@ -106,6 +106,9 @@ const CardSwap: React.FC<CardSwapProps> = ({
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const intervalRef = useRef<number>(0);
   const container = useRef<HTMLDivElement>(null);
+  const isInView = useRef(false);
+  const isHovered = useRef(false);
+  const isPageVisible = useRef(true);
 
   useEffect(() => {
     const total = refs.length;
@@ -169,28 +172,75 @@ const CardSwap: React.FC<CardSwapProps> = ({
       });
     };
 
-    swap();
-    intervalRef.current = window.setInterval(swap, delay);
+    const pause = () => {
+      tlRef.current?.pause();
+      clearInterval(intervalRef.current);
+    };
 
+    const resume = () => {
+      tlRef.current?.play();
+      intervalRef.current = window.setInterval(swap, delay);
+    };
+
+    const updatePlayState = () => {
+      const shouldPlay = isInView.current && isPageVisible.current && !isHovered.current;
+      if (shouldPlay) {
+        resume();
+      } else {
+        pause();
+      }
+    };
+
+    // Intersection Observer - pause when not in viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isInView.current = entry.isIntersecting;
+        updatePlayState();
+      },
+      { threshold: 0.6 }
+    );
+    if (container.current) {
+      observer.observe(container.current);
+    }
+
+    // Pause when page/tab is not visible
+    const handleVisibilityChange = () => {
+      isPageVisible.current = !document.hidden;
+      updatePlayState();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Pause on hover if enabled
+    const node = container.current!;
     if (pauseOnHover) {
-      const node = container.current!;
-      const pause = () => {
-        tlRef.current?.pause();
-        clearInterval(intervalRef.current);
+      const onEnter = () => {
+        isHovered.current = true;
+        updatePlayState();
       };
-      const resume = () => {
-        tlRef.current?.play();
-        intervalRef.current = window.setInterval(swap, delay);
+      const onLeave = () => {
+        isHovered.current = false;
+        updatePlayState();
       };
-      node.addEventListener('mouseenter', pause);
-      node.addEventListener('mouseleave', resume);
+      node.addEventListener('mouseenter', onEnter);
+      node.addEventListener('mouseleave', onLeave);
       return () => {
-        node.removeEventListener('mouseenter', pause);
-        node.removeEventListener('mouseleave', resume);
+        node.removeEventListener('mouseenter', onEnter);
+        node.removeEventListener('mouseleave', onLeave);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        observer.disconnect();
         clearInterval(intervalRef.current);
       };
     }
-    return () => clearInterval(intervalRef.current);
+
+    // Start initial animation
+    swap();
+    intervalRef.current = window.setInterval(swap, delay);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      observer.disconnect();
+      clearInterval(intervalRef.current);
+    };
   }, [cardDistance, verticalDistance, dropDistance, delay, pauseOnHover, skewAmount, easing, config, refs]);
 
   const rendered = childArr.map((child, i) =>

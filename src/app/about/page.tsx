@@ -194,7 +194,7 @@ export default function AboutPage() {
             </p>
           </ScrollReveal>
           <ScrollReveal delay={150} className="flex items-center justify-center">
-            <div className="h-[380px] w-full relative flex items-center justify-center" style={{ clipPath: "inset(-100px -100px 0 -100px)" }}>
+            <div className="h-[380px] w-full relative flex items-center justify-center pt-12" style={{ clipPath: "inset(-100px -100px 0 -100px)" }}>
               <CardSwap
                 width={280}
                 height={180}
