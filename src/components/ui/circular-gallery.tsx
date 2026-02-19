@@ -26,11 +26,22 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
     const [isPaused, setIsPaused] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(false);
     const animationFrameRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const dragStartRef = useRef<{ x: number; rotation: number } | null>(null);
 
     const anglePerItem = 360 / items.length;
+
+    // Detect mobile viewport
+    useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Update active index based on rotation
     const updateActiveIndex = useCallback((rot: number) => {
@@ -91,7 +102,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
       setIsPaused(false);
     }, [isDragging]);
 
-    // Touch handlers for mobile
+    // Touch handlers for desktop 3D carousel
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
       setIsDragging(true);
       setIsPaused(true);
@@ -100,6 +111,9 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
       if (!isDragging || !dragStartRef.current) return;
+      
+      // Prevent page scrolling when interacting with carousel
+      e.preventDefault();
 
       const deltaX = e.touches[0].clientX - dragStartRef.current.x;
       const sensitivity = 0.3;
@@ -115,6 +129,113 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
       dragStartRef.current = null;
     }, []);
 
+    // Wheel handler to rotate carousel and prevent page scroll
+    const handleWheel = useCallback((e: WheelEvent) => {
+      e.preventDefault();
+      const sensitivity = 0.5;
+      setRotation(prev => {
+        const newRotation = prev - e.deltaY * sensitivity;
+        updateActiveIndex(newRotation);
+        return newRotation;
+      });
+    }, [updateActiveIndex]);
+
+    // Add wheel event listener with passive: false to allow preventDefault
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container || isMobile) return;
+
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      return () => {
+        container.removeEventListener('wheel', handleWheel);
+      };
+    }, [handleWheel, isMobile]);
+
+    // Mobile horizontal scroll layout
+    if (isMobile) {
+      return (
+        <div
+          ref={(node) => {
+            containerRef.current = node;
+            if (typeof ref === 'function') ref(node);
+            else if (ref) ref.current = node;
+          }}
+          role="region"
+          aria-label="How It Works Steps"
+          className={cn(
+            "relative w-full py-4",
+            className
+          )}
+          style={{ overscrollBehavior: 'contain' }}
+          {...props}
+        >
+          <div 
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-6 px-4 -mx-4 scrollbar-hide"
+            style={{ 
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x',
+              overscrollBehavior: 'contain'
+            }}
+          >
+            {items.map((item, i) => (
+              <div
+                key={i}
+                role="group"
+                aria-label={item.title}
+                className="flex-shrink-0 w-[280px] h-[350px] snap-center"
+              >
+                <div className="relative w-full h-full rounded-2xl overflow-hidden group border border-white/10">
+                  {/* Gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
+
+                  {/* Content */}
+                  <div className="relative h-full p-6 flex flex-col">
+                    {/* Step number - top left */}
+                    <div className="relative flex items-center justify-center w-12 h-12">
+                      <div className="absolute inset-0 bg-white/10 rounded-xl" />
+                      <div className="absolute inset-0.5 bg-earth-900/90 rounded-[10px]" />
+                      <span className="relative text-xl font-black text-white/80">
+                        {item.step}
+                      </span>
+                    </div>
+
+                    {/* Centered Icon */}
+                    <div className="flex-1 flex items-center justify-center -mt-4">
+                      <div className="p-4">
+                        {item.icon}
+                      </div>
+                    </div>
+
+                    {/* Title and Description */}
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-bold text-white">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-white/60 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Scroll hint */}
+          <div className="flex justify-center mt-2 text-white/30 text-xs items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+            <span>Swipe to explore</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Desktop 3D carousel
     return (
       <div
         ref={(node) => {
@@ -129,7 +250,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
           isDragging ? "cursor-grabbing" : "cursor-grab",
           className
         )}
-        style={{ perspective: '1500px' }}
+        style={{ perspective: '1500px', touchAction: 'none' }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={handleMouseLeave}
         onMouseDown={handleMouseDown}

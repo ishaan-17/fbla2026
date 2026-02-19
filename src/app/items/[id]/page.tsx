@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import db from "@/lib/db";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -162,15 +163,19 @@ export default async function ItemDetailPage({
             {/* Image */}
             <div className="bg-neutral-800 rounded-xl overflow-hidden border border-white/10">
               {item.image_path ? (
-                <img
-                  src={
-                    item.image_path.startsWith("http")
-                      ? item.image_path
-                      : `/${item.image_path}`
-                  }
-                  alt={item.title}
-                  className="w-full h-[367px] object-cover"
-                />
+                <div className="relative w-full h-[367px]">
+                  <Image
+                    src={
+                      item.image_path.startsWith("http")
+                        ? item.image_path
+                        : `/${item.image_path}`
+                    }
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="h-64 flex items-center justify-center">
                   <svg

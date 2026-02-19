@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import PasswordGate from "@/components/PasswordGate";
 import type { Item, ClaimWithItem, InquiryWithItem } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -331,13 +332,15 @@ function AdminDashboard() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {item.image_path ? (
-                              <img
+                              <Image
                                 src={
                                   item.image_path.startsWith("http")
                                     ? item.image_path
                                     : `/${item.image_path}`
                                 }
                                 alt={item.title}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 object-cover rounded-lg"
                               />
                             ) : (
