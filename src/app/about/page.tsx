@@ -211,7 +211,7 @@ export default function AboutPage() {
           </ScrollReveal>
         </section>
 
-        {/* 30-Day Donation Policy - Bento Cards */}
+        {/* 30-Day Donation Policy - Chevron Flow */}
         <section id="policy" className="scroll-mt-24">
           <ScrollReveal className="text-center mb-10">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -226,53 +226,59 @@ export default function AboutPage() {
             </p>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                color: "bg-cyan-500",
-                iconBg: "bg-cyan-500",
-                icon: Search,
-                badge: "Days 1-14",
-                title: "Active Listing",
-                desc: "Items are actively listed and available for claiming. Full search and claim functionality.",
-              },
-              {
-                color: "bg-sky-600",
-                iconBg: "bg-sky-600",
-                icon: AlertCircle,
-                badge: "Days 15-30",
-                title: "Expiring Soon",
-                desc: "Items are marked as \"expiring soon\" with a visible countdown. Last chance to claim!",
-              },
-              {
-                color: "bg-primary-500",
-                iconBg: "bg-primary-500",
-                icon: Gift,
-                badge: "After 30 Days",
-                title: "Donated to Charity",
-                desc: "Unclaimed items are donated to local charities to benefit those in need. Nothing goes to waste!",
-              },
-            ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 100}>
-                <div className="bg-neutral-800 rounded-xl overflow-hidden border border-white/10 h-full">
-                  <div className={`h-1.5 ${item.color}`} />
-                  <div className="p-6">
-                    <div className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center mb-5`}>
-                      <item.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full mb-4">
-                      <Clock className="w-3 h-3 text-white/50" />
-                      <span className="text-xs font-semibold text-white/70">{item.badge}</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
-                  </div>
+          <ScrollReveal>
+            <div className="flex flex-col md:flex-row w-full">
+              {[
+                {
+                  step: "1",
+                  badge: "Days 1-14",
+                  title: "Active Listing",
+                  desc: "Items are fully searchable and available for claiming.",
+                  color: "bg-[#6BBD6E]",
+                },
+                {
+                  step: "2",
+                  badge: "Days 15-30",
+                  title: "Expiring Soon",
+                  desc: "Items show a countdown badge. Last chance to claim!",
+                  color: "bg-[#4AB89D]",
+                },
+                {
+                  step: "3",
+                  badge: "After 30 Days",
+                  title: "Donated to Charity",
+                  desc: "Unclaimed items go to local charities in need.",
+                  color: "bg-[#35A7BF]",
+                },
+              ].map((item, i, arr) => (
+                <div
+                  key={i}
+                  className={`relative flex-1 ${item.color} flex flex-col items-center justify-center text-center px-8 py-8 md:py-10 min-h-[200px]`}
+                  style={{
+                    clipPath: i === arr.length - 1
+                      ? "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)"
+                      : "polygon(0 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 0 100%, 28px 50%)",
+                    marginLeft: i === 0 ? "0" : "-14px",
+                  }}
+                >
+                  <span className="text-5xl md:text-6xl font-extrabold text-white/90 mb-1">
+                    {item.step}
+                  </span>
+                  <span className="text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-wider mb-2">
+                    {item.badge}
+                  </span>
+                  <p className="text-sm font-semibold text-neutral-800 leading-tight max-w-[160px] mb-1">
+                    {item.title}
+                  </p>
+                  <p className="text-xs text-neutral-700/80 leading-tight max-w-[160px]">
+                    {item.desc}
+                  </p>
                 </div>
-              </ScrollReveal>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollReveal>
 
-          <ScrollReveal delay={300}>
+          <ScrollReveal delay={200}>
             <p className="text-center text-sm text-white/40 mt-8 max-w-2xl mx-auto">
               This policy helps ensure that items are either returned to their owners or go to someone who can use them. If you know you&apos;ve lost something, please check the listings regularly!
             </p>
@@ -306,36 +312,42 @@ export default function AboutPage() {
             </div>
           </ScrollReveal>
 
-          <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <ScrollReveal delay={0}>
-              <div className="bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-xl p-6 border border-white/10">
-                <div className="flex items-start gap-5">
-                  <div className="w-14 h-14 bg-primary-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Camera className="w-7 h-7 text-white" />
+              <div className="flex flex-col items-center">
+                {/* Points badge */}
+                <div className="relative">
+                  <div className="border-2 border-[#4AB89D] rounded-full px-8 py-4">
+                    <span className="text-2xl font-bold text-[#4AB89D]">+10 pts</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-primary-400 uppercase tracking-wider">+10 Points</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-1">Report a Found Item</h3>
-                    <p className="text-sm text-white/60">Earned when you submit a report with your information. Help someone find their belongings!</p>
-                  </div>
+                  {/* Vertical line */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0.5 h-8 bg-[#4AB89D]"></div>
+                  {/* Dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+32px)] w-3 h-3 rounded-full bg-[#4AB89D]"></div>
+                </div>
+                {/* Content */}
+                <div className="mt-12 text-center">
+                  <h3 className="text-xl font-bold text-white">01 Item Reported</h3>
+                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">Submit a found item report with photo and details to help reunite it with the owner.</p>
                 </div>
               </div>
             </ScrollReveal>
             <ScrollReveal delay={100}>
-              <div className="bg-gradient-to-br from-cyan-900/50 to-neutral-900 rounded-xl p-6 border border-cyan-800/50">
-                <div className="flex items-start gap-5">
-                  <div className="w-14 h-14 bg-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Heart className="w-7 h-7 text-white" />
+              <div className="flex flex-col items-center">
+                {/* Points badge */}
+                <div className="relative">
+                  <div className="border-2 border-[#35A7BF] rounded-full px-8 py-4">
+                    <span className="text-2xl font-bold text-[#35A7BF]">+25 pts</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">+25 Points</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-white mb-1">Item Successfully Returned</h3>
-                    <p className="text-sm text-white/60">Bonus points when the item you found is claimed and verified by the owner.</p>
-                  </div>
+                  {/* Vertical line */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0.5 h-8 bg-[#35A7BF]"></div>
+                  {/* Dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+32px)] w-3 h-3 rounded-full bg-[#35A7BF]"></div>
+                </div>
+                {/* Content */}
+                <div className="mt-12 text-center">
+                  <h3 className="text-xl font-bold text-white">02 Item Returned</h3>
+                  <p className="text-sm text-white/60 mt-3 max-w-[200px] mx-auto">Bonus points when your found item is successfully claimed and verified by the owner.</p>
                 </div>
               </div>
             </ScrollReveal>
@@ -354,42 +366,55 @@ export default function AboutPage() {
             </h2>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                step: "01",
-                title: "Report a Found Item",
-                desc: "Found something on campus? Take a photo and submit a report. Our AI will automatically categorize the item.",
-                color: "from-primary-500/20 to-transparent",
-              },
-              {
-                step: "02",
-                title: "Admin Review",
-                desc: "An administrator reviews submitted reports to ensure they are genuine and appropriately categorized.",
-                color: "from-cyan-500/20 to-transparent",
-              },
-              {
-                step: "03",
-                title: "Search & Claim",
-                desc: "Lost something? Browse the listings or search by keyword. When you find your item, submit a claim.",
-                color: "from-sky-500/20 to-transparent",
-              },
-              {
-                step: "04",
-                title: "Verification & Collection",
-                desc: "An admin verifies your claim. Once verified, collect your item and the finder earns bonus points!",
-                color: "from-indigo-500/20 to-transparent",
-              },
-            ].map((item, i) => (
-              <ScrollReveal key={item.step} delay={i * 100}>
-                <div className={`bg-gradient-to-br ${item.color} bg-neutral-800/50 rounded-xl p-6 border border-white/10 h-full`}>
-                  <span className="text-5xl font-extrabold text-white/20">{item.step}</span>
-                  <h3 className="text-lg font-bold text-white mt-4 mb-2">{item.title}</h3>
-                  <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
+          <ScrollReveal>
+            <div className="flex flex-col md:flex-row w-full">
+              {[
+                {
+                  step: "Step 1",
+                  title: "Report Item",
+                  desc: "Take a photo and submit a report",
+                  color: "bg-primary-400",
+                },
+                {
+                  step: "Step 2",
+                  title: "Admin Review",
+                  desc: "Admins verify the report is genuine",
+                  color: "bg-primary-500",
+                },
+                {
+                  step: "Step 3",
+                  title: "Search & Claim",
+                  desc: "Browse or search, then submit a claim",
+                  color: "bg-primary-600",
+                },
+                {
+                  step: "Step 4",
+                  title: "Collect Item",
+                  desc: "Verified! Collect your item",
+                  color: "bg-primary-700",
+                },
+              ].map((item, i, arr) => (
+                <div
+                  key={i}
+                  className={`relative flex-1 ${item.color} flex items-center justify-center text-center px-8 py-5 min-h-[100px]`}
+                  style={{
+                    clipPath: i === 0
+                      ? "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)"
+                      : i === arr.length - 1
+                      ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%)"
+                      : "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)",
+                    marginLeft: i === 0 ? "0" : "-10px",
+                  }}
+                >
+                  <div>
+                    <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">{item.step}</span>
+                    <p className="text-sm font-bold text-white">{item.title}</p>
+                    <p className="text-[11px] text-white/70 mt-1 leading-tight">{item.desc}</p>
+                  </div>
                 </div>
-              </ScrollReveal>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
         {/* Contact - 3 Cards */}
@@ -409,17 +434,17 @@ export default function AboutPage() {
               {
                 icon: MapPin,
                 title: "Visit Us",
-                lines: ["Lost & Found Office", "Building A, Room 102", "Open Mon-Fri, 8am-4pm"],
+                lines: ["Main Office", "Open Mon-Fri, 8am-4pm"],
               },
               {
                 icon: Mail,
                 title: "Email Us",
-                lines: ["General Inquiries:", "lostandfound@school.edu", "We reply within 24 hours"],
+                lines: ["General Inquiries:", "montavista@fuhsd.org", "We reply within 24 hours"],
               },
               {
                 icon: Phone,
                 title: "Call Us",
-                lines: ["Office Phone:", "(555) 123-4567", "During office hours"],
+                lines: ["Office Phone:", "(408) 366-7600", "During office hours"],
               },
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 100}>
