@@ -71,25 +71,7 @@ export function CTASection() {
             </div>
           </ScrollRevealItem>
 
-          {/* Stats highlight */}
-          <ScrollRevealItem>
-            <div className="mt-14 flex items-center justify-center gap-8 sm:gap-12">
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white">76%</div>
-                <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Return Rate</div>
-              </div>
-              <div className="h-10 w-px bg-white/10" />
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white">2,000+</div>
-                <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Items Returned</div>
-              </div>
-              <div className="h-10 w-px bg-white/10" />
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-white">500+</div>
-                <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Good Samaritans</div>
-              </div>
-            </div>
-          </ScrollRevealItem>
+          
         </ScrollRevealStagger>
       </div>
     </section>
