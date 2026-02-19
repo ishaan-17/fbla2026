@@ -35,12 +35,25 @@ export const SlideTabs = ({
   });
   const [hovered, setHovered] = useState<number | null>(null);
 
-  const activeIndex = tabs.findIndex((tab) => tab.href === pathname);
+  // Match nested routes (e.g., /report/success should match /report tab)
+  const findActiveIndex = (path: string) => {
+    // First try exact match
+    const exactIndex = tabs.findIndex((tab) => tab.href === path);
+    if (exactIndex >= 0) return exactIndex;
+    
+    // Then try prefix match for nested routes (skip home "/" to avoid false matches)
+    const prefixIndex = tabs.findIndex((tab) => 
+      tab.href !== "/" && path.startsWith(tab.href + "/")
+    );
+    return prefixIndex >= 0 ? prefixIndex : 0;
+  };
+
+  const activeIndex = findActiveIndex(pathname);
   const [selected, setSelected] = useState(activeIndex >= 0 ? activeIndex : 0);
   const tabsRef = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
-    const newIndex = tabs.findIndex((tab) => tab.href === pathname);
+    const newIndex = findActiveIndex(pathname);
     if (newIndex >= 0) {
       setSelected(newIndex);
     }
