@@ -150,7 +150,9 @@ export default function Navbar() {
   const hamburgerColor = isLightBackground ? "bg-black" : "bg-white";
 
   // Filter tabs based on admin status
-  const filteredTabs = navTabs.filter(tab => tab.label !== "Admin" || isAdmin);
+  const filteredTabs = navTabs.filter(
+    (tab) => tab.label !== "Admin" || isAdmin,
+  );
 
   // Helper function to truncate last name to initial
   const formatName = (name: string | null | undefined) => {
@@ -180,6 +182,7 @@ export default function Navbar() {
         />
       )}
       <nav
+        aria-label="Main navigation"
         className="relative z-50 border border-white/8 bg-white/3 backdrop-blur-xl rounded-2xl"
         style={{
           boxShadow: `
@@ -211,7 +214,10 @@ export default function Navbar() {
 
             {/* Desktop: Slide Tabs Navigation - Center (absolute for true center) */}
             <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2">
-              <SlideTabs tabs={filteredTabs} isLightBackground={isLightBackground} />
+              <SlideTabs
+                tabs={filteredTabs}
+                isLightBackground={isLightBackground}
+              />
             </div>
 
             {/* User Avatar or Login Button - Right */}
@@ -227,18 +233,18 @@ export default function Navbar() {
                     {formatName(session.user.name)}
                   </span>
                   <LiquidButton
-                      variant="light"
-                      size="sm"
-                      onClick={async () => {
-                        // Clear admin cookie as well
-                        await fetch("/api/admin/auth", { method: "DELETE" });
-                        setIsAdmin(false);
-                        signOut({ callbackUrl: '/' });
-                      }}
-                      aria-label="Sign out"
-                    >
-                      <LogOut className="w-4 h-4 text-red-400" />
-                    </LiquidButton>
+                    variant="light"
+                    size="sm"
+                    onClick={async () => {
+                      // Clear admin cookie as well
+                      await fetch("/api/admin/auth", { method: "DELETE" });
+                      setIsAdmin(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                  </LiquidButton>
                 </div>
               ) : isAdmin ? (
                 <LiquidButton
@@ -267,6 +273,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden p-2 z-20"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
             >
               <div
                 className={`w-6 h-0.5 ${hamburgerColor} mb-1.5 transition-all duration-300 ${mobileOpen ? "transform rotate-45 translate-y-2" : ""}`}
@@ -365,7 +372,7 @@ export default function Navbar() {
                         // Clear admin cookie as well
                         await fetch("/api/admin/auth", { method: "DELETE" });
                         setIsAdmin(false);
-                        signOut({ callbackUrl: '/' });
+                        signOut({ callbackUrl: "/" });
                       }}
                       className=""
                     >

@@ -13,7 +13,7 @@ export function CTASection() {
     <section className="relative overflow-hidden">
       {/* Gradient transition from previous section */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-earth-900/50 to-earth-900" />
-      
+
       {/* Background decorative orbs - matching HowItWorks aesthetic */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-[15%] w-80 h-80 bg-primary-500/15 rounded-full blur-3xl animate-pulse-soft" />
@@ -24,12 +24,12 @@ export function CTASection() {
       </div>
 
       {/* Subtle grid pattern overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
+          backgroundSize: "60px 60px",
         }}
       />
 
@@ -44,7 +44,7 @@ export function CTASection() {
               Make a Difference
             </span>
           </ScrollRevealItem>
-          
+
           <ScrollRevealItem>
             <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
               <ScrollFloat stagger={0.02}>
@@ -52,14 +52,14 @@ export function CTASection() {
               </ScrollFloat>
             </h2>
           </ScrollRevealItem>
-          
+
           <ScrollRevealItem>
             <p className="text-white/70 mt-5 text-lg leading-relaxed max-w-lg mx-auto">
               Report it now and help someone get their belongings back. Earn
-              points and climb the leaderboard while making someone's day.
+              points and climb the leaderboard while making someone&apos;s day.
             </p>
           </ScrollRevealItem>
-          
+
           <ScrollRevealItem>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
               <LiquidButton asChild variant="light" size="xl">
@@ -70,8 +70,6 @@ export function CTASection() {
               </LiquidButton>
             </div>
           </ScrollRevealItem>
-
-          
         </ScrollRevealStagger>
       </div>
     </section>

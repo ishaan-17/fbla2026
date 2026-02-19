@@ -18,7 +18,8 @@ function getDaysRemaining(dateFound: string): number {
 }
 
 export default function ItemCard({ item }: { item: Item }) {
-  const daysLeft = item.status === "approved" ? getDaysRemaining(item.date_found) : null;
+  const daysLeft =
+    item.status === "approved" ? getDaysRemaining(item.date_found) : null;
 
   return (
     <Link href={`/items/${item.id}`}>
@@ -27,14 +28,29 @@ export default function ItemCard({ item }: { item: Item }) {
         <div className="relative aspect-[4/3] bg-earth-100 overflow-hidden">
           {item.image_path ? (
             <img
-              src={item.image_path.startsWith('http') ? item.image_path : `/${item.image_path}`}
+              src={
+                item.image_path.startsWith("http")
+                  ? item.image_path
+                  : `/${item.image_path}`
+              }
               alt={item.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-earth-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg
+                className="w-12 h-12 text-earth-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
             </div>
           )}

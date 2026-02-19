@@ -135,18 +135,18 @@ export default function ImageUploader({
         <FileUpload onChange={handleFileUpload} />
 
         {isAnalyzing && (
-          <div 
+          <div
             className="px-6 py-4 -mt-2 rounded-b-2xl border-x border-b border-white/[0.08]"
             style={{
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              backdropFilter: "blur(24px) saturate(150%)",
+              WebkitBackdropFilter: "blur(24px) saturate(150%)",
               background: `linear-gradient(
                 135deg,
                 rgba(255, 255, 255, 0.06) 0%,
                 rgba(255, 255, 255, 0.02) 50%,
                 rgba(255, 255, 255, 0.04) 100%
               )`,
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.03)',
+              boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.03)",
             }}
           >
             <div className="flex items-center gap-3">
@@ -161,11 +161,11 @@ export default function ImageUploader({
 
       {/* AI Tags */}
       {tags.length > 0 && (
-        <div 
+        <div
           className="p-4 rounded-2xl border border-white/[0.08]"
           style={{
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            backdropFilter: "blur(24px) saturate(150%)",
+            WebkitBackdropFilter: "blur(24px) saturate(150%)",
             background: `linear-gradient(
               135deg,
               rgba(255, 255, 255, 0.08) 0%,
@@ -186,6 +186,7 @@ export default function ImageUploader({
               viewBox="0 0 24 24"
               stroke="currentColor"
               strokeWidth={2.5}
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -203,11 +204,11 @@ export default function ImageUploader({
                 key={i}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/80 rounded-full border border-white/[0.1]"
                 style={{
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  background: "rgba(255, 255, 255, 0.08)",
+                  boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
                 }}
               >
                 {tag.label}

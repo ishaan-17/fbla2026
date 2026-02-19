@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 const liquidbuttonVariants = cva(
-  "inline-flex items-center justify-center cursor-pointer gap-2 whitespace-nowrap font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 outline-none",
+  "inline-flex items-center justify-center cursor-pointer gap-2 whitespace-nowrap font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
   {
     variants: {
       variant: {
@@ -29,13 +29,13 @@ const liquidbuttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 export interface LiquidButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof liquidbuttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 function LiquidButton({
@@ -46,10 +46,11 @@ function LiquidButton({
   children,
   ...props
 }: LiquidButtonProps) {
-  const isDark = variant === "dark"
-  const isLight = variant === "light"
-  const isLarge = size === "full" || size === "xxl" || size === "xl" || size === "search"
-  const borderRadius = isLarge ? "rounded-2xl" : "rounded-full"
+  const isDark = variant === "dark";
+  const isLight = variant === "light";
+  const isLarge =
+    size === "full" || size === "xxl" || size === "xl" || size === "search";
+  const borderRadius = isLarge ? "rounded-2xl" : "rounded-full";
 
   const glassLayers = (
     <>
@@ -57,11 +58,11 @@ function LiquidButton({
       <div
         className={cn(
           "absolute inset-0 z-0 overflow-hidden pointer-events-none",
-          borderRadius
+          borderRadius,
         )}
         style={{
-          backdropFilter: 'blur(24px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+          backdropFilter: "blur(24px) saturate(150%)",
+          WebkitBackdropFilter: "blur(24px) saturate(150%)",
           background: isDark
             ? `linear-gradient(
                 135deg,
@@ -89,10 +90,10 @@ function LiquidButton({
       <div
         className={cn(
           "absolute inset-0 z-[0] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-          borderRadius
+          borderRadius,
         )}
         style={{
-          background: 'rgba(255, 255, 255, 0.15)',
+          background: "rgba(255, 255, 255, 0.15)",
         }}
       />
 
@@ -100,7 +101,7 @@ function LiquidButton({
       <div
         className={cn(
           "absolute inset-0 z-[1] pointer-events-none",
-          borderRadius
+          borderRadius,
         )}
         style={{
           boxShadow: isDark
@@ -121,23 +122,23 @@ function LiquidButton({
       <div
         className={cn(
           "absolute inset-0 z-[-1] pointer-events-none",
-          borderRadius
+          borderRadius,
         )}
         style={{
           boxShadow: isDark
-            ? '0 4px 24px rgba(0, 0, 0, 0.25), 0 12px 48px rgba(0, 0, 0, 0.15)'
-            : '0 4px 24px rgba(0, 0, 0, 0.08), 0 12px 48px rgba(0, 0, 0, 0.05)',
+            ? "0 4px 24px rgba(0, 0, 0, 0.25), 0 12px 48px rgba(0, 0, 0, 0.15)"
+            : "0 4px 24px rgba(0, 0, 0, 0.08), 0 12px 48px rgba(0, 0, 0, 0.05)",
         }}
       />
     </>
-  )
+  );
 
   const buttonClasses = cn(
     "relative",
     borderRadius,
     "hover:scale-[1.02] active:scale-[0.98]",
-    liquidbuttonVariants({ variant, size, className })
-  )
+    liquidbuttonVariants({ variant, size, className }),
+  );
 
   // When asChild, wrap in a span container to hold the glass layers
   if (asChild) {
@@ -152,7 +153,7 @@ function LiquidButton({
           {children}
         </Slot>
       </span>
-    )
+    );
   }
 
   return (
@@ -167,8 +168,8 @@ function LiquidButton({
         {children}
       </span>
     </button>
-  )
+  );
 }
 
-export { LiquidButton, liquidbuttonVariants }
-export default LiquidButton
+export { LiquidButton, liquidbuttonVariants };
+export default LiquidButton;

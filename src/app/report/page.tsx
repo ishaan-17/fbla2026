@@ -13,7 +13,7 @@ import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import type { MappedTag } from "@/types";
 
 // Liquid glass validation tooltip component
-function ValidationTooltip({ message }: { message: string }) {
+function ValidationTooltip({ message, id }: { message: string; id?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 4, scale: 0.95 }}
@@ -76,7 +76,11 @@ function ValidationTooltip({ message }: { message: string }) {
         />
 
         {/* Content */}
-        <div className="relative z-30 px-3 py-2 text-sm text-white font-semibold whitespace-nowrap">
+        <div
+          id={id}
+          role="alert"
+          className="relative z-30 px-3 py-2 text-sm text-white font-semibold whitespace-nowrap"
+        >
           {message}
         </div>
 
@@ -135,7 +139,13 @@ export default function ReportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState("");
   const [aiDetectedTags, setAiDetectedTags] = useState<MappedTag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<{ id: string; label: string; category?: "color" | "size" | "material" | "type" | "other" }[]>([]);
+  const [selectedTags, setSelectedTags] = useState<
+    {
+      id: string;
+      label: string;
+      category?: "color" | "size" | "material" | "type" | "other";
+    }[]
+  >([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -243,7 +253,9 @@ export default function ReportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          date_found: dateFound?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0],
+          date_found:
+            dateFound?.toISOString().split("T")[0] ||
+            new Date().toISOString().split("T")[0],
           category: category || "other",
           image_path: imagePath,
           ai_tags: selectedTags.map((t) => t.label),
@@ -276,21 +288,28 @@ export default function ReportPage() {
             Report a Found Item
           </h1>
           <p className="text-white/60 mt-3 leading-relaxed">
-            Found something? Help it find its owner. Upload a photo and our AI will help categorize it.
-            You&apos;ll earn <span className="font-bold text-primary-400">10 points</span> for reporting!
+            Found something? Help it find its owner. Upload a photo and our AI
+            will help categorize it. You&apos;ll earn{" "}
+            <span className="font-bold text-primary-400">10 points</span> for
+            reporting!
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10" noValidate>
           {error && (
-            <div className="p-4 text-sm text-red-300 rounded-xl bg-red-500/20 backdrop-blur-sm border border-red-500/30 shadow-[0_2px_12px_rgba(220,38,38,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]">
+            <div
+              role="alert"
+              className="p-4 text-sm text-red-300 rounded-xl bg-red-500/20 backdrop-blur-sm border border-red-500/30 shadow-[0_2px_12px_rgba(220,38,38,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]"
+            >
               {error}
             </div>
           )}
 
           {/* Image Upload */}
           <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Photo</h2>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+              Photo
+            </h2>
             <ImageUploader
               onFileSelect={setFile}
               onCategoryDetected={setCategory}
@@ -300,50 +319,85 @@ export default function ReportPage() {
 
           {/* Item Details */}
           <div className="space-y-5">
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Item Details</h2>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              Item Details
+            </h2>
 
             <div>
-              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+              <label
+                htmlFor="report-title"
+                className="block text-sm font-semibold text-white/80 mb-1.5"
+              >
                 Item Title <span className="text-primary-400">*</span>
               </label>
               <div className="relative">
                 <input
+                  id="report-title"
                   type="text"
                   value={form.title}
                   onChange={(e) => handleFieldChange("title", e.target.value)}
+                  aria-describedby={
+                    fieldErrors.title ? "error-title" : undefined
+                  }
+                  aria-invalid={!!fieldErrors.title}
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
                   placeholder="e.g., Blue water bottle"
                 />
                 <AnimatePresence>
-                  {fieldErrors.title && <ValidationTooltip message={fieldErrors.title} />}
+                  {fieldErrors.title && (
+                    <ValidationTooltip
+                      message={fieldErrors.title}
+                      id="error-title"
+                    />
+                  )}
                 </AnimatePresence>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+              <label
+                htmlFor="report-description"
+                className="block text-sm font-semibold text-white/80 mb-1.5"
+              >
                 Description <span className="text-primary-400">*</span>
               </label>
               <div className="relative">
                 <textarea
+                  id="report-description"
                   value={form.description}
-                  onChange={(e) => handleFieldChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("description", e.target.value)
+                  }
                   rows={3}
+                  aria-describedby={
+                    fieldErrors.description ? "error-description" : undefined
+                  }
+                  aria-invalid={!!fieldErrors.description}
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 resize-none bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
                   placeholder="Describe the item — color, brand, size, any distinguishing features..."
                 />
                 <AnimatePresence>
-                  {fieldErrors.description && <ValidationTooltip message={fieldErrors.description} />}
+                  {fieldErrors.description && (
+                    <ValidationTooltip
+                      message={fieldErrors.description}
+                      id="error-description"
+                    />
+                  )}
                 </AnimatePresence>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                <label
+                  htmlFor="report-category"
+                  className="block text-sm font-semibold text-white/80 mb-1.5"
+                >
                   Category
                   {category && (
-                    <span className="ml-2 text-xs text-primary-400 font-normal">AI suggested</span>
+                    <span className="ml-2 text-xs text-primary-400 font-normal">
+                      AI suggested
+                    </span>
                   )}
                 </label>
                 <DropdownMenu
@@ -358,7 +412,10 @@ export default function ReportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-white/80 mb-1.5">
+                <label
+                  htmlFor="report-date"
+                  className="block text-sm font-semibold text-white/80 mb-1.5"
+                >
                   Date Found <span className="text-primary-400">*</span>
                 </label>
                 <div className="relative">
@@ -377,26 +434,46 @@ export default function ReportPage() {
                     placeholder="Select date found"
                   />
                   <AnimatePresence>
-                    {fieldErrors.date_found && <ValidationTooltip message={fieldErrors.date_found} />}
+                    {fieldErrors.date_found && (
+                      <ValidationTooltip
+                        message={fieldErrors.date_found}
+                        id="error-date-found"
+                      />
+                    )}
                   </AnimatePresence>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white/80 mb-1.5">
+              <label
+                htmlFor="report-location"
+                className="block text-sm font-semibold text-white/80 mb-1.5"
+              >
                 Location Found <span className="text-primary-400">*</span>
               </label>
               <div className="relative">
                 <input
+                  id="report-location"
                   type="text"
                   value={form.location_found}
-                  onChange={(e) => handleFieldChange("location_found", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("location_found", e.target.value)
+                  }
+                  aria-describedby={
+                    fieldErrors.location_found ? "error-location" : undefined
+                  }
+                  aria-invalid={!!fieldErrors.location_found}
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
                   placeholder="e.g., Room A101, Rally Court, Gym"
                 />
                 <AnimatePresence>
-                  {fieldErrors.location_found && <ValidationTooltip message={fieldErrors.location_found} />}
+                  {fieldErrors.location_found && (
+                    <ValidationTooltip
+                      message={fieldErrors.location_found}
+                      id="error-location"
+                    />
+                  )}
                 </AnimatePresence>
               </div>
             </div>
@@ -407,7 +484,9 @@ export default function ReportPage() {
                 tags={COMMON_TAGS}
                 selectedTags={selectedTags}
                 onSelectionChange={setSelectedTags}
-                title={aiDetectedTags.length > 0 ? "Tags (AI suggested)" : "Tags"}
+                title={
+                  aiDetectedTags.length > 0 ? "Tags (AI suggested)" : "Tags"
+                }
               />
             </div>
           </div>
@@ -431,10 +510,9 @@ export default function ReportPage() {
               )}
             </LiquidButton>
             <p className="text-xs text-center text-white/40 mt-3">
-              {isAdmin 
+              {isAdmin
                 ? "As an admin, your report will be published immediately."
-                : "Your report will be reviewed by an admin before appearing publicly."
-              }
+                : "Your report will be reviewed by an admin before appearing publicly."}
             </p>
           </div>
         </form>

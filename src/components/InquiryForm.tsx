@@ -45,8 +45,19 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 bg-cyan-500/10 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <svg
+            className="w-6 h-6 text-cyan-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
           </svg>
         </div>
         <h3 className="text-lg font-bold text-white mb-2">Message Sent!</h3>
@@ -64,14 +75,23 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
       </h3>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400">
+        <div
+          role="alert"
+          className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400"
+        >
           {error}
         </div>
       )}
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">Your Name</label>
+        <label
+          htmlFor="inquiry-name"
+          className="block text-sm font-medium text-white/70"
+        >
+          Your Name
+        </label>
         <input
+          id="inquiry-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -82,8 +102,14 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">Your Email</label>
+        <label
+          htmlFor="inquiry-email"
+          className="block text-sm font-medium text-white/70"
+        >
+          Your Email
+        </label>
         <input
+          id="inquiry-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -94,10 +120,14 @@ export default function InquiryForm({ itemId }: { itemId: number }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">
+        <label
+          htmlFor="inquiry-message"
+          className="block text-sm font-medium text-white/70"
+        >
           Your Message
         </label>
         <textarea
+          id="inquiry-message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required

@@ -132,6 +132,7 @@ function TableOfContents({
           onClick={() => setMobileOpen((o) => !o)}
           className="flex items-center gap-1.5 bg-neutral-800/95 backdrop-blur-sm border border-white/10 rounded-full px-3 py-2 shadow-lg shadow-black/30 transition-colors hover:bg-neutral-700/95"
           aria-label="Table of Contents"
+          aria-expanded={mobileOpen}
         >
           {mobileOpen ? (
             <X className="w-4 h-4 text-white/70" />
@@ -510,6 +511,7 @@ export default function AboutPage() {
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"

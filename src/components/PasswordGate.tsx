@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
-export default function PasswordGate({ children }: { children: React.ReactNode }) {
+export default function PasswordGate({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -56,17 +60,28 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     return (
       <div className="max-w-sm mx-auto mt-24 px-4">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Admin Access</h2>
-          <p className="text-gray-200 text-sm mt-2">Enter the admin password to continue</p>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">
+            Admin Access
+          </h2>
+          <p className="text-gray-200 text-sm mt-2">
+            Enter the admin password to continue
+          </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 p-3 text-sm text-red-800 text-center">
+            <div
+              role="alert"
+              className="bg-red-50 border border-red-200 p-3 text-sm text-red-800 text-center"
+            >
               {error}
             </div>
           )}
+          <label htmlFor="admin-gate-password" className="sr-only">
+            Admin password
+          </label>
           <input
+            id="admin-gate-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

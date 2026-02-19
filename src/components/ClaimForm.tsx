@@ -43,13 +43,25 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
     return (
       <div className="text-center py-6">
         <div className="w-12 h-12 bg-primary-500/10 border border-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <svg
+            className="w-6 h-6 text-primary-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
         <h3 className="text-lg font-bold text-white mb-2">Claim Submitted!</h3>
         <p className="text-sm text-white/60">
-          Your claim has been submitted successfully. An admin will review it and get back to you.
+          Your claim has been submitted successfully. An admin will review it
+          and get back to you.
         </p>
       </div>
     );
@@ -62,14 +74,23 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
       </h3>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400">
+        <div
+          role="alert"
+          className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400"
+        >
           {error}
         </div>
       )}
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">Your Name</label>
+        <label
+          htmlFor="claim-name"
+          className="block text-sm font-medium text-white/70"
+        >
+          Your Name
+        </label>
         <input
+          id="claim-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -80,8 +101,14 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">Your Email</label>
+        <label
+          htmlFor="claim-email"
+          className="block text-sm font-medium text-white/70"
+        >
+          Your Email
+        </label>
         <input
+          id="claim-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -92,10 +119,14 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">
+        <label
+          htmlFor="claim-description"
+          className="block text-sm font-medium text-white/70"
+        >
           Why do you believe this is yours?
         </label>
         <textarea
+          id="claim-description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
