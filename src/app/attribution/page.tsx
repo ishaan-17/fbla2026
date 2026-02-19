@@ -141,12 +141,6 @@ const attributions: AttributionSection[] = [
         url: "https://gsap.com",
         license: "Standard License",
       },
-      {
-        name: "Three.js",
-        description: "A 3D library that makes WebGL simpler, used for immersive visual experiences.",
-        url: "https://threejs.org",
-        license: "MIT License",
-      },
     ],
   },
   {
