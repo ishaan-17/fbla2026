@@ -31,7 +31,7 @@ const footerLinks: FooterSection[] = [
 			{ title: 'How It Works', href: '/about' },
 			{ title: '30-Day Policy', href: '/about' },
 			{ title: 'Admin Portal', href: '/admin' },
-			{ title: 'Contact', href: '#' },
+			{ title: 'Attribution', href: '/attribution' },
 		],
 	},
 	{
