@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, ReactNode } from "react";
-import { Code, Palette, Box, Database, Shield, Sparkles, Type, ExternalLink } from "lucide-react";
+import { Code, Palette, Box, Database, Shield, Sparkles, Type, ExternalLink, Lightbulb } from "lucide-react";
 
 // Scroll animation component
 function ScrollReveal({ 
@@ -224,6 +224,17 @@ const attributions: AttributionSection[] = [
         description: "A typeface designed for developers, used for code and monospaced text.",
         url: "https://www.jetbrains.com/lp/mono",
         license: "Open Font License",
+      },
+    ],
+  },
+  {
+    title: "Design Inspiration",
+    icon: Lightbulb,
+    items: [
+      {
+        name: "21st.dev",
+        description: "A curated collection of beautiful UI components and design patterns that inspired our interface design.",
+        url: "https://21st.dev",
       },
     ],
   },
