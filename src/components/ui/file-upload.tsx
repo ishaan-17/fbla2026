@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Cloud, ImageIcon } from "lucide-react";
+import { Cloud, ImageIcon, Camera, FolderOpen } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 export const FileUpload = ({
@@ -13,6 +13,7 @@ export const FileUpload = ({
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
@@ -21,6 +22,11 @@ export const FileUpload = ({
 
   const handleClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleCameraClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    cameraInputRef.current?.click();
   };
 
   const { getRootProps, isDragActive } = useDropzone({
@@ -45,6 +51,15 @@ export const FileUpload = ({
           id="file-upload-handle"
           type="file"
           accept="image/*"
+          onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
+          className="hidden"
+        />
+        <input
+          ref={cameraInputRef}
+          id="camera-upload-handle"
+          type="file"
+          accept="image/*"
+          capture="environment"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
@@ -102,7 +117,7 @@ export const FileUpload = ({
             <div className="pt-2 ml-3.5">
               <h3 className="text-xl font-bold text-white mb-1 mt-1">Upload files</h3>
               <p className="text-sm text-white/50 font-medium">
-                Drag & drop or select your files to upload
+                Drag & drop, browse files, or take a photo
               </p>
             </div>
           </div>
@@ -165,30 +180,63 @@ export const FileUpload = ({
             ) : (
               /* Empty state */
               <div className="flex flex-col items-center py-4">
-                {/* Liquid glass button */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative px-8 py-3 rounded-full font-semibold text-sm tracking-wide text-white transition-all overflow-hidden border border-white/[0.15]"
-                  style={{
-                    backdropFilter: 'blur(24px) saturate(150%)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-                    background: `linear-gradient(
-                      135deg,
-                      rgba(255, 255, 255, 0.12) 0%,
-                      rgba(255, 255, 255, 0.06) 50%,
-                      rgba(255, 255, 255, 0.08) 100%
-                    )`,
-                    boxShadow: `
-                      inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
-                      inset 0 -1px 0 0 rgba(0, 0, 0, 0.1),
-                      0 4px 24px rgba(0, 0, 0, 0.2)
-                    `,
-                  }}
-                >
-                  {isDragActive ? "DROP HERE" : "BROWSE FILES"}
-                </motion.button>
+                {/* Button row */}
+                <div className="flex items-center gap-3">
+                  {/* Browse files button */}
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm tracking-wide text-white transition-all overflow-hidden border border-white/[0.15]"
+                    style={{
+                      backdropFilter: 'blur(24px) saturate(150%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                      background: `linear-gradient(
+                        135deg,
+                        rgba(255, 255, 255, 0.12) 0%,
+                        rgba(255, 255, 255, 0.06) 50%,
+                        rgba(255, 255, 255, 0.08) 100%
+                      )`,
+                      boxShadow: `
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.1),
+                        0 4px 24px rgba(0, 0, 0, 0.2)
+                      `,
+                    }}
+                  >
+                    <FolderOpen className="w-4 h-4" strokeWidth={2} />
+                    {isDragActive ? "DROP HERE" : "BROWSE FILES"}
+                  </motion.button>
+
+                  <span className="text-white/30 text-xs font-medium">or</span>
+
+                  {/* Camera capture button */}
+                  <motion.button
+                    type="button"
+                    onClick={handleCameraClick}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm tracking-wide text-white transition-all overflow-hidden border border-white/[0.15]"
+                    style={{
+                      backdropFilter: 'blur(24px) saturate(150%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                      background: `linear-gradient(
+                        135deg,
+                        rgba(255, 255, 255, 0.12) 0%,
+                        rgba(255, 255, 255, 0.06) 50%,
+                        rgba(255, 255, 255, 0.08) 100%
+                      )`,
+                      boxShadow: `
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+                        inset 0 -1px 0 0 rgba(0, 0, 0, 0.1),
+                        0 4px 24px rgba(0, 0, 0, 0.2)
+                      `,
+                    }}
+                  >
+                    <Camera className="w-4 h-4" strokeWidth={2} />
+                    TAKE PHOTO
+                  </motion.button>
+                </div>
                 <p className="text-xs text-white/35 mt-4 font-medium">
                   JPG, JPEG, PNG only allowed. Up to 5MB
                 </p>
