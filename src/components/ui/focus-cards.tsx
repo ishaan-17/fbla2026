@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export const Card = React.memo(
@@ -29,10 +30,12 @@ export const Card = React.memo(
       )}
     >
       {card.src ? (
-        <img
+        <Image
           src={card.src}
           alt={card.title}
-          className="object-cover absolute inset-0 w-full h-full"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover"
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-earth-200">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import PasswordGate from "@/components/PasswordGate";
 import type { Item, ClaimWithItem, InquiryWithItem } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -53,35 +54,58 @@ function AdminDashboard() {
     }
   }, [tab, items, claims, inquiries]);
 
-  const fetchItems = useCallback(async () => {
+  const fetchItems = useCallback(async (): Promise<Item[]> => {
     const params = new URLSearchParams({ all: "true", limit: "100" });
     if (itemFilter) params.set("status", itemFilter);
     const res = await fetch(`/api/items?${params}`);
     const data = await res.json();
-    setItems(data.items || []);
+    return data.items || [];
   }, [itemFilter]);
 
-  const fetchClaims = useCallback(async () => {
+  const fetchClaims = useCallback(async (): Promise<ClaimWithItem[]> => {
     const params = new URLSearchParams();
     if (claimFilter) params.set("status", claimFilter);
     const res = await fetch(`/api/claims?${params}`);
     const data = await res.json();
-    setClaims(data.claims || []);
+    return data.claims || [];
   }, [claimFilter]);
 
-  const fetchInquiries = useCallback(async () => {
+  const fetchInquiries = useCallback(async (): Promise<InquiryWithItem[]> => {
     const params = new URLSearchParams();
     if (inquiryFilter) params.set("status", inquiryFilter);
     const res = await fetch(`/api/inquiries?${params}`);
     const data = await res.json();
-    setInquiries(data.inquiries || []);
+    return data.inquiries || [];
   }, [inquiryFilter]);
 
-  useEffect(() => {
+  // Standalone function that fetches all data and updates state (for use in event handlers)
+  const refreshAll = useCallback(async () => {
     setLoading(true);
-    Promise.all([fetchItems(), fetchClaims(), fetchInquiries()]).finally(() =>
-      setLoading(false),
+    const [newItems, newClaims, newInquiries] = await Promise.all([
+      fetchItems(),
+      fetchClaims(),
+      fetchInquiries(),
+    ]);
+    setItems(newItems);
+    setClaims(newClaims);
+    setInquiries(newInquiries);
+    setLoading(false);
+  }, [fetchItems, fetchClaims, fetchInquiries]);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([fetchItems(), fetchClaims(), fetchInquiries()]).then(
+      ([newItems, newClaims, newInquiries]) => {
+        if (cancelled) return;
+        setItems(newItems);
+        setClaims(newClaims);
+        setInquiries(newInquiries);
+        setLoading(false);
+      },
     );
+    return () => {
+      cancelled = true;
+    };
   }, [fetchItems, fetchClaims, fetchInquiries]);
 
   const handleItemAction = async (id: number, action: string) => {
@@ -95,8 +119,7 @@ function AdminDashboard() {
         body: JSON.stringify({ status: action }),
       });
     }
-    fetchItems();
-    fetchClaims();
+    refreshAll();
   };
 
   const handleClaimAction = async (id: number, action: string) => {
@@ -105,8 +128,7 @@ function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: action }),
     });
-    fetchItems();
-    fetchClaims();
+    refreshAll();
   };
 
   const handleInquiryAction = async (id: number, action: string) => {
@@ -120,7 +142,7 @@ function AdminDashboard() {
         body: JSON.stringify({ status: action }),
       });
     }
-    fetchInquiries();
+    refreshAll();
   };
 
   const pendingItems = items.filter((i) => i.status === "pending").length;
@@ -199,11 +221,14 @@ function AdminDashboard() {
       {/* Tabs */}
       <div
         ref={tabsRef}
+        role="tablist"
+        aria-label="Admin dashboard sections"
         className="relative flex gap-6 border-b border-white/10 mb-8"
       >
         {(["items", "claims", "inquiries"] as Tab[]).map((t) => (
           <button
             key={t}
+            id={`tab-${t}`}
             ref={(el) => {
               if (el) tabRefs.current.set(t, el);
             }}
@@ -211,6 +236,7 @@ function AdminDashboard() {
             role="tab"
             aria-selected={tab === t}
             aria-controls={`tabpanel-${t}`}
+            tabIndex={tab === t ? 0 : -1}
             className={`pb-3 text-sm font-bold tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded ${
               tab === t ? "text-white" : "text-white/40 hover:text-white"
             }`}
@@ -257,7 +283,12 @@ function AdminDashboard() {
           />
         </div>
       ) : tab === "items" ? (
-        <div id="tabpanel-items" role="tabpanel" aria-labelledby="tab-items">
+        <div
+          id="tabpanel-items"
+          role="tabpanel"
+          aria-labelledby="tab-items"
+          tabIndex={0}
+        >
           {/* Filter */}
           <div className="mb-6">
             <label htmlFor="item-status-filter" className="sr-only">
@@ -331,13 +362,15 @@ function AdminDashboard() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {item.image_path ? (
-                              <img
+                              <Image
                                 src={
                                   item.image_path.startsWith("http")
                                     ? item.image_path
                                     : `/${item.image_path}`
                                 }
                                 alt={item.title}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 object-cover rounded-lg"
                               />
                             ) : (
@@ -426,7 +459,12 @@ function AdminDashboard() {
           )}
         </div>
       ) : tab === "claims" ? (
-        <div id="tabpanel-claims" role="tabpanel" aria-labelledby="tab-claims">
+        <div
+          id="tabpanel-claims"
+          role="tabpanel"
+          aria-labelledby="tab-claims"
+          tabIndex={0}
+        >
           {/* Filter */}
           <div className="mb-6">
             <label htmlFor="claim-status-filter" className="sr-only">
@@ -556,6 +594,7 @@ function AdminDashboard() {
           id="tabpanel-inquiries"
           role="tabpanel"
           aria-labelledby="tab-inquiries"
+          tabIndex={0}
         >
           {/* Filter */}
           <div className="mb-6">

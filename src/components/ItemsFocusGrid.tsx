@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -40,14 +41,16 @@ const ItemCard = React.memo(
           )}
         >
           {item.image_path ? (
-            <img
+            <Image
               src={
                 item.image_path.startsWith("http")
                   ? item.image_path
                   : `/${item.image_path}`
               }
               alt={item.title}
-              className="object-cover absolute inset-0 w-full h-full"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-earth-200">

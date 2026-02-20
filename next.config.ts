@@ -9,6 +9,35 @@ const nextConfig: NextConfig = {
     return config;
   },
   turbopack: {},
+  images: {
+    // Only allow image optimization from trusted external domains
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "fpeklwplmvyiiilaqpny.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

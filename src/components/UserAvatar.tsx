@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { User } from "lucide-react";
+import Image from "next/image";
 
 export default function UserAvatar() {
   const { data: session, status } = useSession();
@@ -14,9 +14,11 @@ export default function UserAvatar() {
 
   return (
     <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden shadow-lg">
-      <img
+      <Image
         src={session.user.image}
         alt={session.user.name || "User Avatar"}
+        width={40}
+        height={40}
         className="w-full h-full object-cover"
       />
     </div>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import db from "@/lib/db";
@@ -16,6 +17,12 @@ import GradientText from "@/components/GradientText";
 import { CTASection } from "@/components/CTASection";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Reclaimr — School Lost & Found Platform",
+  description:
+    "Help lost items find their way home. Report found items, search for your belongings, and earn rewards for helping others at Monta Vista.",
+};
 
 export default function Home() {
   const dbActiveCount = (
@@ -78,7 +85,11 @@ export default function Home() {
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
                   <span className="block min-h-[1.2em] text-white">
                     <TextType
-                      text={["Lost something?", "Missing your keys?", "Can't find it?"]}
+                      text={[
+                        "Lost something?",
+                        "Missing your keys?",
+                        "Can't find it?",
+                      ]}
                       typingSpeed={70}
                       deletingSpeed={40}
                       pauseDuration={2000}

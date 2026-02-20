@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 
@@ -27,14 +28,16 @@ export default function ItemCard({ item }: { item: Item }) {
         {/* Image */}
         <div className="relative aspect-[4/3] bg-earth-100 overflow-hidden">
           {item.image_path ? (
-            <img
+            <Image
               src={
                 item.image_path.startsWith("http")
                   ? item.image_path
                   : `/${item.image_path}`
               }
               alt={item.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

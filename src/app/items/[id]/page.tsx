@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
 import db from "@/lib/db";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
@@ -10,6 +12,33 @@ import {
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const item = db
+    .prepare(
+      "SELECT title, description, category, location_found FROM items WHERE id = ?",
+    )
+    .get(id) as
+    | Pick<Item, "title" | "description" | "category" | "location_found">
+    | undefined;
+
+  if (!item) {
+    return {
+      title: "Item Not Found — Reclaimr",
+      description: "This item could not be found in our database.",
+    };
+  }
+
+  return {
+    title: `${item.title} — Reclaimr`,
+    description: `${item.description} Found at ${item.location_found}. Category: ${getCategoryLabel(item.category)}.`,
+  };
+}
 
 const statusConfig: Record<string, { label: string; description: string }> = {
   pending: {
@@ -162,15 +191,19 @@ export default async function ItemDetailPage({
             {/* Image */}
             <div className="bg-neutral-800 rounded-xl overflow-hidden border border-white/10">
               {item.image_path ? (
-                <img
-                  src={
-                    item.image_path.startsWith("http")
-                      ? item.image_path
-                      : `/${item.image_path}`
-                  }
-                  alt={item.title}
-                  className="w-full h-[367px] object-cover"
-                />
+                <div className="relative w-full h-[367px]">
+                  <Image
+                    src={
+                      item.image_path.startsWith("http")
+                        ? item.image_path
+                        : `/${item.image_path}`
+                    }
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="h-64 flex items-center justify-center">
                   <svg

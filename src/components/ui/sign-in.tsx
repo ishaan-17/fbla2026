@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import { Eye, EyeOff, GraduationCap, BookOpen } from "lucide-react";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
@@ -71,8 +72,10 @@ const TestimonialCard = ({
   <div
     className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-earth-800/60 backdrop-blur-xl border border-earth-700/50 p-5 w-64`}
   >
-    <img
+    <Image
       src={testimonial.avatarSrc}
+      width={40}
+      height={40}
       className="h-10 w-10 object-cover rounded-2xl"
       alt={`${testimonial.name}'s avatar`}
     />
@@ -416,10 +419,15 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       {/* Right column: hero image + testimonials */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
-          <div
-            className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroImageSrc})` }}
-          ></div>
+          <div className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl overflow-hidden">
+            <Image
+              src={heroImageSrc}
+              alt=""
+              fill
+              sizes="50vw"
+              className="object-cover"
+            />
+          </div>
           {testimonials.length > 0 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
               <TestimonialCard
