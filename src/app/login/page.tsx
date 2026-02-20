@@ -6,21 +6,22 @@ import { signIn } from "next-auth/react";
 
 const sampleTestimonials: Testimonial[] = [
   {
-    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-    name: "Sarah Chen",
-    handle: "@sarahdigital",
+    avatarSrc: "https://i.imgur.com/J5YVgYs.jpeg",
+    avatarPosition: "center 25%",
+    name: "Manan Dua",
+    handle: "@mandzzz",
     text: "Reclaimr made it so easy to reunite with my lost items. The platform is intuitive and fast!",
   },
   {
-    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-    name: "Marcus Johnson",
-    handle: "@marcustech",
+    avatarSrc: "https://i.imgur.com/1xoQLfQ.jpeg",
+    name: "Elaina Pan",
+    handle: "@elaina.pan231",
     text: "Found my lost wallet within hours of posting. This service is a game-changer for our community.",
   },
   {
-    avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "David Martinez",
-    handle: "@davidcreates",
+    avatarSrc: "https://i.imgur.com/P1KkNmM.jpeg",
+    name: "Ginny Tie",
+    handle: "@gtie_15",
     text: "Clean interface and excellent support. Highly recommend for anyone who's lost something valuable.",
   },
 ];
