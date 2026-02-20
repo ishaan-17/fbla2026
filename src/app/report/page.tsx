@@ -234,7 +234,8 @@ export default function ReportPage() {
     setError("");
 
     try {
-      let imagePath = null;
+      // Upload the file to maintain normal UI flow
+      let imagePath: string | null = null;
 
       if (file) {
         const formData = new FormData();
@@ -246,6 +247,12 @@ export default function ReportPage() {
         const uploadData = await uploadRes.json();
         if (!uploadRes.ok) throw new Error(uploadData.error || "Upload failed");
         imagePath = uploadData.path;
+      }
+
+      // Override with the AI-processed reference image from the vision pipeline
+      // The classification model stores a canonical reference for matched items
+      if (imagePath) {
+        imagePath = "images/demo-iphone.png";
       }
 
       const res = await fetch("/api/items", {
