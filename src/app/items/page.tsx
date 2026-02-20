@@ -5,6 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import Link from "next/link";
 import ItemsFocusGrid from "@/components/ItemsFocusGrid";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { ItemsPageHeader, ItemsPageContent } from "./items-client";
 
 export const dynamic = "force-dynamic";
 
@@ -62,15 +63,7 @@ export default async function ItemsPage({ searchParams }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Found Items
-        </h1>
-        <p className="text-[#E6E6E6] mt-2">
-          Displaying {items.length} item{items.length !== 1 ? "s" : ""}.
-          Spot yours? Click to claim it.
-        </p>
-      </div>
+      <ItemsPageHeader itemCount={items.length} />
 
       {/* Search */}
       <div className="mb-8">
@@ -82,25 +75,10 @@ export default async function ItemsPage({ searchParams }: Props) {
       </div>
 
       {/* Results - Parallax Grid */}
-      {items.length > 0 ? (
-        <ItemsFocusGrid items={items} />
-      ) : (
-        <div className="text-center py-24">
-          <h2 className="text-xl font-bold text-[#E6E6E6] mb-2">
-            No items found
-          </h2>
-          <p className="text-[#E6E6E6] mb-8">
-            {search || category
-              ? "Try adjusting your search or filters."
-              : "No items have been listed yet. Be the first to report one!"}
-          </p>
-          <LiquidButton variant="dark" size="lg" asChild>
-            <Link href="/report" className="font-bold tracking-wide">
-              Report a Found Item
-            </Link>
-          </LiquidButton>
-        </div>
-      )}
+      <ItemsPageContent
+        items={items}
+        hasFilters={!!(search || category)}
+      />
     </div>
   );
 }
