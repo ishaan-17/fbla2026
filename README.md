@@ -1,6 +1,7 @@
 # Reclaimr — School Lost & Found Platform
 
-> **FBLA 25-26, Ishaan G, Nikhil P, Chloe H**
+> **FBLA 25-26: Ishaan G, Nikhil P, Chloe H**
+
 > A full-stack web application that helps school communities reunite with lost belongings through AI-powered categorization, a reward system, and an intuitive admin dashboard.
 
 ---
