@@ -73,7 +73,7 @@ export default function DonationsHero({
       </div>
 
       {/* Sparkles effect anchored at the bottom */}
-      <div className="relative -mt-32 h-80 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
+      <div className="relative -mt-32 h-48 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
         {/* Radial glow */}
         <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom_center,#627d98,transparent_70%)] before:opacity-20" />
 
