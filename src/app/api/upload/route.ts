@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import { processItemImage } from "@/lib/imageProcessor";
 
 export async function POST(request: Request) {
   try {
@@ -30,15 +31,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const ext = path.extname(file.name) || ".jpg";
-    const filename = `${Date.now()}-${crypto.randomUUID()}${ext}`;
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
-
     await mkdir(uploadsDir, { recursive: true });
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(path.join(uploadsDir, filename), buffer);
+    const rawBuffer = Buffer.from(bytes);
+
+    // Process: remove background → center → place on gray gradient
+    let finalBuffer: Buffer;
+    try {
+      finalBuffer = await processItemImage(rawBuffer);
+    } catch (err) {
+      console.warn("[upload] image processing failed, saving original:", err);
+      finalBuffer = rawBuffer;
+    }
+
+    // Always save as .png since the processor outputs PNG
+    const filename = `${Date.now()}-${crypto.randomUUID()}.png`;
+    await writeFile(path.join(uploadsDir, filename), finalBuffer);
 
     return NextResponse.json({
       success: true,
