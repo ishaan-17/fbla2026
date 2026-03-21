@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: [
+    "better-sqlite3",
+    "sharp",
+    "@imgly/background-removal-node",
+    "onnxruntime-node",
+  ],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = [...(config.externals || []), "better-sqlite3"];
@@ -35,6 +40,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "randomuser.me",
+      },
+      {
+        protocol: "https",
+        hostname: "imgur.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
       },
     ],
   },

@@ -1,6 +1,7 @@
 # Reclaimr — School Lost & Found Platform
 
-> **FBLA Website Coding & Development 2024–2025**
+> **FBLA 25-26: Ishaan G, Nikhil P, Chloe H**
+
 > A full-stack web application that helps school communities reunite with lost belongings through AI-powered categorization, a reward system, and an intuitive admin dashboard.
 
 ---
@@ -288,4 +289,4 @@ No website templates were used. All code and design were created from scratch.
 
 ## License
 
-This project was created for the **FBLA Website Coding & Development** competitive event. All original source code is owned by the team. Third-party dependencies are used under their respective open-source licenses as documented in the [Attribution](#attribution--sources) section.
+This project was created for the **FBLA WC&D** competitive event. All original source code is owned by the team. Third-party dependencies are used under their respective open-source licenses as documented in the [Attribution](#attribution--sources) section.

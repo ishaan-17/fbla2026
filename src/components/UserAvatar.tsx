@@ -19,7 +19,7 @@ export default function UserAvatar() {
         alt={session.user.name || "User Avatar"}
         width={40}
         height={40}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover rounded-full"
       />
     </div>
   );

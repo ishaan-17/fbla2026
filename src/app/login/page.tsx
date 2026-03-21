@@ -18,6 +18,12 @@ const sampleTestimonials: Testimonial[] = [
     handle: "@elaina.pan231",
     text: "Found my lost wallet within hours of posting. This service is a game-changer for our community.",
   },
+  {
+    avatarSrc: "https://i.imgur.com/P1KkNmM.jpeg",
+    name: "Ginny Tie",
+    handle: "@gtie_15",
+    text: "Clean interface and excellent support. Highly recommend for anyone who's lost something valuable.",
+  },
 ];
 
 export default function LoginPage() {

@@ -73,18 +73,16 @@ const TestimonialCard = ({
   <div
     className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-earth-800/60 backdrop-blur-xl border border-earth-700/50 p-5 w-64`}
   >
-    <Image
-      src={testimonial.avatarSrc}
-      width={40}
-      height={40}
-      className="h-10 w-10 shrink-0 object-cover rounded-full"
-      alt={`${testimonial.name}'s avatar`}
-      style={
-        testimonial.avatarPosition
-          ? { objectPosition: testimonial.avatarPosition }
-          : undefined
-      }
-    />
+    <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+      <Image
+        src={testimonial.avatarSrc}
+        width={40}
+        height={40}
+        className="h-full w-full object-cover"
+        style={{ objectPosition: testimonial.avatarPosition || 'center' }}
+        alt={`${testimonial.name}'s avatar`}
+      />
+    </div>
     <div className="text-sm leading-snug">
       <p className="flex items-center gap-1 font-medium text-white">
         {testimonial.name}
