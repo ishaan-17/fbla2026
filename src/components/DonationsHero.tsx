@@ -8,36 +8,24 @@ interface DonationsHeroProps {
   totalCategories: number;
 }
 
-// Charity, nonprofit, community, and social-good organizations
+// Nonprofit, education, and social-good orgs (valid Simple Icons slugs)
 const charitySlugs = [
-  "redcross",
-  "unicef",
-  "wikipedia",
-  "creativecommons",
-  "opensourceinitiative",
-  "linuxfoundation",
-  "mozilla",
-  "letsencrypt",
-  "tor",
-  "signal",
-  "archiveofourown",
+  "khanacademy",
+  "opencollective",
+  "liberapay",
   "internetarchive",
   "wikimediafoundation",
-  "khanacademy",
-  "coursera",
-  "duolingo",
+  "openstreetmap",
+  "freecodecamp",
+  "exercism",
+  "opensourceinitiative",
+  "creativecommons",
+  "letsencrypt",
+  "mozilla",
+  "signal",
+  "tor",
+  "wikipedia",
   "goodreads",
-  "liberapay",
-  "opencollective",
-  "buymeacoffee",
-  "githubsponsors",
-  "patreon",
-  "gofundme",
-  "habitat",
-  "savethechildren",
-  "worldwildlifefund",
-  "greenpeace",
-  "doctorswithoutborders",
 ];
 
 export default function DonationsHero({
@@ -50,7 +38,7 @@ export default function DonationsHero({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left: text + stats */}
-          <div className="relative z-10">
+          <div className="relative z-10 text-center lg:text-left items-center lg:items-start flex flex-col">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-400/70 mb-3">
               Community Impact
             </p>
@@ -66,7 +54,7 @@ export default function DonationsHero({
             </p>
 
             {/* Stats bar */}
-            <div className="mt-10 flex flex-wrap gap-8">
+            <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
               <Stat value={totalDonated} label="Items donated" />
               <div className="w-px h-12 bg-white/10" />
               <Stat value={30} label="Day holding period" />
