@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import HeroShader from "@/components/HeroShader";
 import { StatsSection } from "@/components/StatsSection";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
@@ -24,24 +24,29 @@ export const metadata: Metadata = {
     "Help lost items find their way home. Report found items, search for your belongings, and earn rewards for helping others at Monta Vista.",
 };
 
-export default function Home() {
-  const dbActiveCount = (
-    db
-      .prepare("SELECT COUNT(*) as c FROM items WHERE status = 'approved'")
-      .get() as { c: number }
-  ).c;
+export default async function Home() {
+  const supabase = await createServiceClient();
+
+  // Get stats from Supabase
+  const { count: approvedCount } = await supabase
+    .from("items")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "approved");
+
+  const { count: totalReported } = await supabase
+    .from("items")
+    .select("*", { count: "exact", head: true });
+
+  const { count: totalReturned } = await supabase
+    .from("items")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "claimed");
 
   const stats = {
-    totalReported: (
-      db.prepare("SELECT COUNT(*) as c FROM items").get() as { c: number }
-    ).c,
-    totalReturned: (
-      db
-        .prepare("SELECT COUNT(*) as c FROM items WHERE status = 'claimed'")
-        .get() as { c: number }
-    ).c,
+    totalReported: totalReported || 0,
+    totalReturned: totalReturned || 0,
     // Show mock item count (5) if no real items exist, matching browse page behavior
-    activeListing: dbActiveCount > 0 ? dbActiveCount : 5,
+    activeListing: approvedCount && approvedCount > 0 ? approvedCount : 5,
   };
 
   return (

@@ -51,6 +51,7 @@ const ItemCard = React.memo(
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"
+              unoptimized={!item.image_path.startsWith("http")}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-earth-200">
@@ -120,9 +121,9 @@ const ItemCard = React.memo(
               <span>•</span>
               <span>{new Date(item.date_found).toLocaleDateString()}</span>
             </div>
-            {item.ai_tags && JSON.parse(item.ai_tags).length > 0 && (
+            {item.ai_tags && Array.isArray(item.ai_tags) && item.ai_tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {JSON.parse(item.ai_tags)
+                {item.ai_tags
                   .slice(0, 3)
                   .map((tag: string, i: number) => (
                     <span

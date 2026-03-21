@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import type { Item } from "@/types";
 import SearchBar from "@/components/SearchBar";
 import Link from "next/link";
@@ -24,46 +24,52 @@ interface Props {
   }>;
 }
 
-// Get ORDER BY clause based on sort option
-function getOrderByClause(sort: string): string {
-  switch (sort) {
-    case "expiring":
-      return "ORDER BY date_found ASC";
-    case "a-z":
-      return "ORDER BY title ASC";
-    case "newest":
-    default:
-      return "ORDER BY created_at DESC";
-  }
-}
-
 export default async function ItemsPage({ searchParams }: Props) {
   const params = await searchParams;
   const search = params.search || "";
   const category = params.category || "";
   const sort = params.sort || "newest";
 
-  let whereClause = "WHERE status = 'approved'";
-  const queryParams: (string | number)[] = [];
+  const supabase = await createServiceClient();
+
+  let query = supabase
+    .from("items")
+    .select("*")
+    .eq("status", "approved");
 
   if (category) {
-    whereClause += " AND category = ?";
-    queryParams.push(category);
+    query = query.eq("category", category);
   }
 
   if (search) {
-    whereClause +=
-      " AND (title LIKE ? OR description LIKE ? OR ai_tags LIKE ?)";
-    const pattern = `%${search}%`;
-    queryParams.push(pattern, pattern, pattern);
+    query = query.or(
+      `title.ilike.%${search}%,description.ilike.%${search}%,ai_tags.ilike.%${search}%`
+    );
   }
 
-  const orderByClause = getOrderByClause(sort);
+  // Apply sorting
+  switch (sort) {
+    case "expiring":
+      query = query.order("date_found", { ascending: true });
+      break;
+    case "a-z":
+      query = query.order("title", { ascending: true });
+      break;
+    case "newest":
+    default:
+      query = query.order("created_at", { ascending: false });
+      break;
+  }
 
-  // Get all items for parallax scroll (no pagination needed with scroll)
-  const items = db
-    .prepare(`SELECT * FROM items ${whereClause} ${orderByClause} LIMIT 50`)
-    .all(...queryParams) as Item[];
+  query = query.limit(50);
+
+  const { data: items, error } = await query;
+
+  if (error) {
+    console.error("Error fetching items:", error);
+  }
+
+  const displayItems = (items || []) as Item[];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -73,7 +79,7 @@ export default async function ItemsPage({ searchParams }: Props) {
           Found Items
         </h1>
         <p className="text-[#E6E6E6] mt-2">
-          Displaying {items.length} item{items.length !== 1 ? "s" : ""}. Spot
+          Displaying {displayItems.length} item{displayItems.length !== 1 ? "s" : ""}. Spot
           yours? Click to claim it.
         </p>
       </div>
@@ -88,8 +94,8 @@ export default async function ItemsPage({ searchParams }: Props) {
       </div>
 
       {/* Results - Parallax Grid */}
-      {items.length > 0 ? (
-        <ItemsFocusGrid items={items} />
+      {displayItems.length > 0 ? (
+        <ItemsFocusGrid items={displayItems} />
       ) : (
         <div className="text-center py-24">
           <h2 className="text-xl font-bold text-[#E6E6E6] mb-2">

@@ -3,6 +3,7 @@ import { Nunito_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
+import TermsModal from "@/components/TermsModal";
 import { Footer } from "@/components/ui/footer-section";
 
 const nunito = Nunito_Sans({
@@ -39,6 +40,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <SessionProvider>
+          <TermsModal />
           <Navbar />
           <main id="main-content" className="min-h-[calc(100vh-4rem)]">
             {children}

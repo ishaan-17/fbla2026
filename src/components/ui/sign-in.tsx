@@ -33,6 +33,7 @@ const GoogleIcon = () => (
 // --- TYPE DEFINITIONS ---
 export interface Testimonial {
   avatarSrc: string;
+  avatarPosition?: string;
   name: string;
   handle: string;
   text: string;
@@ -76,8 +77,13 @@ const TestimonialCard = ({
       src={testimonial.avatarSrc}
       width={40}
       height={40}
-      className="h-10 w-10 object-cover rounded-2xl"
+      className="h-10 w-10 shrink-0 object-cover rounded-full"
       alt={`${testimonial.name}'s avatar`}
+      style={
+        testimonial.avatarPosition
+          ? { objectPosition: testimonial.avatarPosition }
+          : undefined
+      }
     />
     <div className="text-sm leading-snug">
       <p className="flex items-center gap-1 font-medium text-white">

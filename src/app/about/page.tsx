@@ -471,7 +471,7 @@ export default function AboutPage() {
           </ScrollReveal>
 
           <ScrollReveal delay={200}>
-            <p className="text-center text-sm text-white/40 mt-8 max-w-2xl mx-auto">
+            <p className="text-center text-sm text-white/70 mt-8 max-w-2xl mx-auto">
               This policy helps ensure that items are either returned to their
               owners or go to someone who can use them. If you know you&apos;ve
               lost something, please check the listings regularly!

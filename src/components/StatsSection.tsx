@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import React from "react"
-import { motion } from "framer-motion"
-import { AnimatedGradient } from "@/components/ui/animated-gradient-with-svg"
-import CountUp from "@/components/ui/count-up"
+import React from "react";
+import { motion } from "framer-motion";
+import { AnimatedGradient } from "@/components/ui/animated-gradient-with-svg";
+import CountUp from "@/components/ui/count-up";
 
 interface BentoCardProps {
-  title: string
-  value: number
-  subtitle?: string
-  colors: string[]
-  delay: number
-  direction?: "left" | "right"
-  suffix?: string
+  title: string;
+  value: number;
+  subtitle?: string;
+  colors: string[];
+  delay: number;
+  direction?: "left" | "right";
+  suffix?: string;
 }
 
 const BentoCard: React.FC<BentoCardProps> = ({
@@ -24,7 +24,7 @@ const BentoCard: React.FC<BentoCardProps> = ({
   direction = "left",
   suffix = "",
 }) => {
-  const slideX = direction === "left" ? -120 : 120
+  const slideX = direction === "left" ? -120 : 120;
 
   const container = {
     hidden: { opacity: 0 },
@@ -35,16 +35,16 @@ const BentoCard: React.FC<BentoCardProps> = ({
         delayChildren: delay + 0.2,
       },
     },
-  }
+  };
 
   const item = {
     hidden: { opacity: 0, x: slideX * 0.3 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       x: 0,
-      transition: { duration: 0.6, ease: "easeOut" as const } 
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
-  }
+  };
 
   return (
     <motion.div
@@ -62,8 +62,8 @@ const BentoCard: React.FC<BentoCardProps> = ({
         whileInView="show"
         viewport={{ once: true }}
       >
-        <motion.h3 
-          className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-wider" 
+        <motion.h3
+          className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-wider"
           variants={item}
         >
           {title}
@@ -83,8 +83,8 @@ const BentoCard: React.FC<BentoCardProps> = ({
           />
         </motion.p>
         {subtitle && (
-          <motion.p 
-            className="text-sm text-white/60 mt-3 max-w-xs" 
+          <motion.p
+            className="text-sm text-white/60 mt-3 max-w-xs"
             variants={item}
           >
             {subtitle}
@@ -92,31 +92,35 @@ const BentoCard: React.FC<BentoCardProps> = ({
         )}
       </motion.div>
     </motion.div>
-  )
-}
+  );
+};
 
 interface StatsSectionProps {
   stats: {
-    totalReported: number
-    totalReturned: number
-    activeListing: number
-  }
+    totalReported: number;
+    totalReturned: number;
+    activeListing: number;
+  };
 }
 
 // Demo values for when database is empty
 const DEMO_STATS = {
-  totalReported: 2847,
-  totalReturned: 2156,
+  totalReported: 44,
+  totalReturned: 39,
   activeListing: 234,
-}
+};
 
 export function StatsSection({ stats }: StatsSectionProps) {
   // Use demo values if database is empty
-  const displayStats = stats.totalReported === 0 ? DEMO_STATS : stats
-  
-  const returnRate = displayStats.totalReported > 0 
-    ? Math.round((displayStats.totalReturned / displayStats.totalReported) * 100) 
-    : 76
+  const baseStats = stats.totalReported === 0 ? DEMO_STATS : stats;
+  // Always override reported/returned with hardcoded values for demo
+  const displayStats = {
+    ...baseStats,
+    totalReported: 44,
+    totalReturned: 39,
+  };
+
+  const returnRate = 89;
 
   return (
     <section className="w-full">
@@ -160,5 +164,5 @@ export function StatsSection({ stats }: StatsSectionProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

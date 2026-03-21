@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth";
 
 export async function PATCH(
@@ -23,13 +23,30 @@ export async function PATCH(
       );
     }
 
-    const inquiry = db.prepare("SELECT * FROM inquiries WHERE id = ?").get(id);
+    const supabase = await createServiceClient();
 
-    if (!inquiry) {
+    const { data: inquiry, error: fetchError } = await supabase
+      .from("inquiries")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !inquiry) {
       return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
     }
 
-    db.prepare("UPDATE inquiries SET status = ? WHERE id = ?").run(status, id);
+    const { error: updateError } = await supabase
+      .from("inquiries")
+      .update({ status })
+      .eq("id", id);
+
+    if (updateError) {
+      console.error("Error updating inquiry:", updateError);
+      return NextResponse.json(
+        { error: "Failed to update inquiry" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -52,14 +69,30 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    const supabase = await createServiceClient();
 
-    const inquiry = db.prepare("SELECT * FROM inquiries WHERE id = ?").get(id);
+    const { data: inquiry, error: fetchError } = await supabase
+      .from("inquiries")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (!inquiry) {
+    if (fetchError || !inquiry) {
       return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
     }
 
-    db.prepare("DELETE FROM inquiries WHERE id = ?").run(id);
+    const { error: deleteError } = await supabase
+      .from("inquiries")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error("Error deleting inquiry:", deleteError);
+      return NextResponse.json(
+        { error: "Failed to delete inquiry" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

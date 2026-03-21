@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -14,7 +14,7 @@ const sampleItems = [
     reporter_name: "John Doe",
     reporter_email: "john@school.edu",
     status: "approved",
-    ai_tags: JSON.stringify(["water bottle", "white", "stainless steel"]),
+    ai_tags: ["water bottle", "white", "stainless steel"],
   },
   {
     title: "Pink Backpack",
@@ -26,7 +26,7 @@ const sampleItems = [
     reporter_name: "Staff",
     reporter_email: "staff@school.edu",
     status: "approved",
-    ai_tags: JSON.stringify(["backpack", "pink", "JanSport"]),
+    ai_tags: ["backpack", "pink", "JanSport"],
   },
   {
     title: "Scientific Calculator",
@@ -38,7 +38,7 @@ const sampleItems = [
     reporter_name: "Staff",
     reporter_email: "staff@school.edu",
     status: "approved",
-    ai_tags: JSON.stringify(["calculator", "electronics"]),
+    ai_tags: ["calculator", "electronics"],
   },
   {
     title: "Purple Hoodie",
@@ -50,7 +50,7 @@ const sampleItems = [
     reporter_name: "Staff",
     reporter_email: "staff@school.edu",
     status: "approved",
-    ai_tags: JSON.stringify(["hoodie", "purple", "Champion"]),
+    ai_tags: ["hoodie", "purple", "Champion"],
   },
   {
     title: "AirPods Max",
@@ -62,34 +62,68 @@ const sampleItems = [
     reporter_name: "Staff",
     reporter_email: "staff@school.edu",
     status: "approved",
-    ai_tags: JSON.stringify(["AirPods", "blue", "Apple"]),
+    ai_tags: ["AirPods", "blue", "Apple"],
   },
+];
+
+const categories = [
+  { name: "water_bottle", label: "Water Bottle" },
+  { name: "pencil_case", label: "Pencil Case" },
+  { name: "backpack", label: "Backpack" },
+  { name: "clothing", label: "Clothing" },
+  { name: "electronics", label: "Electronics" },
+  { name: "keys", label: "Keys" },
+  { name: "book", label: "Book" },
+  { name: "lunchbox", label: "Lunchbox" },
+  { name: "umbrella", label: "Umbrella" },
+  { name: "sports_equipment", label: "Sports Equipment" },
+  { name: "jewelry", label: "Jewelry" },
+  { name: "glasses", label: "Glasses" },
+  { name: "headphones", label: "Headphones" },
+  { name: "other", label: "Other" },
 ];
 
 export async function POST() {
   try {
+    const supabase = await createServiceClient();
+
     // Check if items already exist
-    const existingCount = db.prepare("SELECT COUNT(*) as count FROM items").get() as { count: number };
+    const { count, error: countError } = await supabase
+      .from("items")
+      .select("*", { count: "exact", head: true });
     
-    if (existingCount.count > 0) {
+    if (countError) {
+      console.error("Error checking existing items:", countError);
+    }
+    
+    if (count && count > 0) {
       return NextResponse.json({ 
         success: false, 
-        message: `Database already has ${existingCount.count} items. Skipping seed.` 
+        message: `Database already has ${count} items. Skipping seed.` 
       });
     }
 
-    const insertStmt = db.prepare(`
-      INSERT INTO items (title, description, category, location_found, date_found, image_path, reporter_name, reporter_email, status, ai_tags)
-      VALUES (@title, @description, @category, @location_found, @date_found, @image_path, @reporter_name, @reporter_email, @status, @ai_tags)
-    `);
+    // Seed categories first
+    const { error: categoriesError } = await supabase
+      .from("categories")
+      .upsert(categories, { onConflict: "name" });
 
-    const insertMany = db.transaction((items: typeof sampleItems) => {
-      for (const item of items) {
-        insertStmt.run(item);
-      }
-    });
+    if (categoriesError) {
+      console.error("Error seeding categories:", categoriesError);
+    }
 
-    insertMany(sampleItems);
+    // Insert sample items
+    const { error: itemsError } = await supabase
+      .from("items")
+      .insert(sampleItems);
+
+    if (itemsError) {
+      console.error("Error seeding items:", itemsError);
+      return NextResponse.json({ 
+        success: false, 
+        error: itemsError.message 
+      }, { status: 500 });
+    }
 
     return NextResponse.json({ 
       success: true, 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth";
 import type { Item } from "@/types";
 
@@ -14,41 +14,45 @@ export async function GET(request: Request) {
     const all = url.searchParams.get("all") === "true";
     const offset = (page - 1) * limit;
 
-    let whereClause = "WHERE 1=1";
-    const params: (string | number)[] = [];
+    const supabase = await createServiceClient();
+
+    let query = supabase
+      .from("items")
+      .select("*", { count: "exact" });
 
     if (!all) {
-      whereClause += " AND status = ?";
-      params.push(status);
+      query = query.eq("status", status);
     }
 
     if (category) {
-      whereClause += " AND category = ?";
-      params.push(category);
+      query = query.eq("category", category);
     }
 
     if (search) {
-      whereClause +=
-        " AND (title LIKE ? OR description LIKE ? OR ai_tags LIKE ?)";
-      const searchPattern = `%${search}%`;
-      params.push(searchPattern, searchPattern, searchPattern);
+      query = query.or(
+        `title.ilike.%${search}%,description.ilike.%${search}%,ai_tags.ilike.%${search}%`
+      );
     }
 
-    const countResult = db
-      .prepare(`SELECT COUNT(*) as total FROM items ${whereClause}`)
-      .get(...params) as { total: number };
+    query = query
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    const items = db
-      .prepare(
-        `SELECT * FROM items ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
-      )
-      .all(...params, limit, offset) as Item[];
+    const { data: items, error, count } = await query;
+
+    if (error) {
+      console.error("Error fetching items:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch items" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
-      items,
-      total: countResult.total,
+      items: items || [],
+      total: count || 0,
       page,
-      totalPages: Math.ceil(countResult.total / limit),
+      totalPages: Math.ceil((count || 0) / limit),
     });
   } catch (error) {
     console.error("Error fetching items:", error);
@@ -75,34 +79,49 @@ export async function POST(request: Request) {
     const adminUser = await isAdmin();
     const status = (auto_approve && adminUser) ? "approved" : "pending";
 
-    const result = db
-      .prepare(
-        `INSERT INTO items (title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .run(
+    const supabase = await createServiceClient();
+
+    const { data: item, error: insertError } = await supabase
+      .from("items")
+      .insert({
         title,
         description,
-        category || "other",
+        category: category || "other",
         location_found,
         date_found,
-        image_path || null,
-        ai_tags ? JSON.stringify(ai_tags) : null,
-        reporter_name || "",
-        reporter_email || "",
-        status
-      );
+        image_path: image_path || null,
+        ai_tags: ai_tags || null,
+        reporter_name: reporter_name || "",
+        reporter_email: reporter_email || "",
+        status,
+      })
+      .select()
+      .single();
 
-    // Award 10 points for reporting a found item
-    if (reporter_email) {
-      db.prepare(
-        `INSERT INTO rewards (email, name, points, reason, item_id) VALUES (?, ?, 10, 'Reported a found item', ?)`
-      ).run(reporter_email, reporter_name || "Anonymous", result.lastInsertRowid);
+    if (insertError) {
+      console.error("Error creating item:", insertError);
+      return NextResponse.json(
+        { error: "Failed to create item" },
+        { status: 500 }
+      );
     }
 
-    const item = db
-      .prepare("SELECT * FROM items WHERE id = ?")
-      .get(result.lastInsertRowid) as Item;
+    // Award 10 points for reporting a found item
+    if (reporter_email && item) {
+      const { error: rewardError } = await supabase
+        .from("rewards")
+        .insert({
+          email: reporter_email,
+          name: reporter_name || "Anonymous",
+          points: 10,
+          reason: "Reported a found item",
+          item_id: item.id,
+        });
+
+      if (rewardError) {
+        console.error("Error awarding points:", rewardError);
+      }
+    }
 
     return NextResponse.json({ success: true, item }, { status: 201 });
   } catch (error) {

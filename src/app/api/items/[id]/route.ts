@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth";
 import type { Item } from "@/types";
 import { unlink } from "fs/promises";
@@ -11,11 +11,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id) as
-      | Item
-      | undefined;
+    const supabase = await createServiceClient();
 
-    if (!item) {
+    const { data: item, error } = await supabase
+      .from("items")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
@@ -43,29 +47,38 @@ export async function PATCH(
     const body = await request.json();
 
     const allowedFields = ["title", "description", "category", "status"];
-    const updates: string[] = [];
-    const values: (string | number)[] = [];
+    const updates: Record<string, string> = {};
 
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        updates.push(`${field} = ?`);
-        values.push(body[field]);
+        updates[field] = body[field];
       }
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: "No valid fields to update" },
         { status: 400 }
       );
     }
 
-    values.push(parseInt(id));
-    db.prepare(`UPDATE items SET ${updates.join(", ")} WHERE id = ?`).run(
-      ...values
-    );
+    const supabase = await createServiceClient();
 
-    const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id) as Item;
+    const { data: item, error } = await supabase
+      .from("items")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating item:", error);
+      return NextResponse.json(
+        { error: "Failed to update item" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ success: true, item });
   } catch (error) {
     console.error("Error updating item:", error);
@@ -87,11 +100,15 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const item = db.prepare("SELECT * FROM items WHERE id = ?").get(id) as
-      | Item
-      | undefined;
+    const supabase = await createServiceClient();
 
-    if (!item) {
+    const { data: item, error: fetchError } = await supabase
+      .from("items")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
@@ -104,7 +121,19 @@ export async function DELETE(
       }
     }
 
-    db.prepare("DELETE FROM items WHERE id = ?").run(id);
+    const { error: deleteError } = await supabase
+      .from("items")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error("Error deleting item:", deleteError);
+      return NextResponse.json(
+        { error: "Failed to delete item" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting item:", error);

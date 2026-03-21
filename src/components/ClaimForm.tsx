@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 export default function ClaimForm({ itemId }: { itemId: number }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const { data: session } = useSession();
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -22,8 +22,8 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           item_id: itemId,
-          claimant_name: name,
-          claimant_email: email,
+          claimant_name: session?.user?.name || "",
+          claimant_email: session?.user?.email || "",
           claimant_description: description,
         }),
       });
@@ -81,42 +81,6 @@ export default function ClaimForm({ itemId }: { itemId: number }) {
           {error}
         </div>
       )}
-
-      <div className="space-y-2">
-        <label
-          htmlFor="claim-name"
-          className="block text-sm font-medium text-white/70"
-        >
-          Your Name
-        </label>
-        <input
-          id="claim-name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
-          placeholder="Enter your full name"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label
-          htmlFor="claim-email"
-          className="block text-sm font-medium text-white/70"
-        >
-          Your Email
-        </label>
-        <input
-          id="claim-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
-          placeholder="your.email@school.edu"
-        />
-      </div>
 
       <div className="space-y-2">
         <label

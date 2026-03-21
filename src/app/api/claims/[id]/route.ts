@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth";
 
 export async function PATCH(
@@ -23,42 +23,78 @@ export async function PATCH(
       );
     }
 
-    const claim = db.prepare("SELECT * FROM claims WHERE id = ?").get(id) as
-      | { id: number; item_id: number; status: string }
-      | undefined;
+    const supabase = await createServiceClient();
 
-    if (!claim) {
+    const { data: claim, error: claimError } = await supabase
+      .from("claims")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (claimError || !claim) {
       return NextResponse.json({ error: "Claim not found" }, { status: 404 });
     }
 
-    // Use transaction: update claim, item status, and award points
-    const updateClaimAndItem = db.transaction(() => {
-      db.prepare("UPDATE claims SET status = ? WHERE id = ?").run(
-        status,
-        id
+    // Update claim status
+    const { error: updateClaimError } = await supabase
+      .from("claims")
+      .update({ status })
+      .eq("id", id);
+
+    if (updateClaimError) {
+      console.error("Error updating claim:", updateClaimError);
+      return NextResponse.json(
+        { error: "Failed to update claim" },
+        { status: 500 }
       );
+    }
 
-      if (status === "approved") {
-        db.prepare("UPDATE items SET status = 'claimed' WHERE id = ?").run(
-          claim.item_id
-        );
-        // Reject other pending claims for this item
-        db.prepare(
-          "UPDATE claims SET status = 'rejected' WHERE item_id = ? AND id != ? AND status = 'pending'"
-        ).run(claim.item_id, id);
+    if (status === "approved") {
+      // Update item status to claimed
+      const { error: updateItemError } = await supabase
+        .from("items")
+        .update({ status: "claimed" })
+        .eq("id", claim.item_id);
 
-        // Award bonus points to reporter for successful return
-        const item = db.prepare("SELECT * FROM items WHERE id = ?").get(claim.item_id) as
-          | { reporter_email: string; reporter_name: string } | undefined;
-        if (item?.reporter_email) {
-          db.prepare(
-            `INSERT INTO rewards (email, name, points, reason, item_id) VALUES (?, ?, 25, 'Item successfully returned to owner', ?)`
-          ).run(item.reporter_email, item.reporter_name || "Anonymous", claim.item_id);
+      if (updateItemError) {
+        console.error("Error updating item:", updateItemError);
+      }
+
+      // Reject other pending claims for this item
+      const { error: rejectError } = await supabase
+        .from("claims")
+        .update({ status: "rejected" })
+        .eq("item_id", claim.item_id)
+        .neq("id", id)
+        .eq("status", "pending");
+
+      if (rejectError) {
+        console.error("Error rejecting other claims:", rejectError);
+      }
+
+      // Award bonus points to reporter for successful return
+      const { data: item, error: itemError } = await supabase
+        .from("items")
+        .select("reporter_email, reporter_name")
+        .eq("id", claim.item_id)
+        .single();
+
+      if (!itemError && item?.reporter_email) {
+        const { error: rewardError } = await supabase
+          .from("rewards")
+          .insert({
+            email: item.reporter_email,
+            name: item.reporter_name || "Anonymous",
+            points: 25,
+            reason: "Item successfully returned to owner",
+            item_id: claim.item_id,
+          });
+
+        if (rewardError) {
+          console.error("Error awarding points:", rewardError);
         }
       }
-    });
-
-    updateClaimAndItem();
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

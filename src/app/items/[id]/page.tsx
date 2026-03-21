@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 import {
@@ -19,13 +19,13 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const item = db
-    .prepare(
-      "SELECT title, description, category, location_found FROM items WHERE id = ?",
-    )
-    .get(id) as
-    | Pick<Item, "title" | "description" | "category" | "location_found">
-    | undefined;
+  const supabase = await createServiceClient();
+  
+  const { data: item } = await supabase
+    .from("items")
+    .select("title, description, category, location_found")
+    .eq("id", id)
+    .single();
 
   if (!item) {
     return {
@@ -142,9 +142,18 @@ export default async function ItemDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  let item = db.prepare("SELECT * FROM items WHERE id = ?").get(id) as
-    | Item
-    | undefined;
+  const supabase = await createServiceClient();
+  
+  let item: Item | undefined;
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (data) {
+    item = data as Item;
+  }
 
   // Fall back to mock items if not found in database
   if (!item) {
@@ -157,7 +166,7 @@ export default async function ItemDetailPage({
   }
 
   const status = statusConfig[item.status] || statusConfig.pending;
-  const aiTags = item.ai_tags ? JSON.parse(item.ai_tags) : [];
+  const aiTags = item.ai_tags ? (typeof item.ai_tags === 'string' ? JSON.parse(item.ai_tags) : item.ai_tags) : [];
 
   return (
     <CollapsibleProvider>
@@ -202,6 +211,7 @@ export default async function ItemDetailPage({
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
                     className="object-cover"
+                    unoptimized={!item.image_path.startsWith("http")}
                   />
                 </div>
               ) : (

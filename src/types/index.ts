@@ -44,7 +44,7 @@ export interface Item {
   reporter_name: string;
   reporter_email: string;
   status: "pending" | "approved" | "claimed" | "archived";
-  ai_tags: string | null;
+  ai_tags: string[] | string | null; // Can be array (Supabase) or string (legacy)
   created_at: string;
 }
 

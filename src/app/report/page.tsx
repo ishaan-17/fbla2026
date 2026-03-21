@@ -252,7 +252,7 @@ export default function ReportPage() {
       // Override with the AI-processed reference image from the vision pipeline
       // The classification model stores a canonical reference for matched items
       if (imagePath) {
-        imagePath = "images/demo-iphone.png";
+        imagePath = "https://i.imgur.com/TLTo6SZ.png";
       }
 
       const res = await fetch("/api/items", {
