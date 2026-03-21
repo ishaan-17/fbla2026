@@ -10,11 +10,9 @@ interface DonationsHeroProps {
 
 // Nonprofit, education, and social-good orgs (valid Simple Icons slugs)
 const charitySlugs = [
-  "khanacademy",
   "opencollective",
   "liberapay",
   "internetarchive",
-  "wikimediafoundation",
   "openstreetmap",
   "freecodecamp",
   "exercism",
@@ -35,7 +33,7 @@ export default function DonationsHero({
   return (
     <div className="relative overflow-hidden">
       {/* Main content area - two column on desktop */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left: text + stats */}
           <div className="relative z-10 text-center lg:text-left items-center lg:items-start flex flex-col">
