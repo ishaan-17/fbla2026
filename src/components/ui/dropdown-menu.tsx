@@ -176,60 +176,18 @@ const DropdownMenu = ({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="absolute z-50 w-full mt-2"
           >
-            {/* Liquid Glass Container - matching calendar popover */}
+            {/* Glass Container - matching search button style */}
             <div
-              className="relative overflow-hidden rounded-2xl"
+              className="relative overflow-hidden rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10"
               style={{
                 boxShadow: `
-                  0 8px 32px rgba(0, 0, 0, 0.15),
+                  0 8px 32px rgba(0, 0, 0, 0.2),
                   0 2px 8px rgba(0, 0, 0, 0.1),
-                  0 0 0 1px rgba(255, 255, 255, 0.2)
+                  inset 1px 1px 2px rgba(255, 255, 255, 0.1),
+                  inset -1px -1px 2px rgba(255, 255, 255, 0.05)
                 `,
               }}
             >
-              {/* Glass distortion/blur layer */}
-              <div
-                className="absolute inset-0 z-0 rounded-2xl"
-                style={{
-                  backdropFilter: "blur(16px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                }}
-              />
-
-              {/* Gradient overlay for depth */}
-              <div
-                className="absolute inset-0 z-10 rounded-2xl"
-                style={{
-                  background: `
-                    linear-gradient(
-                      135deg,
-                      rgba(255, 255, 255, 0.4) 0%,
-                      rgba(255, 255, 255, 0.2) 50%,
-                      rgba(255, 255, 255, 0.3) 100%
-                    )
-                  `,
-                }}
-              />
-
-              {/* Inner edge highlights */}
-              <div
-                className="absolute inset-0 z-20 rounded-2xl pointer-events-none"
-                style={{
-                  boxShadow: `
-                    inset 2px 2px 4px 0 rgba(255, 255, 255, 0.7),
-                    inset -1px -1px 3px 0 rgba(255, 255, 255, 0.4),
-                    inset 0 0 20px 0 rgba(255, 255, 255, 0.15)
-                  `,
-                }}
-              />
-
-              {/* Subtle border */}
-              <div
-                className="absolute inset-0 z-[25] rounded-2xl pointer-events-none"
-                style={{
-                  border: "1px solid rgba(255, 255, 255, 0.5)",
-                }}
-              />
 
               {/* Content */}
               <div className="relative z-30 p-2">
@@ -253,8 +211,7 @@ const DropdownMenu = ({
                     role="combobox"
                     aria-expanded={isOpen}
                     aria-controls="dropdown-listbox"
-                    className="w-full pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-white/40 bg-black/20 rounded-xl border border-white/15 focus:outline-none focus:border-white/30 focus:bg-black/25 transition-all"
-                    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+                    className="w-full pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-xl border border-white/15 focus:outline-none focus:border-white/30 focus:bg-white/15 transition-all"
                   />
                 </div>
 
@@ -288,13 +245,12 @@ const DropdownMenu = ({
                           "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-xl",
                           "transition-all duration-150",
                           option.value === value
-                            ? "bg-white/25 text-white font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)]"
-                            : "text-white/90 hover:bg-white/15 hover:text-white",
+                            ? "bg-white/20 text-white font-semibold"
+                            : "text-white/70 hover:bg-white/10 hover:text-white",
                           highlightedIndex === index &&
                             option.value !== value &&
-                            "bg-white/15 text-white",
+                            "bg-white/10 text-white",
                         )}
-                        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
                       >
                         {option.Icon && (
                           <span className="shrink-0">{option.Icon}</span>
@@ -303,7 +259,7 @@ const DropdownMenu = ({
                       </motion.button>
                     ))
                   ) : (
-                    <div className="px-3 py-2 text-white/50 text-sm">
+                    <div className="px-3 py-2 text-white/40 text-sm">
                       No results found
                     </div>
                   )}
