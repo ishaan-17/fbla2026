@@ -15,6 +15,7 @@ const ENABLE_SAFE_SEARCH = false;
 
 interface ImageUploaderProps {
   onFileSelect: (file: File) => void;
+  onFileClear?: () => void;
   onCategoryDetected: (category: string) => void;
   onTagsDetected: (tags: MappedTag[]) => void;
 }
@@ -33,6 +34,7 @@ function resultsToTags(results: ClassificationResult[]): MappedTag[] {
 
 export default function ImageUploader({
   onFileSelect,
+  onFileClear,
   onCategoryDetected,
   onTagsDetected,
 }: ImageUploaderProps) {
@@ -42,6 +44,13 @@ export default function ImageUploader({
   const [tags, setTags] = useState<MappedTag[]>([]);
   const [safeSearchResult, setSafeSearchResult] = useState<object | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileClear = useCallback(() => {
+    setTags([]);
+    setSafeSearchResult(null);
+    setUploadError(null);
+    onFileClear?.();
+  }, [onFileClear]);
 
   // Preload the classifier model when component mounts
   useEffect(() => {
@@ -196,7 +205,7 @@ export default function ImageUploader({
 
       {/* File Upload */}
       <div className="rounded-2xl overflow-hidden">
-        <FileUpload onChange={handleFileUpload} />
+        <FileUpload onChange={handleFileUpload} onClear={handleFileClear} />
 
         {isAnalyzing && (
           <div

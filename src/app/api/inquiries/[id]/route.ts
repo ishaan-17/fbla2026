@@ -28,7 +28,7 @@ export async function PATCH(
     const { data: inquiry, error: fetchError } = await supabase
       .from("inquiries")
       .select("*")
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .single();
 
     if (fetchError || !inquiry) {
@@ -38,7 +38,7 @@ export async function PATCH(
     const { error: updateError } = await supabase
       .from("inquiries")
       .update({ status })
-      .eq("id", id);
+      .eq("id", parseInt(id, 10));
 
     if (updateError) {
       console.error("Error updating inquiry:", updateError);
@@ -74,7 +74,7 @@ export async function DELETE(
     const { data: inquiry, error: fetchError } = await supabase
       .from("inquiries")
       .select("*")
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .single();
 
     if (fetchError || !inquiry) {
@@ -84,7 +84,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from("inquiries")
       .delete()
-      .eq("id", id);
+      .eq("id", parseInt(id, 10));
 
     if (deleteError) {
       console.error("Error deleting inquiry:", deleteError);

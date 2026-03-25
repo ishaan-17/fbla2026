@@ -1,114 +1,118 @@
 "use client";
 
-import { pipeline, type ImageClassificationPipeline, type ImageClassificationSingle } from "@huggingface/transformers";
+import { pipeline, type ZeroShotImageClassificationPipeline } from "@huggingface/transformers";
 
 // Singleton classifier instance (lazy loaded)
-let classifierInstance: ImageClassificationPipeline | null = null;
-let loadingPromise: Promise<ImageClassificationPipeline> | null = null;
+let classifierInstance: ZeroShotImageClassificationPipeline | null = null;
+let loadingPromise: Promise<ZeroShotImageClassificationPipeline> | null = null;
 
 // Model configuration
-const MODEL_ID = "Xenova/vit-base-patch16-224";
-const CONFIDENCE_THRESHOLD = 0.02; // Low threshold - we'll use presence, not confidence
+const MODEL_ID = "Xenova/clip-vit-base-patch32";
+const CONFIDENCE_THRESHOLD = 0.02; // Lower threshold since CLIP spreads probability
 const MAX_TAGS = 5;
 
 // ============================================================================
-// APP TAGS - These are the ONLY tags the AI can suggest
-// Must match COMMON_TAGS in report/page.tsx
+// CATEGORIES - Must match SCHOOL_CATEGORIES from categories.ts
 // ============================================================================
-export const APP_TAGS = {
-  // Colors
-  colors: ["Black", "White", "Blue", "Red", "Green", "Yellow", "Orange", "Purple", "Pink", "Brown", "Gray"],
-  // Sizes
-  sizes: ["Small", "Medium", "Large"],
-  // Materials
-  materials: ["Metal", "Plastic", "Fabric", "Leather", "Glass", "Wood"],
-  // Types
-  types: ["Electronics", "Valuable", "Keys", "Jewelry", "Branded"],
-} as const;
-
-// ============================================================================
-// MAPPING: ImageNet labels → App Tags
-// ============================================================================
-
-// Objects that suggest "Electronics" tag
-const ELECTRONICS_LABELS = [
-  "cellular telephone", "cell", "phone", "mobile", "smartphone", "iPod", 
-  "laptop", "notebook", "computer", "keyboard", "mouse", "remote control",
-  "television", "monitor", "screen", "digital watch", "calculator", "printer",
-  "speaker", "microphone", "headphone", "earphone", "camera", "projector",
-  "hard disc", "USB", "joystick", "radio", "modem", "power", "charger", "cable",
-  "tablet", "iPad", "electronic", "device", "gadget", "tech"
+const CATEGORY_LABELS = [
+  "a water bottle",
+  "a pencil case or pencil pouch",
+  "a backpack or school bag",
+  "clothing like a jacket, hoodie, hat, or scarf",
+  "electronics like a phone, laptop, tablet, or charger",
+  "keys or a keychain",
+  "a book, notebook, or binder",
+  "a lunchbox or food container",
+  "an umbrella",
+  "sports equipment like a ball, racket, or helmet",
+  "jewelry like a ring, necklace, bracelet, or earrings",
+  "glasses or sunglasses",
+  "headphones or earbuds",
 ];
 
-// Objects that suggest "Valuable" tag
-const VALUABLE_LABELS = [
-  "wallet", "billfold", "purse", "watch", "jewelry", "necklace", "ring",
-  "bracelet", "earring", "gold", "silver", "diamond", "gem", "precious",
-  "money", "cash", "credit card", "passport", "document"
-];
-
-// Objects that suggest "Keys" tag  
-const KEYS_LABELS = [
-  "key", "keychain", "lock", "padlock", "combination lock", "car key"
-];
-
-// Objects that suggest "Jewelry" tag
-const JEWELRY_LABELS = [
-  "necklace", "ring", "bracelet", "earring", "watch", "chain", "pendant",
-  "brooch", "jewel", "gem", "gold", "silver", "diamond", "pearl"
-];
-
-// Objects that suggest "Branded" tag (expensive/designer items)
-const BRANDED_LABELS = [
-  "designer", "luxury", "brand", "logo", "nike", "adidas", "apple", "samsung",
-  "gucci", "louis vuitton", "prada", "sunglasses", "handbag", "briefcase"
-];
-
-// Material associations
-const METAL_LABELS = ["metal", "steel", "iron", "aluminum", "chrome", "silver", "gold", "brass", "copper", "key", "lock", "chain", "watch", "ring", "can"];
-const PLASTIC_LABELS = ["plastic", "bottle", "container", "pen", "remote", "case", "toy", "bucket"];
-const FABRIC_LABELS = ["fabric", "cloth", "cotton", "wool", "silk", "linen", "backpack", "bag", "jacket", "shirt", "dress", "sweater", "hat", "scarf", "sock", "glove"];
-const LEATHER_LABELS = ["leather", "wallet", "purse", "belt", "shoe", "boot", "handbag", "briefcase", "jacket"];
-const GLASS_LABELS = ["glass", "glasses", "sunglasses", "spectacles", "bottle", "jar", "mirror", "lens", "window"];
-const WOOD_LABELS = ["wood", "wooden", "timber", "plywood", "bamboo", "pencil", "ruler", "frame"];
-
-// Color associations (based on common object colors)
-const COLOR_ASSOCIATIONS: Record<string, string[]> = {
-  "Black": ["black", "dark", "ebony", "charcoal", "laptop", "phone", "keyboard", "mouse", "headphone", "camera", "umbrella", "suit", "tire"],
-  "White": ["white", "ivory", "cream", "pearl", "snow", "paper", "shirt", "sneaker", "cloud"],
-  "Blue": ["blue", "navy", "azure", "cobalt", "denim", "jean", "sky"],
-  "Red": ["red", "crimson", "scarlet", "ruby", "cherry", "fire", "apple"],
-  "Green": ["green", "emerald", "olive", "lime", "grass", "leaf", "plant"],
-  "Yellow": ["yellow", "gold", "golden", "lemon", "sun", "banana"],
-  "Orange": ["orange", "tangerine", "peach", "carrot", "pumpkin"],
-  "Purple": ["purple", "violet", "lavender", "plum", "grape"],
-  "Pink": ["pink", "rose", "magenta", "flamingo"],
-  "Brown": ["brown", "tan", "chocolate", "coffee", "leather", "wood", "wooden", "wallet", "briefcase"],
-  "Gray": ["gray", "grey", "silver", "metal", "steel", "concrete", "stone"],
+// Map CLIP labels back to category names
+const LABEL_TO_CATEGORY: Record<string, string> = {
+  "a water bottle": "water_bottle",
+  "a pencil case or pencil pouch": "pencil_case",
+  "a backpack or school bag": "backpack",
+  "clothing like a jacket, hoodie, hat, or scarf": "clothing",
+  "electronics like a phone, laptop, tablet, or charger": "electronics",
+  "keys or a keychain": "keys",
+  "a book, notebook, or binder": "book",
+  "a lunchbox or food container": "lunchbox",
+  "an umbrella": "umbrella",
+  "sports equipment like a ball, racket, or helmet": "sports_equipment",
+  "jewelry like a ring, necklace, bracelet, or earrings": "jewelry",
+  "glasses or sunglasses": "glasses",
+  "headphones or earbuds": "headphones",
 };
 
-// Size associations (rough heuristics)
-const SMALL_LABELS = ["key", "ring", "earring", "coin", "pen", "pencil", "USB", "AirPod", "earbud", "pill", "button", "pin", "clip", "watch", "lighter"];
-const MEDIUM_LABELS = ["phone", "wallet", "glasses", "book", "bottle", "mouse", "remote", "calculator", "camera"];
-const LARGE_LABELS = ["backpack", "laptop", "suitcase", "jacket", "coat", "umbrella", "guitar", "skateboard", "helmet", "bag"];
+// ============================================================================
+// TAG LABELS - Must match COMMON_TAGS from report/page.tsx
+// ============================================================================
+const TAG_LABELS = {
+  colors: [
+    "a black colored object",
+    "a white colored object",
+    "a blue colored object",
+    "a red colored object",
+    "a green colored object",
+    "a yellow colored object",
+    "an orange colored object",
+    "a purple colored object",
+    "a pink colored object",
+    "a brown colored object",
+    "a gray or silver colored object",
+  ],
+  sizes: [
+    "a small object that fits in your hand",
+    "a medium sized object",
+    "a large object like a bag or backpack",
+  ],
+  materials: [
+    "an object made of metal",
+    "an object made of plastic",
+    "an object made of fabric or cloth",
+    "an object made of leather",
+    "an object made of glass",
+    "an object made of wood",
+  ],
+  types: [
+    "an electronic device",
+    "a valuable or expensive item",
+    "keys or a lock",
+    "jewelry or accessories",
+    "a branded or designer item with a logo",
+  ],
+};
 
-// ============================================================================
-// CATEGORY DETECTION - Maps to SCHOOL_CATEGORIES from categories.ts
-// ============================================================================
-const CATEGORY_MAPPINGS: Record<string, string[]> = {
-  "water_bottle": ["bottle", "water", "flask", "thermos", "canteen", "tumbler", "cup", "mug"],
-  "pencil_case": ["pencil case", "pencil box", "pen case", "pouch", "stationery"],
-  "backpack": ["backpack", "knapsack", "rucksack", "school bag", "book bag", "bag", "satchel"],
-  "clothing": ["jacket", "coat", "sweater", "hoodie", "shirt", "pants", "jeans", "dress", "skirt", "hat", "cap", "scarf", "glove", "sock", "shoe", "sneaker", "boot", "sandal", "jersey", "sweatshirt", "cardigan", "vest", "tie", "belt"],
-  "electronics": ["phone", "cell", "mobile", "laptop", "computer", "tablet", "iPad", "camera", "speaker", "headphone", "earphone", "charger", "cable", "mouse", "keyboard", "monitor", "screen", "calculator", "remote", "USB", "flash drive", "hard drive", "electronic", "device", "iPod", "MP3", "smartwatch", "watch"],
-  "keys": ["key", "keychain", "lock", "padlock", "car key", "house key"],
-  "book": ["book", "textbook", "notebook", "binder", "folder", "paper", "document", "magazine", "novel", "planner", "diary", "journal"],
-  "lunchbox": ["lunchbox", "lunch box", "lunch bag", "food container", "tupperware", "bento"],
-  "umbrella": ["umbrella", "parasol"],
-  "sports_equipment": ["ball", "basketball", "soccer", "football", "baseball", "tennis", "golf", "volleyball", "racket", "bat", "glove", "helmet", "skateboard", "scooter", "bicycle", "bike", "skate", "ski", "snowboard", "dumbbell", "yoga mat", "frisbee"],
-  "jewelry": ["jewelry", "necklace", "bracelet", "ring", "earring", "chain", "pendant", "brooch", "gem", "diamond", "gold", "silver", "pearl"],
-  "glasses": ["glasses", "eyeglasses", "sunglasses", "spectacles", "goggles", "lens"],
-  "headphones": ["headphone", "earphone", "earbud", "AirPod", "headset", "earpiece"],
+// Map CLIP tag labels back to app tag names
+const TAG_LABEL_MAP: Record<string, { tag: string; category: "color" | "size" | "material" | "type" }> = {
+  "a black colored object": { tag: "Black", category: "color" },
+  "a white colored object": { tag: "White", category: "color" },
+  "a blue colored object": { tag: "Blue", category: "color" },
+  "a red colored object": { tag: "Red", category: "color" },
+  "a green colored object": { tag: "Green", category: "color" },
+  "a yellow colored object": { tag: "Yellow", category: "color" },
+  "an orange colored object": { tag: "Orange", category: "color" },
+  "a purple colored object": { tag: "Purple", category: "color" },
+  "a pink colored object": { tag: "Pink", category: "color" },
+  "a brown colored object": { tag: "Brown", category: "color" },
+  "a gray or silver colored object": { tag: "Gray", category: "color" },
+  "a small object that fits in your hand": { tag: "Small", category: "size" },
+  "a medium sized object": { tag: "Medium", category: "size" },
+  "a large object like a bag or backpack": { tag: "Large", category: "size" },
+  "an object made of metal": { tag: "Metal", category: "material" },
+  "an object made of plastic": { tag: "Plastic", category: "material" },
+  "an object made of fabric or cloth": { tag: "Fabric", category: "material" },
+  "an object made of leather": { tag: "Leather", category: "material" },
+  "an object made of glass": { tag: "Glass", category: "material" },
+  "an object made of wood": { tag: "Wood", category: "material" },
+  "an electronic device": { tag: "Electronics", category: "type" },
+  "a valuable or expensive item": { tag: "Valuable", category: "type" },
+  "keys or a lock": { tag: "Keys", category: "type" },
+  "jewelry or accessories": { tag: "Jewelry", category: "type" },
+  "a branded or designer item with a logo": { tag: "Branded", category: "type" },
 };
 
 export interface ClassificationResult {
@@ -118,71 +122,22 @@ export interface ClassificationResult {
   originalLabel: string;
 }
 
+export interface ClassificationOutput {
+  tags: ClassificationResult[];
+  suggestedCategory: string | null;
+}
+
 export type LoadingStatus = "idle" | "loading" | "ready" | "error";
 
-/**
- * Check if any of the keywords appear in the label
- */
-function matchesAny(label: string, keywords: string[]): boolean {
-  const lowerLabel = label.toLowerCase();
-  return keywords.some(kw => lowerLabel.includes(kw.toLowerCase()));
-}
-
-/**
- * Get the best color match for a label
- */
-function detectColor(label: string): string | null {
-  for (const [color, keywords] of Object.entries(COLOR_ASSOCIATIONS)) {
-    if (matchesAny(label, keywords)) {
-      return color;
-    }
-  }
-  return null;
-}
-
-/**
- * Detect the best category for the image based on detected labels
- */
-function detectCategory(labels: string[]): string | null {
-  const categoryScores: Record<string, number> = {};
-  
-  for (const label of labels) {
-    for (const [category, keywords] of Object.entries(CATEGORY_MAPPINGS)) {
-      if (matchesAny(label, keywords)) {
-        categoryScores[category] = (categoryScores[category] || 0) + 1;
-      }
-    }
-  }
-  
-  // Return category with highest score
-  let bestCategory: string | null = null;
-  let bestScore = 0;
-  
-  for (const [category, score] of Object.entries(categoryScores)) {
-    if (score > bestScore) {
-      bestScore = score;
-      bestCategory = category;
-    }
-  }
-  
-  return bestCategory;
-}
-
-/**
- * Get the current loading status of the classifier
- */
 export function getClassifierStatus(): LoadingStatus {
   if (classifierInstance) return "ready";
   if (loadingPromise) return "loading";
   return "idle";
 }
 
-/**
- * Load the image classification model (lazy, singleton)
- */
 export async function loadClassifier(
   onProgress?: (progress: number) => void
-): Promise<ImageClassificationPipeline> {
+): Promise<ZeroShotImageClassificationPipeline> {
   if (classifierInstance) {
     onProgress?.(100);
     return classifierInstance;
@@ -196,7 +151,7 @@ export async function loadClassifier(
     try {
       onProgress?.(10);
       
-      const classifier = await pipeline("image-classification", MODEL_ID, {
+      const classifier = await pipeline("zero-shot-image-classification", MODEL_ID, {
         progress_callback: (progress) => {
           if (typeof progress === "object" && "progress" in progress && progress.progress !== undefined) {
             onProgress?.(10 + (progress.progress * 0.85));
@@ -216,119 +171,78 @@ export async function loadClassifier(
   return loadingPromise;
 }
 
-export interface ClassificationOutput {
-  tags: ClassificationResult[];
-  suggestedCategory: string | null;
-}
-
-/**
- * Classify an image and return tags from the app's predefined tag list
- */
 export async function classifyImage(
   imageSource: string | File | Blob,
   onProgress?: (progress: number) => void
 ): Promise<ClassificationOutput> {
-  console.log("[aiClassifier] Starting classification...");
+  console.log("[aiClassifier/CLIP] Starting classification...");
   
   const classifier = await loadClassifier(onProgress);
-  console.log("[aiClassifier] Model loaded, running inference...");
+  console.log("[aiClassifier/CLIP] Model loaded, running inference...");
 
-  const rawResults = await classifier(imageSource, { top_k: 10 });
-  console.log("[aiClassifier] Raw model output:", rawResults);
+  // First, detect the category
+  console.log("[aiClassifier/CLIP] Detecting category...");
+  const categoryResults = await classifier(imageSource, CATEGORY_LABELS);
+  console.log("[aiClassifier/CLIP] Category results:", categoryResults);
   
-  const results: ImageClassificationSingle[] = Array.isArray(rawResults) 
-    ? rawResults as ImageClassificationSingle[]
-    : [rawResults as ImageClassificationSingle];
+  // Get the best category (results are always an array for zero-shot classification)
+  const categoryArray = categoryResults as { label: string; score: number }[];
+  const topCategory = categoryArray[0];
+  const suggestedCategory = topCategory ? LABEL_TO_CATEGORY[topCategory.label] || null : null;
+  console.log("[aiClassifier/CLIP] Suggested category:", suggestedCategory);
 
-  // Collect all detected labels for analysis
-  const allLabels = results
-    .filter(r => r.score >= CONFIDENCE_THRESHOLD)
-    .map(r => r.label);
-  
-  console.log("[aiClassifier] Detected labels:", allLabels);
+  // Detect tags by category to avoid probability dilution
+  // Each category is classified independently for better accuracy
+  const tags: ClassificationResult[] = [];
 
-  // Detect the best category
-  const suggestedCategory = detectCategory(allLabels);
-  console.log("[aiClassifier] Suggested category:", suggestedCategory);
-
-  const mappedResults: ClassificationResult[] = [];
-  const usedTags = new Set<string>();
-
-  // Helper to add a tag if not already added
-  const addTag = (tag: string, category: ClassificationResult["category"], confidence: number, originalLabel: string) => {
-    if (!usedTags.has(tag) && mappedResults.length < MAX_TAGS) {
-      usedTags.add(tag);
-      mappedResults.push({ tag, category, confidence, originalLabel });
-    }
-  };
-
-  // Process each result
-  for (const result of results) {
-    if (result.score < CONFIDENCE_THRESHOLD) continue;
-    const label = result.label;
-
-    // Check TYPE tags
-    if (matchesAny(label, ELECTRONICS_LABELS)) {
-      addTag("Electronics", "type", result.score, label);
-    }
-    if (matchesAny(label, VALUABLE_LABELS)) {
-      addTag("Valuable", "type", result.score, label);
-    }
-    if (matchesAny(label, KEYS_LABELS)) {
-      addTag("Keys", "type", result.score, label);
-    }
-    if (matchesAny(label, JEWELRY_LABELS)) {
-      addTag("Jewelry", "type", result.score, label);
-    }
-    if (matchesAny(label, BRANDED_LABELS)) {
-      addTag("Branded", "type", result.score, label);
-    }
-
-    // Check MATERIAL tags
-    if (matchesAny(label, METAL_LABELS)) {
-      addTag("Metal", "material", result.score, label);
-    }
-    if (matchesAny(label, PLASTIC_LABELS)) {
-      addTag("Plastic", "material", result.score, label);
-    }
-    if (matchesAny(label, FABRIC_LABELS)) {
-      addTag("Fabric", "material", result.score, label);
-    }
-    if (matchesAny(label, LEATHER_LABELS)) {
-      addTag("Leather", "material", result.score, label);
-    }
-    if (matchesAny(label, GLASS_LABELS)) {
-      addTag("Glass", "material", result.score, label);
-    }
-    if (matchesAny(label, WOOD_LABELS)) {
-      addTag("Wood", "material", result.score, label);
-    }
-
-    // Check SIZE tags
-    if (matchesAny(label, SMALL_LABELS)) {
-      addTag("Small", "size", result.score, label);
-    }
-    if (matchesAny(label, MEDIUM_LABELS)) {
-      addTag("Medium", "size", result.score, label);
-    }
-    if (matchesAny(label, LARGE_LABELS)) {
-      addTag("Large", "size", result.score, label);
-    }
-
-    // Check COLOR tags
-    const color = detectColor(label);
-    if (color) {
-      addTag(color, "color", result.score, label);
+  // Detect color
+  console.log("[aiClassifier/CLIP] Detecting color...");
+  const colorResults = await classifier(imageSource, TAG_LABELS.colors) as { label: string; score: number }[];
+  console.log("[aiClassifier/CLIP] Color results:", colorResults);
+  if (colorResults[0] && colorResults[0].score >= CONFIDENCE_THRESHOLD) {
+    const mapping = TAG_LABEL_MAP[colorResults[0].label];
+    if (mapping) {
+      tags.push({ tag: mapping.tag, category: "color", confidence: colorResults[0].score, originalLabel: colorResults[0].label });
     }
   }
 
-  console.log("[aiClassifier] Final tags:", mappedResults);
-  return { tags: mappedResults, suggestedCategory };
+  // Detect size
+  console.log("[aiClassifier/CLIP] Detecting size...");
+  const sizeResults = await classifier(imageSource, TAG_LABELS.sizes) as { label: string; score: number }[];
+  console.log("[aiClassifier/CLIP] Size results:", sizeResults);
+  if (sizeResults[0] && sizeResults[0].score >= CONFIDENCE_THRESHOLD) {
+    const mapping = TAG_LABEL_MAP[sizeResults[0].label];
+    if (mapping) {
+      tags.push({ tag: mapping.tag, category: "size", confidence: sizeResults[0].score, originalLabel: sizeResults[0].label });
+    }
+  }
+
+  // Detect material
+  console.log("[aiClassifier/CLIP] Detecting material...");
+  const materialResults = await classifier(imageSource, TAG_LABELS.materials) as { label: string; score: number }[];
+  console.log("[aiClassifier/CLIP] Material results:", materialResults);
+  if (materialResults[0] && materialResults[0].score >= CONFIDENCE_THRESHOLD) {
+    const mapping = TAG_LABEL_MAP[materialResults[0].label];
+    if (mapping) {
+      tags.push({ tag: mapping.tag, category: "material", confidence: materialResults[0].score, originalLabel: materialResults[0].label });
+    }
+  }
+
+  // Detect type
+  console.log("[aiClassifier/CLIP] Detecting type...");
+  const typeResults = await classifier(imageSource, TAG_LABELS.types) as { label: string; score: number }[];
+  console.log("[aiClassifier/CLIP] Type results:", typeResults);
+  if (typeResults[0] && typeResults[0].score >= CONFIDENCE_THRESHOLD) {
+    const mapping = TAG_LABEL_MAP[typeResults[0].label];
+    if (mapping) {
+      tags.push({ tag: mapping.tag, category: "type", confidence: typeResults[0].score, originalLabel: typeResults[0].label });
+    }
+  }
+
+  console.log("[aiClassifier/CLIP] Final tags:", tags);
+  return { tags, suggestedCategory };
 }
 
-/**
- * Preload the classifier model
- */
 export function preloadClassifier(): void {
   loadClassifier().catch(() => {});
 }

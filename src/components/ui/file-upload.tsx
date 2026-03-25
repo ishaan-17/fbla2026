@@ -3,13 +3,15 @@
 import { cn } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Cloud, ImageIcon, Camera, FolderOpen } from "lucide-react";
+import { Cloud, ImageIcon, Camera, FolderOpen, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 export const FileUpload = ({
   onChange,
+  onClear,
 }: {
   onChange?: (files: File[]) => void;
+  onClear?: () => void;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,6 +20,15 @@ export const FileUpload = ({
   const handleFileChange = (newFiles: File[]) => {
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     onChange && onChange(newFiles);
+  };
+
+  const handleRemoveFile = (e: React.MouseEvent, idx: number) => {
+    e.stopPropagation();
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== idx));
+    // Reset the file inputs so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+    onClear?.();
   };
 
   const handleClick = () => {
@@ -179,6 +190,18 @@ export const FileUpload = ({
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
+                    <motion.button
+                      type="button"
+                      onClick={(e) => handleRemoveFile(e, idx)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center border border-white/[0.1] hover:border-red-500/30 hover:bg-red-500/20 transition-colors"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.05)",
+                      }}
+                    >
+                      <X className="w-4 h-4 text-white/60 hover:text-red-400" />
+                    </motion.button>
                   </motion.div>
                 ))}
               </div>

@@ -212,17 +212,21 @@ export default function ReportPage() {
     return Object.keys(errors).length === 0;
   };
 
-  // When AI detects tags, add them to selected tags
+  // When AI detects tags, add them to selected tags automatically
   useEffect(() => {
     if (aiDetectedTags.length > 0) {
+      console.log("[ReportPage] AI detected tags, auto-selecting:", aiDetectedTags);
       const newTags = aiDetectedTags.map((t) => ({
         id: t.label.toLowerCase().replace(/\s+/g, "-"),
         label: t.label,
+        category: t.category as "color" | "size" | "material" | "type" | "other" | undefined,
       }));
       setSelectedTags((prev) => {
         const existingIds = new Set(prev.map((t) => t.id));
         const uniqueNewTags = newTags.filter((t) => !existingIds.has(t.id));
-        return [...prev, ...uniqueNewTags];
+        const result = [...prev, ...uniqueNewTags];
+        console.log("[ReportPage] Updated selectedTags:", result);
+        return result;
       });
     }
   }, [aiDetectedTags]);
@@ -331,6 +335,12 @@ export default function ReportPage() {
               </h2>
               <ImageUploader
                 onFileSelect={setFile}
+                onFileClear={() => {
+                  setFile(null);
+                  setCategory("");
+                  setAiDetectedTags([]);
+                  setSelectedTags([]);
+                }}
                 onCategoryDetected={setCategory}
                 onTagsDetected={setAiDetectedTags}
               />

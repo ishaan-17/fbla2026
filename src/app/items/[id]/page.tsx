@@ -24,7 +24,7 @@ export async function generateMetadata({
   const { data: item } = await supabase
     .from("items")
     .select("title, description, category, location_found")
-    .eq("id", id)
+    .eq("id", parseInt(id, 10))
     .single();
 
   if (!item) {
@@ -148,7 +148,7 @@ export default async function ItemDetailPage({
   const { data, error } = await supabase
     .from("items")
     .select("*")
-    .eq("id", id)
+    .eq("id", parseInt(id, 10))
     .single();
 
   if (data) {

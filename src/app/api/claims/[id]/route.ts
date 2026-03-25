@@ -28,7 +28,7 @@ export async function PATCH(
     const { data: claim, error: claimError } = await supabase
       .from("claims")
       .select("*")
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .single();
 
     if (claimError || !claim) {
@@ -39,7 +39,7 @@ export async function PATCH(
     const { error: updateClaimError } = await supabase
       .from("claims")
       .update({ status })
-      .eq("id", id);
+      .eq("id", parseInt(id, 10));
 
     if (updateClaimError) {
       console.error("Error updating claim:", updateClaimError);
@@ -65,7 +65,7 @@ export async function PATCH(
         .from("claims")
         .update({ status: "rejected" })
         .eq("item_id", claim.item_id)
-        .neq("id", id)
+        .neq("id", parseInt(id, 10))
         .eq("status", "pending");
 
       if (rejectError) {

@@ -16,7 +16,7 @@ export async function GET(
     const { data: item, error } = await supabase
       .from("items")
       .select("*")
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .single();
 
     if (error || !item) {
@@ -67,7 +67,7 @@ export async function PATCH(
     const { data: item, error } = await supabase
       .from("items")
       .update(updates)
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .select()
       .single();
 
@@ -105,7 +105,7 @@ export async function DELETE(
     const { data: item, error: fetchError } = await supabase
       .from("items")
       .select("*")
-      .eq("id", id)
+      .eq("id", parseInt(id, 10))
       .single();
 
     if (fetchError || !item) {
@@ -124,7 +124,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from("items")
       .delete()
-      .eq("id", id);
+      .eq("id", parseInt(id, 10));
 
     if (deleteError) {
       console.error("Error deleting item:", deleteError);
