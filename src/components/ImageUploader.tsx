@@ -1,27 +1,17 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { AIPrediction, MappedTag } from "@/types";
+import { useState, useCallback, useEffect } from "react";
+import type { MappedTag } from "@/types";
 import { FileUpload } from "@/components/ui/file-upload";
+import {
+  classifyImage,
+  loadClassifier,
+  getClassifierStatus,
+  type ClassificationResult,
+} from "@/lib/aiClassifier";
 
 // Toggle this to enable/disable safe search checking
 const ENABLE_SAFE_SEARCH = false;
-
-// Pre-trained label vocabulary for on-device image classification model
-// Maps raw model output class labels to human-readable descriptors
-const MODEL_LABEL_MAP: Record<string, { label: string; category: string }> = {
-  "cellular telephone": { label: "iPhone", category: "electronics" },
-  smartphone: { label: "Smartphone", category: "electronics" },
-  "hand-held computer": { label: "Apple", category: "electronics" },
-  screen: { label: "Touchscreen", category: "electronics" },
-  "digital device": { label: "Mobile Device", category: "electronics" },
-  iPod: { label: "Apple Device", category: "electronics" },
-  "remote control": { label: "Electronics", category: "electronics" },
-};
-
-// Confidence threshold for filtering low-quality predictions
-const CONFIDENCE_THRESHOLD = 0.35;
-const MAX_TAGS = 3;
 
 interface ImageUploaderProps {
   onFileSelect: (file: File) => void;
@@ -30,87 +20,15 @@ interface ImageUploaderProps {
 }
 
 /**
- * Extracts pixel feature embeddings from the image via canvas sampling.
- * Returns a normalized feature vector used for classification inference.
+ * Convert AI classification results to the MappedTag format used by the app
  */
-function extractImageFeatures(imageData: string): number[] {
-  const raw = atob(imageData.split(",").pop() || imageData);
-  const featureVector: number[] = [];
-  const sampleRate = Math.max(1, Math.floor(raw.length / 128));
-  for (let i = 0; i < raw.length; i += sampleRate) {
-    featureVector.push(raw.charCodeAt(i) / 255);
-  }
-  // Normalize feature vector to unit length
-  const magnitude = Math.sqrt(featureVector.reduce((sum, v) => sum + v * v, 0));
-  return featureVector.map((v) => v / (magnitude || 1));
-}
-
-/**
- * Runs inference on extracted features against the on-device
- * MobileNet-derived classification model weights.
- * Returns raw class predictions with probability scores.
- */
-function runClassificationInference(features: number[]): AIPrediction[] {
-  // Compute activation scores from feature embeddings
-  const featureHash = features.reduce((acc, val, i) => acc + val * (i + 1), 0);
-  const activationSeed = (Math.abs(featureHash) % 1000) / 1000;
-
-  // Generate class activation scores for top-k labels
-  const classLabels = Object.keys(MODEL_LABEL_MAP);
-  const predictions: AIPrediction[] = classLabels.map((className, idx) => {
-    // Softmax-derived probability with feature-based variance
-    const baseScore = 0.95 - idx * 0.06;
-    const featureVariance = activationSeed * 0.04 - 0.02;
-    const probability = Math.min(
-      0.98,
-      Math.max(0.1, baseScore + featureVariance),
-    );
-    return { className, probability };
-  });
-
-  // Sort by descending confidence and apply threshold
-  return predictions
-    .sort((a, b) => b.probability - a.probability)
-    .filter((p) => p.probability >= CONFIDENCE_THRESHOLD);
-}
-
-/**
- * Maps raw model predictions to user-facing tags using the label vocabulary.
- * Deduplicates by label and returns top-k results sorted by confidence.
- */
-function mapPredictionsToTags(predictions: AIPrediction[]): MappedTag[] {
-  const tagMap = new Map<string, MappedTag>();
-
-  for (const prediction of predictions) {
-    const mapping = MODEL_LABEL_MAP[prediction.className];
-    if (!mapping) continue;
-
-    const existing = tagMap.get(mapping.label);
-    if (!existing || prediction.probability > existing.confidence) {
-      tagMap.set(mapping.label, {
-        category: mapping.category,
-        label: mapping.label,
-        confidence: parseFloat(prediction.probability.toFixed(2)),
-        originalLabel: `AI detected: ${prediction.className}`,
-      });
-    }
-  }
-
-  return Array.from(tagMap.values())
-    .sort((a, b) => b.confidence - a.confidence)
-    .slice(0, MAX_TAGS);
-}
-
-/**
- * Full AI image analysis pipeline:
- * 1. Extract pixel feature embeddings from the uploaded image
- * 2. Run classification inference against on-device model
- * 3. Map raw predictions to structured, human-readable tags
- */
-function analyzeImageWithAI(imageData: string): MappedTag[] {
-  const features = extractImageFeatures(imageData);
-  const predictions = runClassificationInference(features);
-  return mapPredictionsToTags(predictions);
+function resultsToTags(results: ClassificationResult[]): MappedTag[] {
+  return results.map((r) => ({
+    category: r.category,
+    label: r.tag,
+    confidence: r.confidence,
+    originalLabel: `AI detected: ${r.originalLabel}`,
+  }));
 }
 
 export default function ImageUploader({
@@ -119,28 +37,55 @@ export default function ImageUploader({
   onTagsDetected,
 }: ImageUploaderProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isLoadingModel, setIsLoadingModel] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
   const [tags, setTags] = useState<MappedTag[]>([]);
   const [safeSearchResult, setSafeSearchResult] = useState<object | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Preload the classifier model when component mounts
+  useEffect(() => {
+    if (getClassifierStatus() === "idle") {
+      setIsLoadingModel(true);
+      loadClassifier((progress) => setLoadProgress(progress))
+        .then(() => setIsLoadingModel(false))
+        .catch(() => setIsLoadingModel(false));
+    }
+  }, []);
+
   const analyzeImage = useCallback(
-    async (imageData: string) => {
+    async (file: File) => {
+      console.log("[ImageUploader] Starting AI analysis for:", file.name);
       setIsAnalyzing(true);
-      // Allow UI thread to render loading state before heavy computation
-      await new Promise((resolve) =>
-        setTimeout(resolve, 800 + Math.random() * 600),
-      );
+      setLoadProgress(0);
 
-      // Run the AI classification pipeline on the image data
-      const mappedTags = analyzeImageWithAI(imageData);
+      try {
+        // Run real AI classification
+        console.log("[ImageUploader] Calling classifyImage...");
+        const { tags: results, suggestedCategory } = await classifyImage(file, (progress) => {
+          console.log("[ImageUploader] Progress:", progress);
+          setLoadProgress(progress);
+        });
 
-      setTags(mappedTags);
-      onTagsDetected(mappedTags);
+        console.log("[ImageUploader] Classification results:", results);
+        console.log("[ImageUploader] Suggested category:", suggestedCategory);
+        
+        const mappedTags = resultsToTags(results);
+        console.log("[ImageUploader] Mapped tags:", mappedTags);
+        
+        setTags(mappedTags);
+        onTagsDetected(mappedTags);
 
-      if (mappedTags.length > 0) {
-        onCategoryDetected(mappedTags[0].category);
+        // Use the detected category from SCHOOL_CATEGORIES
+        if (suggestedCategory) {
+          onCategoryDetected(suggestedCategory);
+        }
+      } catch (error) {
+        console.error("[ImageUploader] AI classification error:", error);
+        setUploadError(`Failed to analyze image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      } finally {
+        setIsAnalyzing(false);
       }
-      setIsAnalyzing(false);
     },
     [onCategoryDetected, onTagsDetected],
   );
@@ -187,34 +132,58 @@ export default function ImageUploader({
       setTags([]);
       setSafeSearchResult(null);
 
-      // Use FileReader to convert the File object to a Base64 string
-      const reader = new FileReader();
+      // Run AI classification directly on the file
+      analyzeImage(file);
 
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        // Extract just the Base64 part
-        const base64Image = dataUrl.split(",")[1];
-
-        // Run AI image classification pipeline on the uploaded image
-        analyzeImage(dataUrl);
-
-        // Only run safe search if enabled
-        if (ENABLE_SAFE_SEARCH) {
+      // Safe search still needs base64, only run if enabled
+      if (ENABLE_SAFE_SEARCH) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          const base64Image = dataUrl.split(",")[1];
           searchSafeImage(base64Image);
-        }
-      };
-
-      reader.onerror = () => {
-        setUploadError("Failed to read image file. Please try again.");
-      };
-
-      reader.readAsDataURL(file);
+        };
+        reader.readAsDataURL(file);
+      }
     },
     [onFileSelect, analyzeImage, searchSafeImage],
   );
 
   return (
     <div className="space-y-4">
+      {/* Model Loading Indicator (first time only) */}
+      {isLoadingModel && (
+        <div
+          className="p-4 rounded-xl border border-white/[0.08]"
+          style={{
+            backdropFilter: "blur(24px) saturate(150%)",
+            WebkitBackdropFilter: "blur(24px) saturate(150%)",
+            background: `linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.06) 0%,
+              rgba(255, 255, 255, 0.02) 50%,
+              rgba(255, 255, 255, 0.04) 100%
+            )`,
+          }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-4 h-4 border-2 border-primary-400/50 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-semibold text-white/70">
+              Loading AI model...
+            </span>
+          </div>
+          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary-400 rounded-full transition-all duration-300"
+              style={{ width: `${loadProgress}%` }}
+            />
+          </div>
+          <p className="text-xs text-white/40 mt-2">
+            First-time setup • Model will be cached for future use
+          </p>
+        </div>
+      )}
+
       {/* Upload Error */}
       {uploadError && (
         <div
@@ -244,12 +213,20 @@ export default function ImageUploader({
               boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.03)",
             }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-2">
               <div className="w-4 h-4 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
               <span className="text-sm font-semibold text-white/70">
-                Analyzing image with AI...
+                {loadProgress < 100 ? "Loading AI model..." : "Analyzing image..."}
               </span>
             </div>
+            {loadProgress < 100 && (
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary-400 rounded-full transition-all duration-300"
+                  style={{ width: `${loadProgress}%` }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
