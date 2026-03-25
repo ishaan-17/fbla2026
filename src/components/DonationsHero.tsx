@@ -14,7 +14,6 @@ const charitySlugs = [
   "liberapay",
   "internetarchive",
   "openstreetmap",
-  "freecodecamp",
   "exercism",
   "opensourceinitiative",
   "creativecommons",
@@ -22,7 +21,6 @@ const charitySlugs = [
   "mozilla",
   "signal",
   "tor",
-  "wikipedia",
   "goodreads",
 ];
 
