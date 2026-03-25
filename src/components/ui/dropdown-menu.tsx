@@ -194,7 +194,7 @@ const DropdownMenu = ({
                 {/* Search Input */}
                 <div className="relative mb-2">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black/50"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50"
                     aria-hidden="true"
                   />
                   <input
@@ -211,7 +211,7 @@ const DropdownMenu = ({
                     role="combobox"
                     aria-expanded={isOpen}
                     aria-controls="dropdown-listbox"
-                    className="w-full pl-10 pr-3 py-2.5 text-sm text-black placeholder:text-black/40 bg-black/10 rounded-xl border border-white/15 focus:outline-none focus:border-white/30 focus:bg-black/15 transition-all"
+                    className="w-full pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-white/40 bg-white/10 rounded-xl border border-white/15 focus:outline-none focus:border-white/30 focus:bg-white/15 transition-all"
                   />
                 </div>
 
@@ -245,11 +245,11 @@ const DropdownMenu = ({
                           "w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 rounded-xl",
                           "transition-all duration-150",
                           option.value === value
-                            ? "bg-white/25 text-black font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)]"
-                            : "text-black/80 hover:bg-white/15 hover:text-black",
+                            ? "bg-white/25 text-white font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                            : "text-white/80 hover:bg-white/15 hover:text-white",
                           highlightedIndex === index &&
                             option.value !== value &&
-                            "bg-white/15 text-black",
+                            "bg-white/15 text-white",
                         )}
                       >
                         {option.Icon && (
