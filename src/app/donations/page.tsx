@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import db from "@/lib/db";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 import Image from "next/image";
@@ -16,19 +16,15 @@ export const metadata: Metadata = {
 
 export default async function DonationsPage() {
   // Items eligible for donation: archived, OR approved but older than 30 days
-  const supabase = await createClient();
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const cutoff = thirtyDaysAgo.toISOString().split("T")[0];
-
-  const { data } = await supabase
-    .from("items")
-    .select("*")
-    .or(`status.eq.archived,and(status.eq.approved,date_found.lt.${cutoff})`)
-    .order("date_found", { ascending: false })
-    .limit(50);
-
-  const donatedItems = (data ?? []) as Item[];
+  const donatedItems = db
+    .prepare(
+      `SELECT * FROM items
+       WHERE status = 'archived'
+          OR (status = 'approved' AND date_found < date('now', '-30 days'))
+       ORDER BY date_found DESC
+       LIMIT 50`
+    )
+    .all() as Item[];
 
   // Stats
   const totalDonated = donatedItems.length;
@@ -78,14 +74,14 @@ export default async function DonationsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8">
+          <div className="text-center py-16">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-6">
-              <svg className="w-7 h-7 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-7 h-7 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">No donations yet</h2>
-            <p className="text-white/50 text-base max-w-sm mx-auto">
+            <h2 className="text-lg font-bold text-white/60 mb-2">No donations yet</h2>
+            <p className="text-white/30 text-sm max-w-sm mx-auto">
               Items unclaimed for 30 days will appear here once they&apos;re donated.
             </p>
           </div>

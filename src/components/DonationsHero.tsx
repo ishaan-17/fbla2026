@@ -10,10 +10,13 @@ interface DonationsHeroProps {
 
 // Nonprofit, education, and social-good orgs (valid Simple Icons slugs)
 const charitySlugs = [
+  "khanacademy",
   "opencollective",
   "liberapay",
   "internetarchive",
+  "wikimediafoundation",
   "openstreetmap",
+  "freecodecamp",
   "exercism",
   "opensourceinitiative",
   "creativecommons",
@@ -21,6 +24,7 @@ const charitySlugs = [
   "mozilla",
   "signal",
   "tor",
+  "wikipedia",
   "goodreads",
 ];
 
@@ -31,7 +35,7 @@ export default function DonationsHero({
   return (
     <div className="relative overflow-hidden">
       {/* Main content area - two column on desktop */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left: text + stats */}
           <div className="relative z-10 text-center lg:text-left items-center lg:items-start flex flex-col">
@@ -50,7 +54,7 @@ export default function DonationsHero({
             </p>
 
             {/* Stats bar */}
-            <div className="mt-10 flex flex-wrap gap-8 justify-center lg:justify-start">
+            <div className="mt-10 flex flex-wrap gap-8">
               <Stat value={totalDonated} label="Items donated" />
               <div className="w-px h-12 bg-white/10" />
               <Stat value={30} label="Day holding period" />
@@ -71,7 +75,7 @@ export default function DonationsHero({
       </div>
 
       {/* Sparkles effect anchored at the bottom */}
-      <div className="relative -mt-32 h-48 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
+      <div className="relative -mt-32 h-80 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
         {/* Radial glow */}
         <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom_center,#627d98,transparent_70%)] before:opacity-20" />
 

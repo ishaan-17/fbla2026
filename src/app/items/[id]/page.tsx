@@ -210,7 +210,7 @@ export default async function ItemDetailPage({
                     alt={item.title}
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-contain"
+                    className="object-cover"
                     unoptimized={!item.image_path.startsWith("http")}
                   />
                 </div>
