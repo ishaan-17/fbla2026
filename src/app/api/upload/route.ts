@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import sharp from "sharp";
 import { processItemImage } from "@/lib/imageProcessor";
 import { createServiceClient } from "@/lib/supabase/server";
 
@@ -33,13 +34,16 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const rawBuffer = Buffer.from(bytes);
 
+    // Always auto-rotate based on EXIF orientation (fixes iPhone sideways photos)
+    const rotatedBuffer = await sharp(rawBuffer).rotate().toBuffer();
+
     // Process: remove background → center → place on gray gradient
     let finalBuffer: Buffer;
     try {
-      finalBuffer = await processItemImage(rawBuffer);
+      finalBuffer = await processItemImage(rotatedBuffer);
     } catch (err) {
-      console.warn("[upload] image processing failed, saving original:", err);
-      finalBuffer = rawBuffer;
+      console.warn("[upload] image processing failed, saving rotated original:", err);
+      finalBuffer = rotatedBuffer;
     }
 
     // Upload to Supabase Storage
