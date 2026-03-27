@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import crypto from "crypto";
 import { processItemImage } from "@/lib/imageProcessor";
+import { createServiceClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -31,9 +30,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-
     const bytes = await file.arrayBuffer();
     const rawBuffer = Buffer.from(bytes);
 
@@ -46,15 +42,36 @@ export async function POST(request: Request) {
       finalBuffer = rawBuffer;
     }
 
-    // Always save as .png since the processor outputs PNG
+    // Upload to Supabase Storage
+    const supabase = await createServiceClient();
     const filename = `${Date.now()}-${crypto.randomUUID()}.png`;
-    await writeFile(path.join(uploadsDir, filename), finalBuffer);
+
+    const { error: uploadError } = await supabase.storage
+      .from("item-images")
+      .upload(filename, finalBuffer, {
+        contentType: "image/png",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("[upload] Supabase storage error:", uploadError);
+      return NextResponse.json(
+        { success: false, error: "Failed to upload to storage" },
+        { status: 500 }
+      );
+    }
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from("item-images")
+      .getPublicUrl(filename);
 
     return NextResponse.json({
       success: true,
-      path: `uploads/${filename}`,
+      path: publicUrl,
     });
-  } catch {
+  } catch (err) {
+    console.error("[upload] Error:", err);
     return NextResponse.json(
       { success: false, error: "Upload failed" },
       { status: 500 }
