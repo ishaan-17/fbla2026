@@ -13,7 +13,7 @@ const navTabs = [
   { label: "Home", href: "/" },
   { label: "Report", href: "/report" },
   { label: "Browse", href: "/items" },
-  { label: "Donations", href: "/donations" },
+  // { label: "Donations", href: "/donations" }, // Temporarily hidden
   { label: "Leaderboard", href: "/leaderboard" },
   { label: "About", href: "/about" },
   { label: "Admin", href: "/admin" },
