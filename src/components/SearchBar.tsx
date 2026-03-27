@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SCHOOL_CATEGORIES } from "@/lib/categories";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
@@ -30,8 +30,26 @@ export default function SearchBar() {
     [router],
   );
 
+  // Debounce search as user types
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      updateSearch(value, category, sort);
+    }, 300);
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     updateSearch(search, category, sort);
   };
 
@@ -92,7 +110,7 @@ export default function SearchBar() {
             id="search-items"
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search for lost items..."
             className="w-full h-[46px] pl-11 pr-4 rounded-xl text-sm text-white placeholder:text-white/40 transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] focus:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] focus:outline-none focus:border-white/30"
           />
@@ -118,15 +136,9 @@ export default function SearchBar() {
           />
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-2 h-[46px]">
-          <button
-            type="submit"
-            className="h-[46px] px-6 rounded-xl text-sm font-semibold text-white transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_16px_rgba(0,0,0,0.3),inset_1px_1px_3px_rgba(255,255,255,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.08)] hover:bg-white/15 hover:border-white/30"
-          >
-            Search
-          </button>
-          {(search || category) && (
+        {/* Clear button */}
+        {(search || category) && (
+          <div className="h-[46px]">
             <button
               type="button"
               onClick={handleClear}
@@ -134,8 +146,8 @@ export default function SearchBar() {
             >
               Clear
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </form>
   );

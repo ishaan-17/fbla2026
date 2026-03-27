@@ -43,7 +43,7 @@ export default async function ItemsPage({ searchParams }: Props) {
 
   if (search) {
     query = query.or(
-      `title.ilike.%${search}%,description.ilike.%${search}%,ai_tags.ilike.%${search}%`
+      `title.ilike.%${search}%,description.ilike.%${search}%`
     );
   }
 
