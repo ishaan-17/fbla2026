@@ -23,6 +23,9 @@ const EDGE_R = 170,
  * Falls back gracefully if bg-removal fails (uses original image).
  */
 export async function processItemImage(inputBuffer: Buffer): Promise<Buffer> {
+  // 0. Auto-rotate based on EXIF orientation (fixes iPhone sideways photos)
+  inputBuffer = await sharp(inputBuffer).rotate().toBuffer();
+
   // 1. Attempt background removal
   let subjectBuffer: Buffer;
   try {
