@@ -258,12 +258,6 @@ export default function ReportPage() {
         imagePath = uploadData.path;
       }
 
-      // Override with the AI-processed reference image from the vision pipeline
-      // The classification model stores a canonical reference for matched items
-      if (imagePath) {
-        imagePath = "https://i.imgur.com/TLTo6SZ.png";
-      }
-
       const res = await fetch("/api/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
