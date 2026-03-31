@@ -8,6 +8,203 @@ import { getCategoryLabel } from "@/lib/categories";
 
 type Tab = "items" | "claims" | "inquiries";
 
+/* ─── Item Detail Modal ─────────────────────────────────────────────────── */
+
+function ItemDetailModal({
+  item,
+  onClose,
+  onAction,
+}: {
+  item: Item;
+  onClose: () => void;
+  onAction: (id: number, action: string) => void;
+}) {
+  const aiTags: string[] = Array.isArray(item.ai_tags)
+    ? item.ai_tags.map(String)
+    : [];
+
+  const foundDate = new Date(item.date_found);
+  const expiryDate = new Date(foundDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const today = new Date();
+  const daysLeft = Math.ceil(
+    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const isExpired = daysLeft <= 0;
+  const isUrgent = daysLeft > 0 && daysLeft <= 7;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className="relative bg-neutral-900 border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        >
+          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Image */}
+        {item.image_path && (
+          <div className="relative w-full h-[300px] bg-neutral-800 rounded-t-xl overflow-hidden">
+            <Image
+              src={
+                item.image_path.startsWith("http")
+                  ? item.image_path
+                  : `/${item.image_path}`
+              }
+              alt={item.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 640px"
+              className="object-contain"
+              unoptimized={!item.image_path.startsWith("http")}
+            />
+          </div>
+        )}
+
+        <div className="p-6 space-y-5">
+          {/* Title + Status */}
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-xl font-extrabold text-white tracking-tight">
+              {item.title}
+            </h2>
+            <StatusBadge status={item.status} />
+          </div>
+
+          {/* Description */}
+          {item.description && (
+            <p className="text-sm text-white/70 leading-relaxed">
+              {item.description}
+            </p>
+          )}
+
+          {/* Metadata Grid */}
+          <div className="bg-neutral-800 rounded-xl border border-white/10 overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-4">
+              <div className="p-4 border-r border-b sm:border-b-0 border-white/10">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Category
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {getCategoryLabel(item.category)}
+                </p>
+              </div>
+              <div className="p-4 border-b sm:border-b-0 sm:border-r border-white/10">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Days Left
+                </p>
+                <p className={`text-sm font-semibold ${isExpired ? "text-red-400" : isUrgent ? "text-amber-400" : "text-white"}`}>
+                  {isExpired ? "Expired" : `${daysLeft} days`}
+                </p>
+              </div>
+              <div className="p-4 border-r border-white/10">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Location
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {item.location_found}
+                </p>
+              </div>
+              <div className="p-4">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Date Found
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {new Date(item.date_found).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Reporter + AI Tags */}
+          <div className="flex items-start gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center border border-white/10 shrink-0">
+                <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
+                  Reporter
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {item.reporter_name || "Anonymous"}
+                </p>
+                {item.reporter_email && (
+                  <p className="text-xs text-white/40">{item.reporter_email}</p>
+                )}
+              </div>
+            </div>
+
+            {aiTags.length > 0 && (
+              <>
+                <div className="w-px self-stretch bg-white/10" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">
+                    AI Tags
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {aiTags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 bg-primary-500/10 text-primary-400 text-xs font-semibold capitalize rounded-full border border-primary-500/20"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+            {item.status === "pending" && (
+              <button
+                onClick={() => { onAction(item.id, "approved"); onClose(); }}
+                className="px-4 py-2 bg-primary-500 text-white text-sm font-bold rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Approve
+              </button>
+            )}
+            {(item.status === "pending" || item.status === "approved") && (
+              <button
+                onClick={() => { onAction(item.id, "archived"); onClose(); }}
+                className="px-4 py-2 border border-white/20 text-white/70 text-sm font-bold rounded-lg hover:bg-white/10 transition-colors"
+              >
+                Archive
+              </button>
+            )}
+            <button
+              onClick={() => { onAction(item.id, "delete"); onClose(); }}
+              className="px-4 py-2 border border-red-500/30 text-red-400 text-sm font-bold rounded-lg hover:bg-red-500/10 transition-colors ml-auto"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -36,6 +233,7 @@ function AdminDashboard() {
   const [claimFilter, setClaimFilter] = useState("");
   const [inquiryFilter, setInquiryFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   // Tab indicator animation
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -357,7 +555,8 @@ function AdminDashboard() {
                     {items.map((item) => (
                       <tr
                         key={item.id}
-                        className="hover:bg-white/5 transition-colors"
+                        className="hover:bg-white/5 transition-colors cursor-pointer"
+                        onClick={() => setSelectedItem(item)}
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -416,7 +615,7 @@ function AdminDashboard() {
                         <td className="px-6 py-4 text-sm text-white/40">
                           {new Date(item.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
                             {item.status === "pending" && (
                               <button
@@ -733,6 +932,15 @@ function AdminDashboard() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Item Detail Modal */}
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onAction={handleItemAction}
+        />
       )}
     </div>
   );
