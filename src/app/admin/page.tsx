@@ -19,6 +19,7 @@ function ItemDetailModal({
   onClose: () => void;
   onAction: (id: number, action: string) => void;
 }) {
+  const [closing, setClosing] = useState(false);
   const aiTags: string[] = Array.isArray(item.ai_tags)
     ? item.ai_tags.map(String)
     : [];
@@ -32,22 +33,27 @@ function ItemDetailModal({
   const isExpired = daysLeft <= 0;
   const isUrgent = daysLeft > 0 && daysLeft <= 7;
 
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  }, [onClose]);
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${closing ? "animate-[fadeOut_200ms_ease-in_forwards]" : "animate-[fadeIn_200ms_ease-out]"}`}
+      onClick={handleClose}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
       <div
-        className="relative bg-neutral-900 border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        className={`relative bg-neutral-900 border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${closing ? "animate-[modalOut_200ms_ease-in_forwards]" : "animate-[modalIn_250ms_cubic-bezier(0.16,1,0.3,1)]"}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
         >
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,7 +184,7 @@ function ItemDetailModal({
           <div className="flex items-center gap-2 pt-2 border-t border-white/10">
             {item.status === "pending" && (
               <button
-                onClick={() => { onAction(item.id, "approved"); onClose(); }}
+                onClick={() => { onAction(item.id, "approved"); handleClose(); }}
                 className="px-4 py-2 bg-primary-500 text-white text-sm font-bold rounded-lg hover:bg-primary-600 transition-colors"
               >
                 Approve
@@ -186,14 +192,14 @@ function ItemDetailModal({
             )}
             {(item.status === "pending" || item.status === "approved") && (
               <button
-                onClick={() => { onAction(item.id, "archived"); onClose(); }}
+                onClick={() => { onAction(item.id, "archived"); handleClose(); }}
                 className="px-4 py-2 border border-white/20 text-white/70 text-sm font-bold rounded-lg hover:bg-white/10 transition-colors"
               >
                 Archive
               </button>
             )}
             <button
-              onClick={() => { onAction(item.id, "delete"); onClose(); }}
+              onClick={() => { onAction(item.id, "delete"); handleClose(); }}
               className="px-4 py-2 border border-red-500/30 text-red-400 text-sm font-bold rounded-lg hover:bg-red-500/10 transition-colors ml-auto"
             >
               Delete
