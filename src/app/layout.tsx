@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
 import TermsModal from "@/components/TermsModal";
+import Chatbot from "@/components/Chatbot";
 import { Footer } from "@/components/ui/footer-section";
 
 const nunito = Nunito_Sans({
@@ -45,6 +46,7 @@ export default function RootLayout({
           <main id="main-content" className="min-h-[calc(100vh-4rem)]">
             {children}
           </main>
+          <Chatbot />
         </SessionProvider>
         <div className="bg-earth-900">
           <Footer />
