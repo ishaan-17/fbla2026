@@ -2,6 +2,18 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth";
 import type { Item } from "@/types";
+import { findMatchesForFoundItem } from "@/lib/matchingService";
+import { sendMatchNotificationEmail } from "@/lib/emailService";
+import type { Database } from "@/lib/supabase/database.types";
+
+type FoundItem = Database["public"]["Tables"]["items"]["Row"];
+
+interface MatchWithFoundItem {
+  id: number;
+  total_score: number;
+  found_item_id: number;
+  items: FoundItem;
+}
 
 export async function GET(request: Request) {
   try {
@@ -12,6 +24,7 @@ export async function GET(request: Request) {
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "20");
     const all = url.searchParams.get("all") === "true";
+    const reporterEmail = url.searchParams.get("reporter_email") || "";
     const offset = (page - 1) * limit;
 
     const supabase = await createServiceClient();
@@ -26,6 +39,10 @@ export async function GET(request: Request) {
 
     if (category) {
       query = query.eq("category", category);
+    }
+
+    if (reporterEmail) {
+      query = query.eq("reporter_email", reporterEmail);
     }
 
     if (search) {
@@ -66,7 +83,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, category, location_found, date_found, image_path, ai_tags, reporter_name, reporter_email, auto_approve } = body;
+    const { title, description, category, location_found, date_found, image_path, image_embedding, ai_tags, reporter_name, reporter_email, auto_approve } = body;
 
     if (!title || !description || !location_found || !date_found) {
       return NextResponse.json(
@@ -81,6 +98,11 @@ export async function POST(request: Request) {
 
     const supabase = await createServiceClient();
 
+    // Format embedding as PostgreSQL vector literal if provided
+    const embeddingValue = image_embedding 
+      ? `[${image_embedding.join(",")}]` as unknown as number[]
+      : null;
+
     const { data: item, error: insertError } = await supabase
       .from("items")
       .insert({
@@ -90,6 +112,7 @@ export async function POST(request: Request) {
         location_found,
         date_found,
         image_path: image_path || null,
+        image_embedding: embeddingValue,
         ai_tags: ai_tags || null,
         reporter_name: reporter_name || "",
         reporter_email: reporter_email || "",
@@ -121,6 +144,77 @@ export async function POST(request: Request) {
       if (rewardError) {
         console.error("Error awarding points:", rewardError);
       }
+    }
+
+    // If auto-approved (admin submitted), run matching immediately
+    if (status === "approved" && item) {
+      console.log(`[items] Admin-approved item ${item.id}, running matching...`);
+      findMatchesForFoundItem(item.id)
+        .then(async (matches) => {
+          console.log(`[items] Found ${matches.length} matches for item ${item.id}`);
+          
+          if (matches.length === 0) return;
+
+          // Group matches by lost_item_id
+          const matchesByLostItem = new Map<number, typeof matches>();
+          for (const match of matches) {
+            if (!matchesByLostItem.has(match.lostItemId)) {
+              matchesByLostItem.set(match.lostItemId, []);
+            }
+            matchesByLostItem.get(match.lostItemId)!.push(match);
+          }
+
+          // Send email to each lost item owner
+          for (const [lostItemId, lostItemMatches] of matchesByLostItem.entries()) {
+            try {
+              // Fetch lost item details
+              const { data: lostItem } = await supabase
+                .from("lost_items")
+                .select("*")
+                .eq("id", lostItemId)
+                .single();
+
+              if (!lostItem) continue;
+
+              // Fetch match details with found items
+              const matchIds = lostItemMatches.map(m => m.foundItemId);
+              const { data: matchesWithDetails } = await supabase
+                .from("item_matches")
+                .select(`
+                  id,
+                  total_score,
+                  found_item_id,
+                  items:found_item_id (*)
+                `)
+                .eq("lost_item_id", lostItemId)
+                .in("found_item_id", matchIds);
+
+              if (matchesWithDetails && matchesWithDetails.length > 0) {
+                // Send email
+                const emailSent = await sendMatchNotificationEmail(
+                  lostItem, 
+                  matchesWithDetails as unknown as MatchWithFoundItem[]
+                );
+
+                if (emailSent) {
+                  // Mark matches as notified
+                  const matchIdsToUpdate = matchesWithDetails.map(m => m.id);
+                  await supabase
+                    .from("item_matches")
+                    .update({ notified_at: new Date().toISOString() })
+                    .in("id", matchIdsToUpdate);
+
+                  console.log(`[items] Email sent to ${lostItem.reporter_email} for ${matchIdsToUpdate.length} matches`);
+                }
+              }
+            } catch (emailError) {
+              console.error(`[items] Error sending email for lost item ${lostItemId}:`, emailError);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error(`[items] Matching error for item ${item.id}:`, err);
+        });
     }
 
     return NextResponse.json({ success: true, item }, { status: 201 });

@@ -18,11 +18,19 @@ const EDGE_R = 170,
 // Public API
 // ---------------------------------------------------------------------------
 
+export interface ProcessedImageResult {
+  /** Final image with styled gradient background (for display/storage) */
+  finalBuffer: Buffer;
+  /** Image with background removed, on white background (for embeddings) */
+  cleanBuffer: Buffer;
+}
+
 /**
  * Full pipeline: remove background → trim → center on gradient.
+ * Returns both the final styled image AND a clean version for embeddings.
  * Falls back gracefully if bg-removal fails (uses original image).
  */
-export async function processItemImage(inputBuffer: Buffer): Promise<Buffer> {
+export async function processItemImage(inputBuffer: Buffer): Promise<ProcessedImageResult> {
   // 1. Attempt background removal
   let subjectBuffer: Buffer;
   try {
@@ -59,17 +67,26 @@ export async function processItemImage(inputBuffer: Buffer): Promise<Buffer> {
     .png()
     .toBuffer();
 
-  // 4. Create the gradient background
-  const bgBuffer = await createGradientBackground(OUTPUT_SIZE, OUTPUT_SIZE);
-
-  // 5. Composite subject centered on background
+  // 4. Create CLEAN version (white background) for embeddings
+  const whiteBackground = await createSolidBackground(OUTPUT_SIZE, OUTPUT_SIZE, 255, 255, 255);
   const left = Math.round((OUTPUT_SIZE - fitW) / 2);
   const top = Math.round((OUTPUT_SIZE - fitH) / 2);
 
-  return sharp(bgBuffer)
+  const cleanBuffer = await sharp(whiteBackground)
     .composite([{ input: resized, left, top }])
     .png({ compressionLevel: 6 })
     .toBuffer();
+
+  // 5. Create the gradient background for final display image
+  const bgBuffer = await createGradientBackground(OUTPUT_SIZE, OUTPUT_SIZE);
+
+  // 6. Composite subject centered on gradient background
+  const finalBuffer = await sharp(bgBuffer)
+    .composite([{ input: resized, left, top }])
+    .png({ compressionLevel: 6 })
+    .toBuffer();
+
+  return { finalBuffer, cleanBuffer };
 }
 
 // ---------------------------------------------------------------------------
@@ -102,8 +119,23 @@ async function stripBackground(inputBuffer: Buffer): Promise<Buffer> {
 }
 
 // ---------------------------------------------------------------------------
-// Gradient background generator
+// Background generators
 // ---------------------------------------------------------------------------
+
+function createSolidBackground(w: number, h: number, r: number, g: number, b: number): Promise<Buffer> {
+  const channels = 3;
+  const data = Buffer.alloc(w * h * channels);
+
+  for (let i = 0; i < w * h; i++) {
+    data[i * channels] = r;
+    data[i * channels + 1] = g;
+    data[i * channels + 2] = b;
+  }
+
+  return sharp(data, { raw: { width: w, height: h, channels } })
+    .png()
+    .toBuffer();
+}
 
 function createGradientBackground(w: number, h: number): Promise<Buffer> {
   const channels = 3;

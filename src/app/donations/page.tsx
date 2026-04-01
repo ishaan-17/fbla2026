@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import db from "@/lib/db";
+import { createServiceClient } from "@/lib/supabase/server";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 import Image from "next/image";
@@ -16,20 +16,25 @@ export const metadata: Metadata = {
 
 export default async function DonationsPage() {
   // Items eligible for donation: archived, OR approved but older than 30 days
-  const donatedItems = db
-    .prepare(
-      `SELECT * FROM items
-       WHERE status = 'archived'
-          OR (status = 'approved' AND date_found < date('now', '-30 days'))
-       ORDER BY date_found DESC
-       LIMIT 50`
-    )
-    .all() as Item[];
+  const supabase = await createServiceClient();
+  
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+  const { data: donatedItems } = await supabase
+    .from("items")
+    .select("*")
+    .or(`status.eq.archived,and(status.eq.approved,date_found.lt.${thirtyDaysAgoStr})`)
+    .order("date_found", { ascending: false })
+    .limit(50);
+
+  const items = (donatedItems || []) as Item[];
 
   // Stats
-  const totalDonated = donatedItems.length;
+  const totalDonated = items.length;
   const categoryBreakdown: Record<string, number> = {};
-  for (const item of donatedItems) {
+  for (const item of items) {
     const label = getCategoryLabel(item.category);
     categoryBreakdown[label] = (categoryBreakdown[label] || 0) + 1;
   }
@@ -67,9 +72,9 @@ export default async function DonationsPage() {
         )}
 
         {/* Items grid */}
-        {donatedItems.length > 0 ? (
+        {items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {donatedItems.map((item) => (
+            {items.map((item) => (
               <DonationCard key={item.id} item={item} />
             ))}
           </div>

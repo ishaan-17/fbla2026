@@ -172,7 +172,7 @@ export default function Navbar() {
   return (
     <div
       ref={navRef}
-      className="sticky top-5 z-50 w-90/100 md:w-11/12 2xl:w-4/6 mx-auto"
+      className="sticky top-5 z-50 w-[95%] md:w-[94%] lg:w-10/12 xl:w-9/12 2xl:w-5/6 mx-auto"
     >
       {/* Mobile menu backdrop */}
       {mobileOpen && (

@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "./database.types";
 
@@ -51,5 +52,16 @@ export async function createServiceClient() {
         },
       },
     }
+  );
+}
+
+/**
+ * Create a standalone Supabase client for background tasks (no cookies needed)
+ * Use this for async operations that run outside of a request context
+ */
+export function createBackgroundClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }

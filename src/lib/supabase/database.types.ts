@@ -116,6 +116,7 @@ export type Database = {
           date_found: string
           description: string
           id: number
+          image_embedding: number[] | null
           image_path: string | null
           location_found: string
           reporter_email: string
@@ -130,6 +131,7 @@ export type Database = {
           date_found: string
           description: string
           id?: never
+          image_embedding?: number[] | null
           image_path?: string | null
           location_found: string
           reporter_email?: string
@@ -144,6 +146,7 @@ export type Database = {
           date_found?: string
           description?: string
           id?: never
+          image_embedding?: number[] | null
           image_path?: string | null
           location_found?: string
           reporter_email?: string
@@ -185,6 +188,111 @@ export type Database = {
           {
             foreignKeyName: "rewards_item_id_fkey"
             columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lost_items: {
+        Row: {
+          id: number
+          created_at: string
+          title: string
+          description: string
+          category: string
+          location_lost: string | null
+          date_lost: string | null
+          image_path: string | null
+          image_embedding: number[] | null
+          ai_tags: Json | null
+          reporter_name: string | null
+          reporter_email: string
+          status: string
+          notified_at: string | null
+        }
+        Insert: {
+          id?: never
+          created_at?: string
+          title: string
+          description: string
+          category?: string
+          location_lost?: string | null
+          date_lost?: string | null
+          image_path?: string | null
+          image_embedding?: number[] | null
+          ai_tags?: Json | null
+          reporter_name?: string | null
+          reporter_email: string
+          status?: string
+          notified_at?: string | null
+        }
+        Update: {
+          id?: never
+          created_at?: string
+          title?: string
+          description?: string
+          category?: string
+          location_lost?: string | null
+          date_lost?: string | null
+          image_path?: string | null
+          image_embedding?: number[] | null
+          ai_tags?: Json | null
+          reporter_name?: string | null
+          reporter_email?: string
+          status?: string
+          notified_at?: string | null
+        }
+        Relationships: []
+      }
+      item_matches: {
+        Row: {
+          id: number
+          created_at: string
+          lost_item_id: number
+          found_item_id: number
+          image_similarity: number
+          text_similarity: number
+          category_match: boolean
+          total_score: number
+          status: string
+          notified_at: string | null
+        }
+        Insert: {
+          id?: never
+          created_at?: string
+          lost_item_id: number
+          found_item_id: number
+          image_similarity?: number
+          text_similarity?: number
+          category_match?: boolean
+          total_score?: number
+          status?: string
+          notified_at?: string | null
+        }
+        Update: {
+          id?: never
+          created_at?: string
+          lost_item_id?: number
+          found_item_id?: number
+          image_similarity?: number
+          text_similarity?: number
+          category_match?: boolean
+          total_score?: number
+          status?: string
+          notified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_matches_lost_item_id_fkey"
+            columns: ["lost_item_id"]
+            isOneToOne: false
+            referencedRelation: "lost_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_matches_found_item_id_fkey"
+            columns: ["found_item_id"]
             isOneToOne: false
             referencedRelation: "items"
             referencedColumns: ["id"]

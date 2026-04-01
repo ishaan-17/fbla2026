@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { processItemImage } from "@/lib/imageProcessor";
 import { createServiceClient } from "@/lib/supabase/server";
+import { generateImageEmbeddingFromBuffer } from "@/lib/embeddingService";
 
 export async function POST(request: Request) {
   try {
@@ -33,16 +34,31 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const rawBuffer = Buffer.from(bytes);
 
-    // Process: remove background → center → place on gray gradient
+    // Process: remove background → get both styled and clean versions
     let finalBuffer: Buffer;
+    let cleanBuffer: Buffer;
     try {
-      finalBuffer = await processItemImage(rawBuffer);
+      const result = await processItemImage(rawBuffer);
+      finalBuffer = result.finalBuffer;
+      cleanBuffer = result.cleanBuffer;
     } catch (err) {
       console.warn("[upload] image processing failed, saving original:", err);
       finalBuffer = rawBuffer;
+      cleanBuffer = rawBuffer;
     }
 
-    // Upload to Supabase Storage
+    // Generate embedding from clean image buffer (no styled background)
+    let embedding: number[] | null = null;
+    try {
+      embedding = await generateImageEmbeddingFromBuffer(cleanBuffer);
+      if (embedding) {
+        console.log(`[upload] Generated embedding with ${embedding.length} dimensions`);
+      }
+    } catch (err) {
+      console.warn("[upload] embedding generation failed:", err);
+    }
+
+    // Upload styled image to Supabase Storage
     const supabase = await createServiceClient();
     const filename = `${Date.now()}-${crypto.randomUUID()}.png`;
 
@@ -69,6 +85,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       path: publicUrl,
+      embedding: embedding, // Return embedding for the form to include in submission
     });
   } catch (err) {
     console.error("[upload] Error:", err);

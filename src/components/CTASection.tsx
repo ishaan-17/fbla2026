@@ -12,13 +12,13 @@ export function CTASection() {
   return (
     <section className="relative overflow-hidden">
       {/* Gradient transition from previous section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-earth-900/50 to-earth-900" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-earth-900/50 to-earth-900" />
 
       {/* Background decorative orbs - matching HowItWorks aesthetic */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-[15%] w-80 h-80 bg-primary-500/15 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-1/4 right-[10%] w-96 h-96 bg-primary-400/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-600/8 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-primary-600/8 rounded-full blur-3xl" />
         {/* Accent orb for warmth */}
         <div className="absolute bottom-20 left-1/4 w-48 h-48 bg-accent-500/10 rounded-full blur-3xl" />
       </div>

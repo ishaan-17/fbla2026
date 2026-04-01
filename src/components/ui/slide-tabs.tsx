@@ -162,7 +162,7 @@ const Tab = forwardRef<HTMLLIElement, TabProps>(
       >
         <Link
           href={href}
-          className={`block px-3 py-1.5 text-xs font-semibold uppercase md:px-5 md:py-2 md:text-sm tracking-wide transition-colors duration-200 ${
+          className={`block whitespace-nowrap px-3 py-1.5 text-xs font-semibold uppercase md:px-5 md:py-2 md:text-sm tracking-wide transition-colors duration-200 ${
             isActive
               ? isLightBackground
                 ? "text-white"
