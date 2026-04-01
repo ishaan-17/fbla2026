@@ -12,6 +12,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { TabSwitch } from "@/components/ui/tab-switch";
+import { LiquidGlassCard } from "@/components/ui/liquid-glass-card";
 import {
   ScrollReveal,
   ScrollRevealStagger,
@@ -149,7 +150,17 @@ const TABS = [
 ];
 
 // Item card component for sidebar
-function ItemCard({ item, type }: { item: ReportedItem | LostItem; type: "found" | "lost" }) {
+function ItemCard({ 
+  item, 
+  type, 
+  onDelete 
+}: { 
+  item: ReportedItem | LostItem; 
+  type: "found" | "lost";
+  onDelete?: (id: number) => void;
+}) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
     approved: "bg-green-500/20 text-green-400 border-green-500/30",
@@ -174,6 +185,21 @@ function ItemCard({ item, type }: { item: ReportedItem | LostItem; type: "found"
       ? item.image_path
       : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/item-images/${item.image_path}`
     : null;
+
+  const handleDelete = async () => {
+    if (!onDelete || isDeleting) return;
+    
+    const confirmed = confirm(`Are you sure you want to delete "${item.title}"?`);
+    if (!confirmed) return;
+    
+    setIsDeleting(true);
+    try {
+      await onDelete(item.id);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="flex gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
@@ -204,6 +230,22 @@ function ItemCard({ item, type }: { item: ReportedItem | LostItem; type: "found"
           {statusLabels[item.status] || item.status}
         </span>
       </div>
+      {onDelete && (
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Delete item"
+        >
+          {isDeleting ? (
+            <div className="w-3 h-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          )}
+        </button>
+      )}
     </div>
   );
 }
@@ -299,6 +341,28 @@ function ReportPageContent() {
   useEffect(() => {
     fetchMyItems();
   }, [fetchMyItems]);
+
+  // Delete item handler
+  const handleDeleteItem = async (itemId: number) => {
+    const endpoint = activeTab === "found" ? "/api/items" : "/api/lost-items";
+    
+    try {
+      const res = await fetch(`${endpoint}/${itemId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete item");
+      }
+
+      // Refresh the list
+      await fetchMyItems();
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      alert("Failed to delete item. Please try again.");
+      throw err;
+    }
+  };
 
   // Reset form when tab changes
   useEffect(() => {
@@ -460,9 +524,9 @@ function ReportPageContent() {
   return (
     <div className="min-h-screen bg-[#121212] -mt-16 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 justify-center">
           {/* Main Form Section */}
-          <div className="flex-1 max-w-2xl">
+          <div className="flex-1 max-w-2xl lg:max-w-xl">
             {/* Header with Tabs */}
             <ScrollRevealStagger className="mb-8" staggerDelay={0.1}>
               <ScrollRevealItem>
@@ -845,7 +909,7 @@ function ReportPageContent() {
           </div>
 
           {/* Sidebar - User's Items */}
-          <div className="lg:w-80 flex-shrink-0">
+          <div className="lg:w-[528px] flex-shrink-0">
             <div className="sticky top-24">
               <ScrollReveal delay={0.2} direction="right">
                 <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-5">
@@ -872,7 +936,12 @@ function ReportPageContent() {
                   ) : (
                     <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                       {currentItems.map((item) => (
-                        <ItemCard key={item.id} item={item} type={activeTab as "found" | "lost"} />
+                        <ItemCard 
+                          key={item.id} 
+                          item={item} 
+                          type={activeTab as "found" | "lost"}
+                          onDelete={activeTab === "lost" ? handleDeleteItem : undefined}
+                        />
                       ))}
                     </div>
                   )}
