@@ -176,15 +176,41 @@ export async function POST(request: Request) {
       .find((m: { role: string }) => m.role === "user");
 
     let itemContext = "";
+    let matchedItems: {
+      id: number;
+      title: string;
+      category: string;
+      categoryLabel: string;
+      location_found: string;
+      date_found: string;
+      tags: string;
+      image_url?: string;
+    }[] = [];
+
     if (latestUserMessage) {
       const matchingItems = await searchItems(latestUserMessage.content);
       if (matchingItems.length > 0) {
-        itemContext = `\n\nMATCHING ITEMS FOUND IN DATABASE (share these with the user):\n${matchingItems
+        // Build structured items for frontend card rendering
+        matchedItems = matchingItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          category: item.category,
+          categoryLabel: getCategoryLabel(item.category),
+          location_found: item.location_found,
+          date_found: item.date_found,
+          tags: Array.isArray(item.ai_tags)
+            ? item.ai_tags.join(", ")
+            : String(item.ai_tags || ""),
+          image_url: item.image_path || undefined,
+        }));
+
+        // Still pass context to LLM so it can write a natural intro
+        itemContext = `\n\nMATCHING ITEMS FOUND IN DATABASE (mention them briefly, the UI will show detailed cards automatically):\n${matchingItems
           .map(
             (item, i) =>
-              `${i + 1}. "${item.title}" — ${getCategoryLabel(item.category)} | Found at: ${item.location_found} | Date: ${item.date_found} | Tags: ${Array.isArray(item.ai_tags) ? item.ai_tags.join(", ") : item.ai_tags || "none"} | Link: /items/${item.id}`
+              `${i + 1}. "${item.title}" — ${getCategoryLabel(item.category)} | Found at: ${item.location_found} | Date: ${item.date_found}`
           )
-          .join("\n")}`;
+          .join("\n")}\n\nIMPORTANT: Do NOT list out the items in detail. Just write a brief, friendly message like "I found X matching item(s)! Here's what I found:" — the UI will render rich item cards below your message automatically.`;
       } else {
         itemContext =
           "\n\nNo matching items were found in the database for this query. Let the user know and suggest they check back later or broaden their search.";
@@ -212,7 +238,10 @@ export async function POST(request: Request) {
       chatCompletion.choices[0]?.message?.content ||
       "Sorry, I couldn't process that. Try again!";
 
-    return NextResponse.json({ message: reply });
+    return NextResponse.json({
+      message: reply,
+      items: matchedItems.length > 0 ? matchedItems : undefined,
+    });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(

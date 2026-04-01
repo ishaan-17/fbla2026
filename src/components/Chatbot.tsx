@@ -1,68 +1,190 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Loader2,
+  BotMessageSquare,
+  MapPin,
+  CalendarDays,
+  Tag,
+  ExternalLink,
+} from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+
+// ── Types ────────────────────────────────────────────────────────────
+
+interface MatchedItem {
+  id: number;
+  title: string;
+  category: string;
+  categoryLabel: string;
+  location_found: string;
+  date_found: string;
+  tags: string;
+  image_url?: string;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  items?: MatchedItem[];
 }
 
-// Parse item links in assistant messages: /items/123 → clickable links
-function parseMessageContent(content: string) {
-  // Match markdown-style links [text](/path) or plain /items/ID patterns
-  const parts = content.split(/(\[.*?\]\(\/items\/\d+\)|\/items\/\d+)/g);
+// ── Inline text parser (bold, links) ─────────────────────────────────
+
+function parseInlineContent(text: string): ReactNode[] {
+  const parts = text.split(/(\[.*?\]\(\/items\/\d+\)|\/items\/\d+|\*\*.*?\*\*)/g);
 
   return parts.map((part, i) => {
-    // Markdown link: [text](/items/123)
     const mdMatch = part.match(/\[(.*?)\]\((\/items\/\d+)\)/);
     if (mdMatch) {
       return (
         <Link
           key={i}
           href={mdMatch[2]}
-          className="text-primary-400 hover:text-primary-300 underline underline-offset-2 font-semibold transition-colors"
+          className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
         >
           {mdMatch[1]}
         </Link>
       );
     }
 
-    // Plain link: /items/123
     const plainMatch = part.match(/^\/items\/(\d+)$/);
     if (plainMatch) {
       return (
         <Link
           key={i}
           href={part}
-          className="text-primary-400 hover:text-primary-300 underline underline-offset-2 font-semibold transition-colors"
+          className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
         >
           View Item #{plainMatch[1]}
         </Link>
       );
     }
 
-    // Bold: **text**
-    const boldParts = part.split(/(\*\*.*?\*\*)/g);
-    if (boldParts.length > 1) {
-      return boldParts.map((bp, j) => {
-        const boldMatch = bp.match(/^\*\*(.*?)\*\*$/);
-        if (boldMatch) {
-          return (
-            <strong key={`${i}-${j}`} className="font-bold text-white">
-              {boldMatch[1]}
-            </strong>
-          );
-        }
-        return bp;
-      });
+    const boldMatch = part.match(/^\*\*(.*?)\*\*$/);
+    if (boldMatch) {
+      return (
+        <strong key={i} className="font-bold text-white">
+          {boldMatch[1]}
+        </strong>
+      );
     }
 
     return part;
   });
 }
+
+// ── Category emoji mapper ────────────────────────────────────────────
+
+function getCategoryEmoji(category: string): string {
+  const map: Record<string, string> = {
+    electronics: "📱",
+    clothing: "👕",
+    bags: "🎒",
+    water_bottles: "🧴",
+    books: "📚",
+    keys: "🔑",
+    accessories: "💍",
+    sports: "⚽",
+    food_containers: "🍱",
+    stationery: "✏️",
+    umbrellas: "☂️",
+    headphones: "🎧",
+    glasses: "👓",
+    jewelry: "💎",
+    wallets: "👛",
+  };
+  return map[category] || "📦";
+}
+
+// ── Item Card Component ──────────────────────────────────────────────
+
+function ItemCard({ item }: { item: MatchedItem }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="mt-2.5 rounded-2xl overflow-hidden"
+      style={{
+        background: "rgba(255,255,255,0.10)",
+        backdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,255,255,0.12)",
+      }}
+    >
+      <div className="p-3.5">
+        {/* Title row */}
+        <div className="flex items-center gap-3 mb-3">
+          {item.image_url ? (
+            <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 relative">
+              <Image
+                src={item.image_url}
+                alt={item.title}
+                fill
+                className="object-cover"
+                sizes="44px"
+              />
+            </div>
+          ) : (
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.1)",
+              }}
+            >
+              <span className="text-xl">{getCategoryEmoji(item.category)}</span>
+            </div>
+          )}
+          <h4 className="text-sm font-bold text-white leading-tight">
+            {item.title}
+          </h4>
+        </div>
+
+        {/* Metadata */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/60 mb-2.5">
+          <span className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-white/40" />
+            {item.location_found}
+          </span>
+          <span className="text-white/20">|</span>
+          <span className="flex items-center gap-1">
+            <CalendarDays className="w-3 h-3 text-white/40" />
+            Date: {item.date_found}
+          </span>
+        </div>
+
+        {item.tags && item.tags.length > 0 && (
+          <div className="flex items-center gap-1 text-xs text-white/50 mb-3">
+            <Tag className="w-3 h-3 text-white/40" />
+            {item.tags}
+          </div>
+        )}
+
+        {/* CTA */}
+        <Link
+          href={`/items/${item.id}`}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-earth-900 transition-all hover:brightness-110 active:scale-[0.98]"
+          style={{
+            background: "rgba(255,255,255,0.88)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}
+        >
+          That&apos;s mine! View Details
+          <ExternalLink className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Constants ────────────────────────────────────────────────────────
 
 const SUGGESTED_PROMPTS = [
   "I lost my water bottle",
@@ -70,6 +192,8 @@ const SUGGESTED_PROMPTS = [
   "What happens after 30 days?",
   "How do points work?",
 ];
+
+// ── Main Component ───────────────────────────────────────────────────
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,16 +204,12 @@ export default function Chatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input when chat opens
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
 
   const sendMessage = useCallback(
@@ -108,32 +228,32 @@ export default function Chatbot() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: newMessages }),
+          body: JSON.stringify({
+            messages: newMessages.map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+          }),
         });
-
         const data = await res.json();
 
-        if (res.ok) {
-          setMessages([
-            ...newMessages,
-            { role: "assistant", content: data.message },
-          ]);
-        } else {
-          setMessages([
-            ...newMessages,
-            {
-              role: "assistant",
-              content: "Sorry, something went wrong. Please try again!",
-            },
-          ]);
-        }
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: res.ok
+              ? data.message
+              : "Sorry, something went wrong. Please try again!",
+            items: res.ok ? data.items : undefined,
+          },
+        ]);
       } catch {
         setMessages([
           ...newMessages,
           {
             role: "assistant",
             content:
-              "Couldn't connect to the server. Please check your connection and try again.",
+              "Couldn't connect to the server. Please check your connection.",
           },
         ]);
       } finally {
@@ -152,165 +272,262 @@ export default function Chatbot() {
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* ── Floating Button ─────────────────────────────────────────── */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.08 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 flex items-center justify-center hover:bg-primary-400 transition-colors"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center cursor-pointer"
+            style={{
+              background: "rgba(30,40,60,0.7)",
+              backdropFilter: "blur(20px) saturate(150%)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              boxShadow:
+                "0 4px 24px rgba(0,0,0,0.3), 0 12px 48px rgba(0,0,0,0.2)",
+            }}
             aria-label="Open chat assistant"
           >
-            <MessageCircle className="w-6 h-6" />
-            {/* Pulse ring */}
+            <MessageCircle className="w-5 h-5 text-white/90" />
             {!hasInteracted && (
-              <span className="absolute inset-0 rounded-full bg-primary-500 animate-ping opacity-30" />
+              <span className="absolute inset-0 rounded-full animate-ping opacity-15 border border-white/30" />
             )}
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Chat Window */}
+      {/* ── Chat Window ─────────────────────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] h-[540px] max-h-[80vh] flex flex-col rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/40"
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-6 right-6 z-50 w-[380px] h-[560px] max-h-[85vh] flex flex-col overflow-hidden"
             style={{
-              background:
-                "linear-gradient(180deg, rgba(30,30,30,0.98) 0%, rgba(20,20,20,0.99) 100%)",
-              backdropFilter: "blur(20px)",
+              borderRadius: "20px",
+              background: "rgba(30, 35, 45, 0.55)",
+              backdropFilter: "blur(24px) saturate(140%)",
+              WebkitBackdropFilter: "blur(24px) saturate(140%)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              boxShadow:
+                "0 8px 40px rgba(0,0,0,0.35), 0 24px 80px rgba(0,0,0,0.25), inset 0 1px 0 0 rgba(255,255,255,0.08)",
             }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+            {/* ── Header ──────────────────────────────────────────── */}
+            <div
+              className="flex items-center justify-between px-4 py-3"
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.03)",
+              }}
+            >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-xl bg-primary-500/20 flex items-center justify-center">
-                    <Sparkles className="w-4.5 h-4.5 text-primary-400" />
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: "rgba(255,255,255,0.10)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    <BotMessageSquare className="w-5 h-5 text-white/80" />
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-900" />
+                  <div
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
+                    style={{
+                      background: "#22c55e",
+                      border: "2.5px solid rgba(30,35,45,0.9)",
+                      boxShadow: "0 0 6px rgba(34,197,94,0.5)",
+                    }}
+                  />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white leading-tight">
-                    Reclaimr Assistant
-                  </h3>
-                  <p className="text-[11px] text-white/40">
-                    AI-powered help
-                  </p>
-                </div>
+                <h3 className="text-[15px] font-bold text-white leading-tight">
+                  Reclaimr Assistant
+                </h3>
               </div>
-              <button
+              <motion.button
+                whileHover={{
+                  scale: 1.1,
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                style={{ background: "rgba(255,255,255,0.05)" }}
                 aria-label="Close chat"
               >
                 <X className="w-4 h-4 text-white/50" />
-              </button>
+              </motion.button>
             </div>
 
-            {/* Messages Area */}
+            {/* ── Messages ────────────────────────────────────────── */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-              {/* Welcome message */}
+              {/* Welcome */}
               {messages.length === 0 && (
-                <div className="space-y-4">
-                  <div className="flex gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-primary-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Bot className="w-3.5 h-3.5 text-primary-400" />
-                    </div>
-                    <div className="bg-white/5 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-                      <p className="text-sm text-white/80 leading-relaxed">
-                        Hey! I&apos;m the Reclaimr Assistant. I can help you find lost items or answer questions about the platform. What can I help with?
-                      </p>
-                    </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="space-y-4"
+                >
+                  <div
+                    className="rounded-2xl rounded-tl-md px-4 py-3 max-w-[88%]"
+                    style={{
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <p className="text-sm text-white/80 leading-relaxed">
+                      Hey! I&apos;m the Reclaimr Assistant. I can help you find
+                      lost items or answer questions about the platform. What can
+                      I help with?
+                    </p>
                   </div>
 
-                  {/* Suggested prompts */}
-                  <div className="pl-9 space-y-2">
+                  <div className="space-y-2">
                     <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">
                       Try asking
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {SUGGESTED_PROMPTS.map((prompt) => (
-                        <button
+                      {SUGGESTED_PROMPTS.map((prompt, idx) => (
+                        <motion.button
                           key={prompt}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            delay: 0.1 + idx * 0.05,
+                            duration: 0.4,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
                           onClick={() => sendMessage(prompt)}
-                          className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/8 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/15 transition-all"
+                          className="text-xs px-3 py-1.5 rounded-full text-white/60 cursor-pointer transition-colors hover:text-white/80 hover:bg-white/10"
+                          style={{
+                            background: "rgba(255,255,255,0.06)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                          }}
                         >
                           {prompt}
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Chat messages */}
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
-                >
-                  {/* Avatar */}
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      msg.role === "user"
-                        ? "bg-white/10"
-                        : "bg-primary-500/20"
-                    }`}
-                  >
-                    {msg.role === "user" ? (
-                      <User className="w-3.5 h-3.5 text-white/60" />
-                    ) : (
-                      <Bot className="w-3.5 h-3.5 text-primary-400" />
-                    )}
-                  </div>
+              {messages.map((msg, i) => {
+                if (msg.role === "user") {
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.35,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      className="flex justify-end"
+                    >
+                      <div
+                        className="rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%]"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #1e3a5f 0%, #1a2d4a 100%)",
+                          border: "1px solid rgba(100,150,220,0.15)",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        }}
+                      >
+                        <p className="text-sm text-white leading-relaxed">
+                          {msg.content}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                }
 
-                  {/* Message bubble */}
-                  <div
-                    className={`rounded-2xl px-4 py-3 max-w-[85%] ${
-                      msg.role === "user"
-                        ? "bg-primary-500/20 border border-primary-500/20 rounded-tr-md"
-                        : "bg-white/5 rounded-tl-md"
-                    }`}
+                // Assistant message with optional item cards
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="max-w-[88%]"
                   >
-                    <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
-                      {msg.role === "assistant"
-                        ? parseMessageContent(msg.content)
-                        : msg.content}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                    {/* Text bubble */}
+                    <div
+                      className="rounded-2xl rounded-bl-md px-4 py-3"
+                      style={{
+                        background: "rgba(255,255,255,0.08)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+                        {parseInlineContent(msg.content)}
+                      </p>
+                    </div>
 
-              {/* Loading indicator */}
+                    {/* Item cards from structured API data */}
+                    {msg.items &&
+                      msg.items.map((item) => (
+                        <ItemCard key={item.id} item={item} />
+                      ))}
+                  </motion.div>
+                );
+              })}
+
+              {/* Loading */}
               {isLoading && (
-                <div className="flex gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-primary-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Bot className="w-3.5 h-3.5 text-primary-400" />
-                  </div>
-                  <div className="bg-white/5 rounded-2xl rounded-tl-md px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <Loader2 className="w-3.5 h-3.5 text-primary-400 animate-spin" />
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
+                >
+                  <div
+                    className="rounded-2xl rounded-bl-md px-4 py-3"
+                    style={{
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-3.5 h-3.5 text-white/50 animate-spin" />
                       <span className="text-xs text-white/40">Thinking...</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
 
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="px-4 py-3 border-t border-white/8">
-              <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 px-3 py-2 focus-within:border-primary-500/40 transition-colors">
+            {/* ── Input Bar ───────────────────────────────────────── */}
+            <div
+              className="px-3 py-3"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+            >
+              <div
+                className="flex items-center gap-2 rounded-full px-4 py-2"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04)",
+                }}
+              >
                 <input
                   ref={inputRef}
                   type="text"
@@ -321,17 +538,25 @@ export default function Chatbot() {
                   disabled={isLoading}
                   className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 outline-none disabled:opacity-50"
                 />
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => sendMessage()}
                   disabled={!input.trim() || isLoading}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-500 hover:bg-primary-400 disabled:opacity-30 disabled:hover:bg-primary-500 transition-all"
+                  className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-20 cursor-pointer transition-all"
+                  style={{
+                    background: input.trim()
+                      ? "linear-gradient(135deg, rgba(100,180,255,0.3) 0%, rgba(80,140,220,0.2) 100%)"
+                      : "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
                   aria-label="Send message"
                 >
-                  <Send className="w-3.5 h-3.5 text-white" />
-                </button>
+                  <Send className="w-3.5 h-3.5 text-white/80" />
+                </motion.button>
               </div>
-              <p className="text-[10px] text-white/20 text-center mt-2">
-                Powered by AI · Searches real lost & found data
+              <p className="text-[10px] text-white/20 text-center mt-2 tracking-wide">
+                Powered by AI · Searches real lost &amp; found data
               </p>
             </div>
           </motion.div>
