@@ -28,7 +28,8 @@ const ItemCard = React.memo(
   }) => {
     const daysLeft =
       item.status === "approved" ? getDaysRemaining(item.date_found) : null;
-    const isUrgent = daysLeft !== null && daysLeft <= 7;
+    const isExpired = daysLeft !== null && daysLeft <= 0;
+    const isUrgent = daysLeft !== null && daysLeft > 0 && daysLeft <= 7;
 
     return (
       <Link href={`/items/${item.id}`}>
@@ -72,16 +73,19 @@ const ItemCard = React.memo(
             </div>
           )}
 
-          {/* Urgent badge - visible on hover */}
-          {isUrgent && (
+          {/* Expiry badge - visible on hover */}
+          {(isExpired || isUrgent) && (
             <div
               className={cn(
                 "absolute top-3 left-3 z-10 transition-opacity duration-300",
                 hovered === index ? "opacity-100" : "opacity-0",
               )}
             >
-              <span className="text-xs font-bold px-3 py-1 bg-primary-500 text-white rounded">
-                {daysLeft === 0 ? "Expires today" : `${daysLeft}d left`}
+              <span className={cn(
+                "text-xs font-bold px-3 py-1 text-white rounded",
+                isExpired ? "bg-red-500" : "bg-primary-500",
+              )}>
+                {isExpired ? "Expired" : `${daysLeft}d left`}
               </span>
             </div>
           )}
