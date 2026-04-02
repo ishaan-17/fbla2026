@@ -182,11 +182,7 @@ function LostItemSuccessContent() {
                                   View Details
                                 </LiquidButton>
                               </Link>
-                              <a href={`mailto:${match.items.reporter_email}`}>
-                                <LiquidButton size="sm" variant="light">
-                                  Contact Finder
-                                </LiquidButton>
-                              </a>
+                              {/* TODO: Add more action buttons here */}
                             </div>
                           </div>
                         </div>
@@ -272,8 +268,8 @@ function LostItemSuccessContent() {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/items">
-              <LiquidButton>
-                Browse All Found Items
+              <LiquidButton variant="light">
+                Browse All Reported Items
               </LiquidButton>
             </Link>
             <Link href="/">
