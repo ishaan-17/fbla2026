@@ -32,10 +32,16 @@ export default async function ItemsPage({ searchParams }: Props) {
 
   const supabase = await createServiceClient();
 
+  // Calculate date 30 days ago to filter expired items
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const expiryDate = thirtyDaysAgo.toISOString();
+
   let query = supabase
     .from("items")
     .select("*")
-    .eq("status", "approved");
+    .eq("status", "approved")
+    .gte("date_found", expiryDate); // Only show items found within last 30 days
 
   if (category) {
     query = query.eq("category", category);

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -210,10 +211,17 @@ export default function Navbar() {
           <div className="relative flex items-center justify-between h-16">
             {/* Logo - Left */}
             <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/images/mv-logo.png"
+                alt="Monta Vista Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
               <span
                 className={`text-xl font-extrabold tracking-tight transition-colors duration-200 ${textColor} lg:text-white`}
               >
-                Reclaimr
+                MV Reclaimr
               </span>
             </Link>
 
