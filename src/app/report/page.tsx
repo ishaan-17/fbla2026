@@ -13,6 +13,7 @@ import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { TabSwitch } from "@/components/ui/tab-switch";
 import { LiquidGlassCard } from "@/components/ui/liquid-glass-card";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import {
   ScrollReveal,
   ScrollRevealStagger,
@@ -160,6 +161,7 @@ function ItemCard({
   onDelete?: (id: number) => void;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
@@ -189,9 +191,6 @@ function ItemCard({
   const handleDelete = async () => {
     if (!onDelete || isDeleting) return;
     
-    const confirmed = confirm(`Are you sure you want to delete "${item.title}"?`);
-    if (!confirmed) return;
-    
     setIsDeleting(true);
     try {
       await onDelete(item.id);
@@ -202,7 +201,18 @@ function ItemCard({
   };
 
   return (
-    <div className="flex gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+    <>
+      <ConfirmModal
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Item"
+        message={`Are you sure you want to delete "${item.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+      <div className="flex gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
       {imageUrl ? (
         <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
           <Image
@@ -232,7 +242,7 @@ function ItemCard({
       </div>
       {onDelete && (
         <button
-          onClick={handleDelete}
+          onClick={() => setShowConfirm(true)}
           disabled={isDeleting}
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Delete item"
@@ -247,6 +257,7 @@ function ItemCard({
         </button>
       )}
     </div>
+    </>
   );
 }
 

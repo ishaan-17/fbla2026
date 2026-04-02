@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import PasswordGate from "@/components/PasswordGate";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import type { Item, ClaimWithItem, InquiryWithItem } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
 
@@ -240,6 +241,12 @@ function AdminDashboard() {
   const [inquiryFilter, setInquiryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  
+  // Confirm modal state
+  const [showDeleteItemConfirm, setShowDeleteItemConfirm] = useState(false);
+  const [showDeleteInquiryConfirm, setShowDeleteInquiryConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [inquiryToDelete, setInquiryToDelete] = useState<number | null>(null);
 
   // Tab indicator animation
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -314,15 +321,22 @@ function AdminDashboard() {
 
   const handleItemAction = async (id: number, action: string) => {
     if (action === "delete") {
-      if (!confirm("Are you sure you want to delete this item?")) return;
-      await fetch(`/api/items/${id}`, { method: "DELETE" });
-    } else {
-      await fetch(`/api/items/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: action }),
-      });
+      setItemToDelete(id);
+      setShowDeleteItemConfirm(true);
+      return;
     }
+    await fetch(`/api/items/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: action }),
+    });
+    refreshAll();
+  };
+  
+  const confirmDeleteItem = async () => {
+    if (itemToDelete === null) return;
+    await fetch(`/api/items/${itemToDelete}`, { method: "DELETE" });
+    setItemToDelete(null);
     refreshAll();
   };
 
@@ -337,15 +351,22 @@ function AdminDashboard() {
 
   const handleInquiryAction = async (id: number, action: string) => {
     if (action === "delete") {
-      if (!confirm("Are you sure you want to delete this inquiry?")) return;
-      await fetch(`/api/inquiries/${id}`, { method: "DELETE" });
-    } else {
-      await fetch(`/api/inquiries/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: action }),
-      });
+      setInquiryToDelete(id);
+      setShowDeleteInquiryConfirm(true);
+      return;
     }
+    await fetch(`/api/inquiries/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: action }),
+    });
+    refreshAll();
+  };
+  
+  const confirmDeleteInquiry = async () => {
+    if (inquiryToDelete === null) return;
+    await fetch(`/api/inquiries/${inquiryToDelete}`, { method: "DELETE" });
+    setInquiryToDelete(null);
     refreshAll();
   };
 
@@ -356,7 +377,38 @@ function AdminDashboard() {
   ).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <>
+      {/* Delete Item Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteItemConfirm}
+        onClose={() => {
+          setShowDeleteItemConfirm(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={confirmDeleteItem}
+        title="Delete Item"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      {/* Delete Inquiry Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteInquiryConfirm}
+        onClose={() => {
+          setShowDeleteInquiryConfirm(false);
+          setInquiryToDelete(null);
+        }}
+        onConfirm={confirmDeleteInquiry}
+        title="Delete Inquiry"
+        message="Are you sure you want to delete this inquiry? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-extrabold text-white tracking-tight">
@@ -949,6 +1001,7 @@ function AdminDashboard() {
         />
       )}
     </div>
+    </>
   );
 }
 
