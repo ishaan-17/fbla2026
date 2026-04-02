@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.imgur.com",
       },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
     ],
   },
 };

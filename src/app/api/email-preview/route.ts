@@ -1,61 +1,70 @@
 /**
- * Email Service - Send match notifications via Gmail
+ * Email Preview Route — visit /api/email-preview in your browser.
+ * DEV ONLY. Remove before deploying to production.
  */
 
-import nodemailer from "nodemailer";
-import type { Database } from "@/lib/supabase/database.types";
+import { NextResponse } from "next/server";
 
-type LostItem = Database["public"]["Tables"]["lost_items"]["Row"];
-type FoundItem = Database["public"]["Tables"]["items"]["Row"];
-
-interface MatchWithFoundItem {
-  id: number;
-  total_score: number;
-  found_item_id: number;
-  items: FoundItem;
-}
-
-// Gmail transporter configuration
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.RECLAIMR_GMAIL_ADDRESS,
-    pass: process.env.RECLAIMR_GMAIL_APP_PASSWORD,
-  },
-});
-
-/**
- * Resolve image path to a full absolute URL.
- * Handles: full https URLs (Supabase Storage), legacy relative paths, and empty/null values.
- */
 function resolveImageUrl(imagePath: string | null, baseUrl: string): string {
   if (!imagePath) return "";
   if (imagePath.startsWith("http")) return imagePath;
-  // Legacy relative path like "uploads/xxx.png"
   return `${baseUrl}/${imagePath.replace(/^\//, "")}`;
 }
 
-/**
- * Generate HTML email template for match notifications.
- */
-function generateMatchEmailHTML(
-  lostItem: LostItem,
-  matches: MatchWithFoundItem[]
-): string {
+export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+  const lostItem = {
+    title: "Blue Steel Water Bottle",
+    description: "Matte finish, silver cap, 750ml capacity. Slight scratch on the bottom edge.",
+    reporter_name: "Alex Johnson",
+    created_at: "2026-03-20T08:00:00Z",
+  };
+
+  const matches = [
+    {
+      total_score: 0.94,
+      items: {
+        id: 1,
+        title: "Ocean Blue Hydro Vessel",
+        description: "Found in the main hallway near the gym entrance. Matching color and volume profile with minor surface wear.",
+        location_found: "Gym Hallway",
+        reporter_name: "Coach Williams",
+        image_path: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop",
+      },
+    },
+    {
+      total_score: 0.61,
+      items: {
+        id: 2,
+        title: "Steel Flask - Navy",
+        description: "Found in the library study room. Similar shape and material, though slightly darker hue than described.",
+        location_found: "Library, Room 2B",
+        reporter_name: "Ms. Patel",
+        image_path: "https://images.unsplash.com/photo-1523362628745-0c100fc988a6?w=400&h=400&fit=crop",
+      },
+    },
+    {
+      total_score: 0.38,
+      items: {
+        id: 3,
+        title: "Insulated Sport Bottle",
+        description: "Turned in at the front office. Matching brand but appears to have a different lid style.",
+        location_found: "Front Office",
+        reporter_name: null,
+        image_path: null,
+      },
+    },
+  ];
 
   const matchCardsHTML = matches
     .map((match, index) => {
       const f = match.items;
       const confidence = Math.round(match.total_score * 100);
       const imageSrc = resolveImageUrl(f.image_path, baseUrl);
-      const description = f.description
-        ? f.description.length > 120
-          ? f.description.substring(0, 120) + "..."
-          : f.description
-        : "No description provided";
+      const description =
+        f.description.length > 120 ? f.description.substring(0, 120) + "..." : f.description;
 
-      // Badge color: green for high confidence, amber for medium, slate for lower
       const badgeBg = confidence >= 70 ? "#16a34a" : confidence >= 45 ? "#d97706" : "#4f46e5";
 
       const imageCell = imageSrc
@@ -78,7 +87,6 @@ function generateMatchEmailHTML(
                 <tr>
                   ${imageCell}
                   <td style="padding: 20px 22px; vertical-align: top;">
-                    <!-- Match badge -->
                     <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 10px;">
                       <tr>
                         <td style="background: ${badgeBg}; border-radius: 20px; padding: 3px 10px;">
@@ -86,15 +94,8 @@ function generateMatchEmailHTML(
                         </td>
                       </tr>
                     </table>
-                    <!-- Title -->
-                    <h3 style="margin: 0 0 6px 0; color: #0f172a; font-size: 16px; font-weight: 700; line-height: 1.3;">
-                      ${f.title}
-                    </h3>
-                    <!-- Description -->
-                    <p style="margin: 0 0 14px 0; color: #64748b; font-size: 13px; line-height: 1.6;">
-                      ${description}
-                    </p>
-                    <!-- Meta pills -->
+                    <h3 style="margin: 0 0 6px 0; color: #0f172a; font-size: 16px; font-weight: 700; line-height: 1.3;">${f.title}</h3>
+                    <p style="margin: 0 0 14px 0; color: #64748b; font-size: 13px; line-height: 1.6;">${description}</p>
                     <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
                       <tr>
                         ${f.location_found ? `<td style="padding-right: 8px;">
@@ -105,7 +106,6 @@ function generateMatchEmailHTML(
                         </td>` : ""}
                       </tr>
                     </table>
-                    <!-- CTA -->
                     <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td style="background: #4f46e5; border-radius: 8px;">
@@ -130,24 +130,21 @@ function generateMatchEmailHTML(
     year: "numeric",
   });
 
-  return `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>We found matches for your lost item &mdash; Reclaimr</title>
-  <!--[if mso]><style>body,table,td,a{font-family:Arial,sans-serif!important}</style><![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-text-size-adjust: 100%;">
 
   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc;">
     <tr>
       <td align="center" style="padding: 32px 16px 48px 16px;">
-
-        <!-- Email wrapper -->
         <table cellpadding="0" cellspacing="0" border="0" width="620" style="max-width: 620px; width: 100%;">
 
-          <!-- ── HEADER ── -->
+          <!-- HEADER -->
           <tr>
             <td style="background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c3aed 100%); border-radius: 16px 16px 0 0; padding: 28px 36px;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -161,10 +158,9 @@ function generateMatchEmailHTML(
             </td>
           </tr>
 
-          <!-- ── HERO ── -->
+          <!-- HERO -->
           <tr>
             <td style="background: #ffffff; padding: 40px 36px 32px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
-              <!-- Icon -->
               <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
                 <tr>
                   <td style="background: #ede9fe; width: 56px; height: 56px; border-radius: 14px; text-align: center; vertical-align: middle;">
@@ -172,17 +168,16 @@ function generateMatchEmailHTML(
                   </td>
                 </tr>
               </table>
-              <!-- Headline -->
               <h1 style="margin: 0 0 12px 0; color: #0f172a; font-size: 28px; font-weight: 800; line-height: 1.25; letter-spacing: -0.5px;">
                 Good news &mdash; we found<br/>potential matches!
               </h1>
               <p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.7;">
-                Hi ${lostItem.reporter_name ? lostItem.reporter_name.split(" ")[0] : "there"}, our system spotted <strong style="color: #4f46e5;">${matches.length} item${matches.length !== 1 ? "s" : ""}</strong> in our database that may be yours. Take a look below.
+                Hi ${lostItem.reporter_name.split(" ")[0]}, our system spotted <strong style="color: #4f46e5;">${matches.length} items</strong> in our database that may be yours. Take a look below.
               </p>
             </td>
           </tr>
 
-          <!-- ── YOUR REPORT SUMMARY ── -->
+          <!-- YOUR REPORT -->
           <tr>
             <td style="background: #ffffff; padding: 0 36px 32px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -198,29 +193,27 @@ function generateMatchEmailHTML(
             </td>
           </tr>
 
-          <!-- ── DIVIDER + MATCH COUNT ── -->
+          <!-- MATCH COUNT -->
           <tr>
             <td style="background: #ffffff; padding: 0 36px 20px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td style="border-top: 1px solid #f1f5f9; padding-top: 24px;">
-                    <h2 style="margin: 0; color: #0f172a; font-size: 17px; font-weight: 700;">
-                      ${matches.length} Potential Match${matches.length !== 1 ? "es" : ""} Found
-                    </h2>
+                    <h2 style="margin: 0; color: #0f172a; font-size: 17px; font-weight: 700;">${matches.length} Potential Matches Found</h2>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- ── MATCH CARDS ── -->
+          <!-- MATCH CARDS -->
           <tr>
             <td style="background: #ffffff; padding: 0 36px 8px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
               ${matchCardsHTML}
             </td>
           </tr>
 
-          <!-- ── BROWSE CTA ── -->
+          <!-- BROWSE CTA -->
           <tr>
             <td style="background: #f8fafc; padding: 28px 36px 32px 36px; border: 1px solid #e2e8f0; border-top: none; text-align: center;">
               <p style="margin: 0 0 18px 0; color: #64748b; font-size: 13px; line-height: 1.6;">
@@ -238,7 +231,7 @@ function generateMatchEmailHTML(
             </td>
           </tr>
 
-          <!-- ── FOOTER ── -->
+          <!-- FOOTER -->
           <tr>
             <td style="padding: 28px 36px; border-top: 1px solid #e2e8f0; text-align: center;">
               <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 14px; font-weight: 700;">Reclaimr</p>
@@ -248,17 +241,11 @@ function generateMatchEmailHTML(
               </p>
               <table cellpadding="0" cellspacing="0" border="0" align="center">
                 <tr>
-                  <td style="padding: 0 10px;">
-                    <a href="${baseUrl}" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Home</a>
-                  </td>
+                  <td style="padding: 0 10px;"><a href="${baseUrl}" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Home</a></td>
                   <td style="color: #cbd5e1; font-size: 12px;">&bull;</td>
-                  <td style="padding: 0 10px;">
-                    <a href="${baseUrl}/items" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Browse Items</a>
-                  </td>
+                  <td style="padding: 0 10px;"><a href="${baseUrl}/items" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Browse Items</a></td>
                   <td style="color: #cbd5e1; font-size: 12px;">&bull;</td>
-                  <td style="padding: 0 10px;">
-                    <a href="${baseUrl}/report" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Report Item</a>
-                  </td>
+                  <td style="padding: 0 10px;"><a href="${baseUrl}/report" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Report Item</a></td>
                 </tr>
               </table>
               <p style="margin: 16px 0 0 0; color: #cbd5e1; font-size: 11px;">
@@ -271,64 +258,10 @@ function generateMatchEmailHTML(
       </td>
     </tr>
   </table>
-
 </body>
 </html>`;
-}
 
-/**
- * Send match notification email to a lost item owner
- */
-export async function sendMatchNotificationEmail(
-  lostItem: LostItem,
-  matches: MatchWithFoundItem[]
-): Promise<boolean> {
-  try {
-    if (!process.env.RECLAIMR_GMAIL_ADDRESS || !process.env.RECLAIMR_GMAIL_APP_PASSWORD) {
-      console.error("[emailService] Gmail credentials not configured");
-      return false;
-    }
-
-    if (!lostItem.reporter_email) {
-      console.error("[emailService] No recipient email found");
-      return false;
-    }
-
-    if (matches.length === 0) {
-      console.log("[emailService] No matches to send");
-      return false;
-    }
-
-    const subject = `🔍 We found potential matches for your lost ${lostItem.title}!`;
-    const html = generateMatchEmailHTML(lostItem, matches);
-
-    console.log(`[emailService] Sending email to ${lostItem.reporter_email} for lost item ${lostItem.id}`);
-
-    await transporter.sendMail({
-      from: `"ReclaimR Lost & Found" <${process.env.RECLAIMR_GMAIL_ADDRESS}>`,
-      to: lostItem.reporter_email,
-      subject,
-      html,
-    });
-
-    console.log(`[emailService] Email sent successfully to ${lostItem.reporter_email}`);
-    return true;
-  } catch (error) {
-    console.error("[emailService] Error sending email:", error);
-    return false;
-  }
-}
-
-/**
- * Verify email service configuration
- */
-export async function verifyEmailConfig(): Promise<boolean> {
-  try {
-    await transporter.verify();
-    console.log("[emailService] Email configuration verified");
-    return true;
-  } catch (error) {
-    console.error("[emailService] Email configuration error:", error);
-    return false;
-  }
+  return new NextResponse(html, {
+    headers: { "Content-Type": "text/html" },
+  });
 }

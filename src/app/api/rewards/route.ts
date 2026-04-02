@@ -43,6 +43,25 @@ export async function GET() {
       .sort((a, b) => b.total_points - a.total_points)
       .slice(0, 50);
 
+    // Enrich with Google profile photos from auth users
+    try {
+      const { data, error: usersError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (!usersError && data?.users) {
+        const avatarMap = new Map<string, string>();
+        for (const user of data.users) {
+          if (user.email && user.user_metadata?.avatar_url) {
+            avatarMap.set(user.email, user.user_metadata.avatar_url);
+          }
+        }
+        for (const entry of leaderboard) {
+          const avatarUrl = avatarMap.get(entry.email);
+          if (avatarUrl) entry.avatar_url = avatarUrl;
+        }
+      }
+    } catch {
+      // Non-critical — leaderboard works without avatars
+    }
+
     // Get stats
     const { count: totalReturned, error: returnedError } = await supabase
       .from("items")

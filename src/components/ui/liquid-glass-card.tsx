@@ -1,8 +1,16 @@
 // @ts-nocheck
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { motion } from 'motion/react';
 import {cn} from "@/lib/utils"
+
+type TurbulencePreset = 'subtle' | 'medium' | 'liquid';
+
+const turbulencePresets: Record<TurbulencePreset, { baseFrequency: string; scale: number; numOctaves: number }> = {
+  subtle: { baseFrequency: '0.003 0.007', scale: 200, numOctaves: 1 },
+  medium: { baseFrequency: '0.012 0.018', scale: 280, numOctaves: 2 },
+  liquid: { baseFrequency: '0.025 0.04',  scale: 380, numOctaves: 2 },
+};
 
 interface LiquidGlassCardProps {
   children: React.ReactNode;
@@ -17,6 +25,7 @@ interface LiquidGlassCardProps {
   shadowIntensity?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   borderRadius?: string;
   glowIntensity?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  turbulence?: TurbulencePreset;
 }
 
 export const LiquidGlassCard = ({
@@ -32,15 +41,17 @@ export const LiquidGlassCard = ({
   borderRadius = '32px',
   glowIntensity = 'sm',
   shadowIntensity = 'md',
+  turbulence = 'subtle',
   ...props
 }: LiquidGlassCardProps) => {
+  const uid = useId().replace(/:/g, '');
+  const filterId = `glass-blur-${uid}`;
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggleExpansion = (e: {
     target: { closest: (arg0: string) => any };
   }) => {
     if (!expandable) return;
-    // Don't toggle if clicking on interactive elements
     if (e.target.closest('a, button, input, select, textarea')) return;
     setIsExpanded(!isExpanded);
   };
@@ -59,8 +70,7 @@ export const LiquidGlassCard = ({
     md: 'inset 3px 3px 3px 0 rgba(255, 255, 255, 0.45), inset -3px -3px 3px 0 rgba(255, 255, 255, 0.45)',
     lg: 'inset 4px 4px 4px 0 rgba(255, 255, 255, 0.5), inset -4px -4px 4px 0 rgba(255, 255, 255, 0.5)',
     xl: 'inset 6px 6px 6px 0 rgba(255, 255, 255, 0.55), inset -6px -6px 6px 0 rgba(255, 255, 255, 0.55)',
-    '2xl':
-      'inset 8px 8px 8px 0 rgba(255, 255, 255, 0.6), inset -8px -8px 8px 0 rgba(255, 255, 255, 0.6)',
+    '2xl': 'inset 8px 8px 8px 0 rgba(255, 255, 255, 0.6), inset -8px -8px 8px 0 rgba(255, 255, 255, 0.6)',
   };
 
   const glowStyles = {
@@ -70,28 +80,13 @@ export const LiquidGlassCard = ({
     md: '0 4px 4px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.08), 0 0 32px rgba(255, 255, 255, 0.15)',
     lg: '0 4px 4px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.08), 0 0 40px rgba(255, 255, 255, 0.2)',
     xl: '0 4px 4px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.08), 0 0 48px rgba(255, 255, 255, 0.25)',
-    '2xl':
-      '0 4px 4px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.08), 0 0 60px rgba(255, 255, 255, 0.3)',
+    '2xl': '0 4px 4px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.08), 0 0 60px rgba(255, 255, 255, 0.3)',
   };
 
   const containerVariants = expandable
     ? {
-        collapsed: {
-          width: width || 'auto',
-          height: height || 'auto',
-          transition: {
-            duration: 0.4,
-            ease: [0.5, 1.5, 0.5, 1],
-          },
-        },
-        expanded: {
-          width: expandedWidth || 'auto',
-          height: expandedHeight || 'auto',
-          transition: {
-            duration: 0.4,
-            ease: [0.5, 1.5, 0.5, 1],
-          },
-        },
+        collapsed: { width: width || 'auto', height: height || 'auto', transition: { duration: 0.4, ease: [0.5, 1.5, 0.5, 1] } },
+        expanded:  { width: expandedWidth || 'auto', height: expandedHeight || 'auto', transition: { duration: 0.4, ease: [0.5, 1.5, 0.5, 1] } },
       }
     : {};
 
@@ -101,53 +96,35 @@ export const LiquidGlassCard = ({
     draggable || expandable
       ? {
           variants: expandable ? containerVariants : undefined,
-          animate: expandable
-            ? isExpanded
-              ? 'expanded'
-              : 'collapsed'
-            : undefined,
+          animate: expandable ? (isExpanded ? 'expanded' : 'collapsed') : undefined,
           onClick: expandable ? handleToggleExpansion : undefined,
           drag: draggable,
-          dragConstraints: draggable
-            ? { left: 0, right: 0, top: 0, bottom: 0 }
-            : undefined,
+          dragConstraints: draggable ? { left: 0, right: 0, top: 0, bottom: 0 } : undefined,
           dragElastic: draggable ? 0.3 : undefined,
-          dragTransition: draggable
-            ? {
-                bounceStiffness: 300,
-                bounceDamping: 10,
-                power: 0.3,
-              }
-            : undefined,
+          dragTransition: draggable ? { bounceStiffness: 300, bounceDamping: 10, power: 0.3 } : undefined,
           whileDrag: draggable ? { scale: 1.02 } : undefined,
           whileHover: { scale: 1.01 },
           whileTap: { scale: 0.98 },
         }
       : {};
 
+  const preset = turbulencePresets[turbulence];
+
   return (
     <>
-      {/* Hidden SVG Filter */}
       <svg className='hidden'>
         <defs>
-          <filter
-            id='glass-blur'
-            x='0'
-            y='0'
-            width='100%'
-            height='100%'
-            filterUnits='objectBoundingBox'
-          >
+          <filter id={filterId} x='0' y='0' width='100%' height='100%' filterUnits='objectBoundingBox'>
             <feTurbulence
               type='fractalNoise'
-              baseFrequency='0.003 0.007'
-              numOctaves='1'
+              baseFrequency={preset.baseFrequency}
+              numOctaves={preset.numOctaves}
               result='turbulence'
             />
             <feDisplacementMap
               in='SourceGraphic'
               in2='turbulence'
-              scale='200'
+              scale={preset.scale}
               xChannelSelector='R'
               yChannelSelector='G'
             />
@@ -167,31 +144,22 @@ export const LiquidGlassCard = ({
         {...motionProps}
         {...props}
       >
-        {/* Bend Layer (Backdrop blur with distortion) */}
+        {/* Bend Layer */}
         <div
           className={`absolute inset-0 ${blurClasses[blurIntensity]} z-0`}
-          style={{
-            borderRadius,
-            filter: 'url(#glass-blur)',
-          }}
+          style={{ borderRadius, filter: `url(#${filterId})` }}
         />
 
-        {/* Face Layer (Main shadow and glow) */}
+        {/* Face Layer */}
         <div
           className='absolute inset-0 z-10'
-          style={{
-            borderRadius,
-            boxShadow: glowStyles[glowIntensity],
-          }}
+          style={{ borderRadius, boxShadow: glowStyles[glowIntensity] }}
         />
 
-        {/* Edge Layer (Inner highlights) */}
+        {/* Edge Layer */}
         <div
           className='absolute inset-0 z-20'
-          style={{
-            borderRadius,
-            boxShadow: shadowStyles[shadowIntensity],
-          }}
+          style={{ borderRadius, boxShadow: shadowStyles[shadowIntensity] }}
         />
 
         {/* Content */}

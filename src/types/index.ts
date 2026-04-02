@@ -95,6 +95,7 @@ export interface LeaderboardEntry {
   name: string;
   total_points: number;
   items_reported: number;
+  avatar_url?: string;
 }
 
 export interface Inquiry {
