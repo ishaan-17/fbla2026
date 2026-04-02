@@ -511,7 +511,13 @@ function ReportPageContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to submit");
 
-      router.push("/lost/success");
+      // Pass matches to success page via URL params
+      const params = new URLSearchParams();
+      if (data.matches && data.matches.length > 0) {
+        params.set("matches", JSON.stringify(data.matches));
+        params.set("itemId", data.item.id.toString());
+      }
+      router.push(`/lost/success?${params.toString()}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

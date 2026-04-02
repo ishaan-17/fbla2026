@@ -119,57 +119,65 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find matches asynchronously (embedding already included if provided)
-    findMatchesForLostItem(lostItem.id)
-      .then(async (matches) => {
-        console.log(`[api/lost-items] Found ${matches.length} matches for item ${lostItem.id}`);
-        
-        if (matches.length === 0) return;
-
-        try {
-          // Fetch match details with found items
-          const matchIds = matches.map(m => m.foundItemId);
-          const { data: matchesWithDetails } = await supabase
-            .from("item_matches")
-            .select(`
+    // Find matches synchronously so we can show them to the user immediately
+    let matchesWithDetails = [];
+    try {
+      const matches = await findMatchesForLostItem(lostItem.id);
+      console.log(`[api/lost-items] Found ${matches.length} matches for item ${lostItem.id}`);
+      
+      if (matches.length > 0) {
+        // Fetch match details with found items
+        const matchIds = matches.map(m => m.foundItemId);
+        const { data: fetchedMatches } = await supabase
+          .from("item_matches")
+          .select(`
+            id,
+            total_score,
+            image_similarity,
+            text_similarity,
+            category_match,
+            found_item_id,
+            items:found_item_id (
               id,
-              total_score,
-              found_item_id,
-              items:found_item_id (*)
-            `)
-            .eq("lost_item_id", lostItem.id)
-            .in("found_item_id", matchIds);
+              title,
+              description,
+              category,
+              image_path,
+              location_found,
+              date_found,
+              reporter_name,
+              reporter_email
+            )
+          `)
+          .eq("lost_item_id", lostItem.id)
+          .in("found_item_id", matchIds)
+          .order("total_score", { ascending: false });
 
-          if (matchesWithDetails && matchesWithDetails.length > 0) {
-            // Send email to submitter
-            const emailSent = await sendMatchNotificationEmail(
-              lostItem, 
-              matchesWithDetails as unknown as MatchWithFoundItem[]
-            );
+        matchesWithDetails = fetchedMatches || [];
 
-            if (emailSent) {
-              // Mark matches as notified
-              const matchIdsToUpdate = matchesWithDetails.map(m => m.id);
-              await supabase
-                .from("item_matches")
-                .update({ notified_at: new Date().toISOString() })
-                .in("id", matchIdsToUpdate);
+        // Mark matches as notified (shown to user)
+        if (matchesWithDetails.length > 0) {
+          const matchIdsToUpdate = matchesWithDetails.map(m => m.id);
+          await supabase
+            .from("item_matches")
+            .update({ notified_at: new Date().toISOString() })
+            .in("id", matchIdsToUpdate);
 
-              console.log(`[api/lost-items] Email sent to ${lostItem.reporter_email} for ${matchIdsToUpdate.length} matches`);
-            }
-          }
-        } catch (emailError) {
-          console.error("[api/lost-items] Error sending email:", emailError);
+          console.log(`[api/lost-items] Showing ${matchIdsToUpdate.length} matches to user`);
         }
-      })
-      .catch((err) => {
-        console.error("[api/lost-items] Background matching error:", err);
-      });
+      }
+    } catch (matchingError) {
+      console.error("[api/lost-items] Error finding matches:", matchingError);
+      // Continue even if matching fails - don't block the submission
+    }
 
     return NextResponse.json({
       success: true,
       item: lostItem,
-      message: "Lost item report submitted. We'll notify you if we find matches!",
+      matches: matchesWithDetails,
+      message: matchesWithDetails.length > 0 
+        ? `Lost item report submitted. We found ${matchesWithDetails.length} potential match${matchesWithDetails.length > 1 ? 'es' : ''}!`
+        : "Lost item report submitted. We'll notify you if we find matches!",
     });
   } catch (error) {
     console.error("[api/lost-items] Unexpected error:", error);
