@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     }
 
     // Find matches synchronously so we can show them to the user immediately
-    let matchesWithDetails = [];
+    let matchesWithDetails: any[] = [];
     try {
       const matches = await findMatchesForLostItem(lostItem.id);
       console.log(`[api/lost-items] Found ${matches.length} matches for item ${lostItem.id}`);

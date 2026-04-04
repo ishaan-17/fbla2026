@@ -212,6 +212,254 @@ function ItemDetailModal({
   );
 }
 
+/* ─── Claim Detail Modal ─────────────────────────────────────────────────── */
+
+function ClaimDetailModal({
+  claim,
+  onClose,
+  onAction,
+}: {
+  claim: ClaimWithItem;
+  onClose: () => void;
+  onAction: (id: number, action: string) => void;
+}) {
+  const [closing, setClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  }, [onClose]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${closing ? "animate-[fadeOut_200ms_ease-in_forwards]" : "animate-[fadeIn_200ms_ease-out]"}`}
+      onClick={handleClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className={`relative bg-neutral-900 border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${closing ? "animate-[modalOut_200ms_ease-in_forwards]" : "animate-[modalIn_250ms_cubic-bezier(0.16,1,0.3,1)]"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        >
+          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="p-6 space-y-5">
+          {/* Title + Status */}
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-xl font-extrabold text-white tracking-tight">
+              Claim Details
+            </h2>
+            <StatusBadge status={claim.status} />
+          </div>
+
+          {/* Metadata Grid */}
+          <div className="bg-neutral-800 rounded-xl border border-white/10 overflow-hidden">
+            <div className="divide-y divide-white/5">
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Item Name
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {claim.item_title}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Claimant Name
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {claim.claimant_name}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Claimant Email
+                </p>
+                <p className="text-sm text-white/70">
+                  {claim.claimant_email}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Description
+                </p>
+                <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                  {claim.claimant_description}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Submitted On
+                </p>
+                <p className="text-sm text-white/70">
+                  {new Date(claim.created_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2">
+            {claim.status === "pending" && (
+              <>
+                <button
+                  onClick={() => { onAction(claim.id, "approved"); handleClose(); }}
+                  className="px-4 py-2 bg-primary-500 text-white text-sm font-bold rounded-lg hover:bg-primary-600 transition-colors"
+                >
+                  Verify & Approve
+                </button>
+                <button
+                  onClick={() => { onAction(claim.id, "rejected"); handleClose(); }}
+                  className="px-4 py-2 border border-red-500/30 text-red-400 text-sm font-bold rounded-lg hover:bg-red-500/10 transition-colors"
+                >
+                  Reject
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Inquiry Detail Modal ─────────────────────────────────────────────────── */
+
+function InquiryDetailModal({
+  inquiry,
+  onClose,
+  onAction,
+}: {
+  inquiry: InquiryWithItem;
+  onClose: () => void;
+  onAction: (id: number, action: string) => void;
+}) {
+  const [closing, setClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  }, [onClose]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${closing ? "animate-[fadeOut_200ms_ease-in_forwards]" : "animate-[fadeIn_200ms_ease-out]"}`}
+      onClick={handleClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className={`relative bg-neutral-900 border border-white/10 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${closing ? "animate-[modalOut_200ms_ease-in_forwards]" : "animate-[modalIn_250ms_cubic-bezier(0.16,1,0.3,1)]"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        >
+          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="p-6 space-y-5">
+          {/* Title + Status */}
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-xl font-extrabold text-white tracking-tight">
+              Inquiry Details
+            </h2>
+            <StatusBadge status={inquiry.status} />
+          </div>
+
+          {/* Metadata Grid */}
+          <div className="bg-neutral-800 rounded-xl border border-white/10 overflow-hidden">
+            <div className="divide-y divide-white/5">
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Item Name
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {inquiry.item_title}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Inquirer Name
+                </p>
+                <p className="text-sm font-semibold text-white">
+                  {inquiry.inquirer_name}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Inquirer Email
+                </p>
+                <p className="text-sm text-white/70">
+                  {inquiry.inquirer_email}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Message
+                </p>
+                <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
+                  {inquiry.message}
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">
+                  Submitted On
+                </p>
+                <p className="text-sm text-white/70">
+                  {new Date(inquiry.created_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2">
+            {inquiry.status === "pending" && (
+              <button
+                onClick={() => { onAction(inquiry.id, "read"); handleClose(); }}
+                className="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Mark Read
+              </button>
+            )}
+            {(inquiry.status === "pending" || inquiry.status === "read") && (
+              <button
+                onClick={() => { onAction(inquiry.id, "replied"); handleClose(); }}
+                className="px-4 py-2 bg-primary-500 text-white text-sm font-bold rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Mark Replied
+              </button>
+            )}
+            <button
+              onClick={() => { onAction(inquiry.id, "delete"); handleClose(); }}
+              className="px-4 py-2 border border-red-500/30 text-red-400 text-sm font-bold rounded-lg hover:bg-red-500/10 transition-colors ml-auto"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -241,6 +489,8 @@ function AdminDashboard() {
   const [inquiryFilter, setInquiryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedClaim, setSelectedClaim] = useState<ClaimWithItem | null>(null);
+  const [selectedInquiry, setSelectedInquiry] = useState<InquiryWithItem | null>(null);
   
   // Confirm modal state
   const [showDeleteItemConfirm, setShowDeleteItemConfirm] = useState(false);
@@ -792,7 +1042,8 @@ function AdminDashboard() {
                     {claims.map((claim) => (
                       <tr
                         key={claim.id}
-                        className="hover:bg-white/5 transition-colors"
+                        className="hover:bg-white/5 transition-colors cursor-pointer"
+                        onClick={() => setSelectedClaim(claim)}
                       >
                         <td className="px-6 py-4 text-sm font-semibold text-white">
                           {claim.item_title}
@@ -814,7 +1065,7 @@ function AdminDashboard() {
                         <td className="px-6 py-4 text-sm text-white/40">
                           {new Date(claim.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           {claim.status === "pending" && (
                             <div className="flex items-center justify-end gap-2">
                               <button
@@ -923,7 +1174,8 @@ function AdminDashboard() {
                     {inquiries.map((inquiry) => (
                       <tr
                         key={inquiry.id}
-                        className="hover:bg-white/5 transition-colors"
+                        className="hover:bg-white/5 transition-colors cursor-pointer"
+                        onClick={() => setSelectedInquiry(inquiry)}
                       >
                         <td className="px-6 py-4 text-sm font-semibold text-white">
                           {inquiry.item_title}
@@ -945,7 +1197,7 @@ function AdminDashboard() {
                         <td className="px-6 py-4 text-sm text-white/40">
                           {new Date(inquiry.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
                             {inquiry.status === "pending" && (
                               <button
@@ -998,6 +1250,24 @@ function AdminDashboard() {
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
           onAction={handleItemAction}
+        />
+      )}
+
+      {/* Claim Detail Modal */}
+      {selectedClaim && (
+        <ClaimDetailModal
+          claim={selectedClaim}
+          onClose={() => setSelectedClaim(null)}
+          onAction={handleClaimAction}
+        />
+      )}
+
+      {/* Inquiry Detail Modal */}
+      {selectedInquiry && (
+        <InquiryDetailModal
+          inquiry={selectedInquiry}
+          onClose={() => setSelectedInquiry(null)}
+          onAction={handleInquiryAction}
         />
       )}
     </div>
