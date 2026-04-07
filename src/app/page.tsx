@@ -114,9 +114,9 @@ export default async function Home() {
               </ScrollRevealItem>
               <ScrollRevealItem>
                 <p className="mt-6 text-lg text-white/80 leading-relaxed max-w-lg">
-                  Our school&apos;s lost and found platform makes it easy to
-                  report found items, search for your belongings, and earn
-                  rewards for helping.
+                  Monta Vista High School&apos;s lost and found platform makes 
+                  it easy to report found items, search for your belongings, 
+                  and earn rewards for helping.
                 </p>
               </ScrollRevealItem>
               <ScrollRevealItem>
