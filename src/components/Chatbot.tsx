@@ -12,6 +12,11 @@ import {
   CalendarDays,
   Tag,
   ExternalLink,
+  FileText,
+  Search,
+  Trophy,
+  Info,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -35,49 +40,158 @@ interface Message {
   items?: MatchedItem[];
 }
 
+// ── Page link metadata ───────────────────────────────────────────────
+
+interface PageLinkInfo {
+  href: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const PAGE_LINK_MAP: Record<string, Omit<PageLinkInfo, "href" | "label">> = {
+  "/report": {
+    description: "Report a found or lost item",
+    icon: FileText,
+  },
+  "/items": {
+    description: "Search and browse all found items",
+    icon: Search,
+  },
+  "/leaderboard": {
+    description: "See top contributors and points",
+    icon: Trophy,
+  },
+  "/about": {
+    description: "Learn about the Reclaimr platform",
+    icon: Info,
+  },
+};
+
+// ── Page Link Embed Card ─────────────────────────────────────────────
+
+function PageLinkCard({ link }: { link: PageLinkInfo }) {
+  const Icon = link.icon;
+  return (
+    <Link href={link.href}>
+      <motion.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-2 rounded-xl overflow-hidden cursor-pointer group transition-all"
+        style={{
+          background: "rgba(36,59,83,0.35)",
+          border: "1px solid rgba(98,125,152,0.2)",
+        }}
+      >
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{
+              background: "rgba(98,125,152,0.2)",
+            }}
+          >
+            <Icon className="w-4 h-4 text-primary-300" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white/90 truncate">
+              {link.label}
+            </p>
+            <p className="text-xs text-white/40 truncate">{link.description}</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors flex-shrink-0" />
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
+
 // ── Inline text parser (bold, links) ─────────────────────────────────
 
-function parseInlineContent(text: string): ReactNode[] {
-  const parts = text.split(/(\[.*?\]\(\/items\/\d+\)|\/items\/\d+|\*\*.*?\*\*)/g);
+interface ParsedMessage {
+  content: ReactNode[];
+  pageLinks: PageLinkInfo[];
+}
 
-  return parts.map((part, i) => {
-    const mdMatch = part.match(/\[(.*?)\]\((\/items\/\d+)\)/);
-    if (mdMatch) {
-      return (
-        <Link
-          key={i}
-          href={mdMatch[2]}
-          className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
-        >
-          {mdMatch[1]}
-        </Link>
-      );
+function parseMessageContent(text: string): ParsedMessage {
+  const pageLinks: PageLinkInfo[] = [];
+
+  // Extract page links from the text and collect them for embed cards
+  // Match markdown links: [Link Text](/path)
+  const linkPattern = /\[([^\]]+)\]\((\/[a-z-]+(?:\/\d+)?)\)/g;
+  let match;
+  while ((match = linkPattern.exec(text)) !== null) {
+    const href = match[2];
+    const label = match[1];
+    const pageMeta = PAGE_LINK_MAP[href];
+    if (pageMeta) {
+      // It's a known page — add as embed card, remove from text
+      pageLinks.push({ href, label, ...pageMeta });
     }
+  }
 
-    const plainMatch = part.match(/^\/items\/(\d+)$/);
-    if (plainMatch) {
-      return (
-        <Link
-          key={i}
-          href={part}
-          className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
-        >
-          View Item #{plainMatch[1]}
-        </Link>
-      );
-    }
+  // Remove page links from the text (they'll be rendered as cards below)
+  let cleanedText = text;
+  for (const link of pageLinks) {
+    // Remove all markdown link instances for this page
+    const escaped = link.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    cleanedText = cleanedText.replace(
+      new RegExp(`\\[[^\\]]+\\]\\(${escaped}\\)`, "g"),
+      ""
+    );
+  }
+  // Clean up leftover awkward spacing
+  cleanedText = cleanedText.replace(/\s{2,}/g, " ").trim();
 
-    const boldMatch = part.match(/^\*\*(.*?)\*\*$/);
-    if (boldMatch) {
-      return (
-        <strong key={i} className="font-bold text-white">
-          {boldMatch[1]}
-        </strong>
-      );
-    }
+  // Now parse the remaining text for item links, bold, etc.
+  const parts = cleanedText.split(
+    /(\[.*?\]\(\/items\/\d+\)|\/items\/\d+|\*\*.*?\*\*)/g
+  );
 
-    return part;
-  });
+  const content = parts
+    .map((part, i) => {
+      if (!part) return null;
+
+      const mdMatch = part.match(/\[(.*?)\]\((\/items\/\d+)\)/);
+      if (mdMatch) {
+        return (
+          <Link
+            key={i}
+            href={mdMatch[2]}
+            className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
+          >
+            {mdMatch[1]}
+          </Link>
+        );
+      }
+
+      const plainMatch = part.match(/^\/items\/(\d+)$/);
+      if (plainMatch) {
+        return (
+          <Link
+            key={i}
+            href={part}
+            className="text-blue-300 hover:text-blue-200 underline underline-offset-2 font-semibold transition-colors"
+          >
+            View Item #{plainMatch[1]}
+          </Link>
+        );
+      }
+
+      const boldMatch = part.match(/^\*\*(.*?)\*\*$/);
+      if (boldMatch) {
+        return (
+          <strong key={i} className="font-bold text-white">
+            {boldMatch[1]}
+          </strong>
+        );
+      }
+
+      return part;
+    })
+    .filter(Boolean);
+
+  return { content, pageLinks };
 }
 
 // ── Category emoji mapper ────────────────────────────────────────────
@@ -469,23 +583,38 @@ export default function Chatbot() {
                     className="max-w-[88%]"
                   >
                     {/* Text bubble */}
-                    <div
-                      className="rounded-2xl rounded-bl-md px-4 py-3"
-                      style={{
-                        background: "rgba(255,255,255,0.08)",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                      }}
-                    >
-                      <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
-                        {parseInlineContent(msg.content)}
-                      </p>
-                    </div>
+                    {(() => {
+                      const parsed = parseMessageContent(msg.content);
+                      return (
+                        <>
+                          {/* Text bubble */}
+                          {parsed.content.length > 0 && (
+                            <div
+                              className="rounded-2xl rounded-bl-md px-4 py-3"
+                              style={{
+                                background: "rgba(255,255,255,0.08)",
+                                border: "1px solid rgba(255,255,255,0.06)",
+                              }}
+                            >
+                              <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+                                {parsed.content}
+                              </p>
+                            </div>
+                          )}
 
-                    {/* Item cards from structured API data */}
-                    {msg.items &&
-                      msg.items.map((item) => (
-                        <ItemCard key={item.id} item={item} />
-                      ))}
+                          {/* Page link embed cards */}
+                          {parsed.pageLinks.map((link, j) => (
+                            <PageLinkCard key={`link-${j}`} link={link} />
+                          ))}
+
+                          {/* Item cards from structured API data */}
+                          {msg.items &&
+                            msg.items.map((item) => (
+                              <ItemCard key={item.id} item={item} />
+                            ))}
+                        </>
+                      );
+                    })()}
                   </motion.div>
                 );
               })}

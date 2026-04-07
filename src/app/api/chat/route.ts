@@ -7,35 +7,65 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// System prompt that gives the bot context about Reclaimr
-const SYSTEM_PROMPT = `You are Reclaimr Assistant, a helpful chatbot for the Reclaimr school lost & found platform at Monta Vista High School. You help students find their lost items and answer questions about the platform.
+// ── System Prompt ────────────────────────────────────────────────────
 
-ABOUT RECLAIMR:
-- Reclaimr is a web platform where students can report found items and search for lost belongings
-- Found items are uploaded with photos, and AI automatically categorizes them (category, color, size, material)
-- Students earn points for reporting items: +10 for reporting, +25 when an item is successfully returned
-- There's a leaderboard showing top contributors
-- Items unclaimed after 30 days are donated to local charities (God's Promise Charity)
-- Students can sign in with Google to track their reports and points
-- Admins review and approve reported items before they go live
+const SYSTEM_PROMPT = `You are Reclaimr Assistant — the AI helper for Reclaimr, a lost & found platform at Monta Vista High School.
 
-HOW TO USE THE SITE:
-- To report a found item: Go to "Report Found Item", upload a photo, fill in details, and submit
-- To find your lost item: Go to "Browse Items" and search by keyword, category, or tags
-- To claim an item: Click on an item and submit a claim with a description proving ownership
-- To see the leaderboard: Visit the Leaderboard page
+RULES (follow strictly):
+1. Be concise. 1-3 sentences max. No essays, no bullet lists, no filler.
+2. Only mention found items if the SYSTEM has provided a MATCHING ITEMS section below. If there is no MATCHING ITEMS section, do NOT mention any items or say "I found items." You do not have access to the database yourself.
+3. When items ARE provided by the system, say something brief like "I found [N] item(s) that might be yours — take a look!" The UI automatically renders item cards below your message, so do NOT describe or list the items yourself.
+4. If the user is asking a general question (how points work, how to report, what happens after 30 days, etc.), just answer the question directly. Do not search for items.
+5. Never invent or hallucinate items. You can ONLY reference items explicitly given to you in the MATCHING ITEMS section.
+6. Never repeat information the user already knows.
+7. If the user says thanks or something conversational, respond naturally in 1 sentence.
 
-YOUR BEHAVIOR:
-- Be friendly, concise, and helpful
-- When a user describes a lost item, search the database and suggest matching items
-- If you find matching items, format them nicely with title, category, location, and a link
-- If no items match, encourage them to check back later or report it
-- Answer general questions about the platform, its features, and policies
-- Keep responses SHORT (2-4 sentences max unless listing items)
-- Use a warm, supportive tone — losing stuff is stressful!
-- NEVER make up items that don't exist in the database results provided to you`;
+PLATFORM KNOWLEDGE:
+- Students report found items with photos; AI auto-categorizes them.
+- Points: +10 for reporting a found item, +25 when it's returned to the owner.
+- There's a community leaderboard ranking top contributors.
+- Items unclaimed after 30 days are donated to God's Promise Charity.
+- Students sign in with Google to track reports and points.
+- Admins review found items before they go public.
+- To report: go to Report page, upload a photo, fill details, submit.
+- To search: go to Browse Items, filter by keyword/category/tags.
+- To claim: click an item, submit a claim describing proof of ownership.
+- Lost item reports: users can submit what they lost and get notified when a match is found.
 
-// Stopwords to ignore when searching
+LINKING TO PAGES:
+When it's helpful, link the user to the right page using markdown links. ONLY use these exact paths:
+- [Report an Item](/report) — for reporting found or lost items
+- [Browse Items](/items) — for searching/browsing all found items
+- [Leaderboard](/leaderboard) — for viewing top contributors
+- [About](/about) — for learning about the platform
+Do NOT link to pages that don't exist. Use links naturally within your response when they're relevant (e.g. "You can report it on the [Report page](/report)!"). Don't force links into every message.
+
+TONE: Friendly, brief, and helpful. Losing stuff is stressful — be warm but don't overdo it.`;
+
+// ── Intent detection ─────────────────────────────────────────────────
+// Determine if the user is describing a lost item (should trigger search)
+// vs asking a general question or making conversation (should NOT search).
+
+const LOST_ITEM_SIGNALS = [
+  /i\s+lost/i,
+  /i\s+can'?t\s+find/i,
+  /have\s+you\s+seen/i,
+  /anyone\s+(found|seen|turned?\s+in)/i,
+  /missing\s+(my|a)\b/i,
+  /looking\s+for\s+(my|a)\b/i,
+  /left\s+(my|a)\b/i,
+  /lost\s+(my|a)\b/i,
+  /where\s+is\s+my\b/i,
+  /find\s+my\b/i,
+  /misplaced/i,
+];
+
+function isLostItemQuery(message: string): boolean {
+  return LOST_ITEM_SIGNALS.some((pattern) => pattern.test(message));
+}
+
+// ── Stopwords & Synonyms ─────────────────────────────────────────────
+
 const STOPWORDS = new Set([
   "the", "a", "an", "my", "i", "is", "it", "its", "was", "has", "have", "had",
   "lost", "find", "found", "looking", "for", "where", "can", "you", "help",
@@ -44,102 +74,68 @@ const STOPWORDS = new Set([
   "with", "from", "about", "what", "which", "who", "how", "all", "also",
   "but", "not", "just", "like", "very", "would", "could", "should", "dont",
   "does", "doing", "some", "them", "they", "their", "will", "your", "our",
+  "cant", "im", "ive", "seen", "something", "thing", "stuff", "hey", "hi",
+  "hello", "thanks", "thank", "okay", "ok", "yes", "no", "maybe",
 ]);
 
-// Semantic synonym groups — if a user says any word in a group,
-// we also search for all the other words in that group.
-// This is what makes "headphones" find "AirPods Max".
 const SYNONYM_GROUPS: string[][] = [
-  // Audio
   ["headphones", "earbuds", "earphones", "airpods", "beats", "headset", "buds", "audio", "airpod"],
-  // Water bottles / drinkware
   ["waterbottle", "water", "bottle", "hydroflask", "flask", "thermos", "tumbler", "cup", "mug", "yeti", "nalgene", "stanley"],
-  // Bags
   ["backpack", "bag", "bookbag", "tote", "purse", "satchel", "messenger", "duffel", "pack"],
-  // Clothing
   ["hoodie", "jacket", "sweatshirt", "sweater", "coat", "clothing", "shirt", "vest", "fleece", "pullover", "windbreaker"],
-  // Electronics
   ["phone", "iphone", "android", "samsung", "cellphone", "mobile", "smartphone"],
   ["laptop", "macbook", "chromebook", "computer", "notebook"],
   ["charger", "cable", "cord", "adapter", "usb", "lightning"],
   ["tablet", "ipad"],
-  // Keys
   ["keys", "key", "keychain", "keyring", "lanyard", "fob", "carkey"],
-  // Eyewear
   ["glasses", "sunglasses", "spectacles", "eyeglasses", "shades", "frames"],
-  // Writing / school supplies
   ["pencil", "pen", "pencilcase", "marker", "highlighter", "eraser"],
   ["book", "notebook", "textbook", "binder", "folder", "planner", "journal"],
-  // Lunch
   ["lunchbox", "lunch", "container", "tupperware", "bento", "foodcontainer"],
-  // Sports
   ["ball", "racket", "helmet", "glove", "bat", "equipment", "cleats", "shin", "guard"],
-  // Jewelry / accessories
   ["jewelry", "ring", "necklace", "bracelet", "earring", "watch", "chain", "pendant"],
-  // Umbrella
   ["umbrella", "parasol"],
 ];
 
-// Build a fast lookup: word → all related search terms
 const SYNONYM_MAP = new Map<string, Set<string>>();
 for (const group of SYNONYM_GROUPS) {
   for (const word of group) {
-    if (!SYNONYM_MAP.has(word)) {
-      SYNONYM_MAP.set(word, new Set());
-    }
-    for (const related of group) {
-      SYNONYM_MAP.get(word)!.add(related);
-    }
+    if (!SYNONYM_MAP.has(word)) SYNONYM_MAP.set(word, new Set());
+    for (const related of group) SYNONYM_MAP.get(word)!.add(related);
   }
 }
 
-// Expand a word into itself + all synonyms + compound splits
 function expandTerm(word: string): string[] {
   const results = new Set([word]);
-
-  // Add synonyms
   const synonyms = SYNONYM_MAP.get(word);
-  if (synonyms) {
-    for (const s of synonyms) {
-      results.add(s);
-    }
-  }
-
+  if (synonyms) for (const s of synonyms) results.add(s);
   return [...results];
 }
 
-// Search items in Supabase based on user message
+// ── Database search ──────────────────────────────────────────────────
+
 async function searchItems(message: string) {
   const supabase = await createServiceClient();
 
-  // Clean and extract search terms
   const words = message
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, "")
     .split(/\s+/)
     .filter((w) => w.length > 1 && !STOPWORDS.has(w));
 
-  // Expand each word with synonyms (headphones → airpods, earbuds, etc.)
   const expandedTerms = words.flatMap(expandTerm);
   const searchTerms = [...new Set(expandedTerms)].filter((t) => t.length > 1);
 
   console.log("[Chat Search] Message:", message);
   console.log("[Chat Search] Search terms:", searchTerms);
 
+  // If we couldn't extract any meaningful search terms, return nothing.
+  // Don't return random recent items — that causes false matches.
   if (searchTerms.length === 0) {
-    // If no search terms, return all recent approved items as context
-    const { data: recentItems, error } = await supabase
-      .from("items")
-      .select("*")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    console.log("[Chat Search] No terms, returning recent items:", recentItems?.length, error);
-    return recentItems || [];
+    console.log("[Chat Search] No meaningful search terms found, skipping search");
+    return [];
   }
 
-  // Search with OR across title, description, and category for each term
   const searchQuery = searchTerms
     .map(
       (term) =>
@@ -159,6 +155,8 @@ async function searchItems(message: string) {
   return items || [];
 }
 
+// ── POST handler ─────────────────────────────────────────────────────
+
 export async function POST(request: Request) {
   try {
     const { messages } = await request.json();
@@ -170,7 +168,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get the latest user message to search for items
     const latestUserMessage = [...messages]
       .reverse()
       .find((m: { role: string }) => m.role === "user");
@@ -187,10 +184,13 @@ export async function POST(request: Request) {
       image_url?: string;
     }[] = [];
 
-    if (latestUserMessage) {
+    // Only search the database if the user is actually describing a lost item
+    const shouldSearch =
+      latestUserMessage && isLostItemQuery(latestUserMessage.content);
+
+    if (shouldSearch) {
       const matchingItems = await searchItems(latestUserMessage.content);
       if (matchingItems.length > 0) {
-        // Build structured items for frontend card rendering
         matchedItems = matchingItems.map((item) => ({
           id: item.id,
           title: item.title,
@@ -204,18 +204,18 @@ export async function POST(request: Request) {
           image_url: item.image_path || undefined,
         }));
 
-        // Still pass context to LLM so it can write a natural intro
-        itemContext = `\n\nMATCHING ITEMS FOUND IN DATABASE (mention them briefly, the UI will show detailed cards automatically):\n${matchingItems
+        itemContext = `\n\nMATCHING ITEMS FOUND IN DATABASE:\n${matchingItems
           .map(
             (item, i) =>
               `${i + 1}. "${item.title}" — ${getCategoryLabel(item.category)} | Found at: ${item.location_found} | Date: ${item.date_found}`
           )
-          .join("\n")}\n\nIMPORTANT: Do NOT list out the items in detail. Just write a brief, friendly message like "I found X matching item(s)! Here's what I found:" — the UI will render rich item cards below your message automatically.`;
+          .join("\n")}\n\nThe UI will automatically render item cards below your message. Just write a brief intro like "I found X item(s) that might match — take a look!" Do NOT list the items yourself.`;
       } else {
         itemContext =
-          "\n\nNo matching items were found in the database for this query. Let the user know and suggest they check back later or broaden their search.";
+          "\n\nThe user is looking for a lost item, but no matching items were found in the database. Let them know kindly and suggest they check back later, try different search terms, or browse all items on the Browse page.";
       }
     }
+    // If not a lost item query, don't add any item context — just let the LLM answer naturally.
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
@@ -229,8 +229,8 @@ export async function POST(request: Request) {
         })),
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      max_tokens: 500,
+      temperature: 0.4,
+      max_tokens: 300,
       stream: false,
     });
 
