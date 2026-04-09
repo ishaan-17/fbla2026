@@ -15,10 +15,22 @@ import {
   ChevronRight,
   List,
   X,
+  Github,
+  GitCommit,
+  GitBranch,
+  Users,
+  FileCode,
+  Folder,
+  CheckCircle2,
+  Star,
+  Award,
+  FileText,
+  Scale,
 } from "lucide-react";
 
 // Table of Contents sections (in page order)
 const tocSections = [
+  { id: "repository", label: "Source Code & Repository" },
   { id: "frameworks", label: "Frameworks & Runtime" },
   { id: "styling", label: "Styling & UI" },
   { id: "animation", label: "Animation" },
@@ -28,6 +40,88 @@ const tocSections = [
   { id: "typography", label: "Typography" },
   { id: "inspiration", label: "Design Inspiration" },
   { id: "references", label: "Research & References" },
+];
+
+// GitHub repository configuration
+const GITHUB_OWNER = "ishaan-17";
+const GITHUB_REPO = "fbla2026";
+const GITHUB_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`;
+
+// Static fallback data (verified from GitHub API at build time)
+// Used if the live API call fails or is rate-limited
+const STATIC_REPO_DATA = {
+  description: "Reclaimr — FBLA 2026 Website Coding & Development project",
+  defaultBranch: "main",
+  createdAt: "2025-10-25",
+  pushedAt: "2026-04-07",
+  totalCommits: 105,
+  languages: [
+    { name: "TypeScript", bytes: 725470, color: "#3178c6" },
+    { name: "JavaScript", bytes: 28935, color: "#f7df1e" },
+    { name: "CSS", bytes: 8854, color: "#563d7c" },
+    { name: "PLpgSQL", bytes: 5156, color: "#336791" },
+  ],
+  contributors: [
+    {
+      login: "ishaan-17",
+      contributions: 38,
+      avatar: "https://avatars.githubusercontent.com/u/165828448?v=4",
+    },
+    {
+      login: "nikrp",
+      contributions: 46,
+      avatar: "https://avatars.githubusercontent.com/u/76831568?v=4",
+    },
+    {
+      login: "chlo6",
+      contributions: 21,
+      avatar: "https://avatars.githubusercontent.com/u/162272068?v=4",
+    },
+  ],
+};
+
+// Top-level project structure (matches actual repo)
+const repoStructure = [
+  {
+    name: "src/",
+    description: "Next.js App Router pages, components & API routes",
+    type: "dir" as const,
+  },
+  {
+    name: "public/",
+    description: "Static assets (images, icons, fonts)",
+    type: "dir" as const,
+  },
+  {
+    name: "supabase/",
+    description: "Database schema & PostgreSQL migrations",
+    type: "dir" as const,
+  },
+  {
+    name: "scripts/",
+    description: "Build and setup automation scripts",
+    type: "dir" as const,
+  },
+  {
+    name: "auth.ts",
+    description: "NextAuth.js authentication configuration",
+    type: "file" as const,
+  },
+  {
+    name: "next.config.ts",
+    description: "Next.js framework configuration",
+    type: "file" as const,
+  },
+  {
+    name: "package.json",
+    description: "Project dependencies & scripts",
+    type: "file" as const,
+  },
+  {
+    name: "README.md",
+    description: "Project documentation & setup guide",
+    type: "file" as const,
+  },
 ];
 
 // Table of Contents component
@@ -429,6 +523,488 @@ const attributions: AttributionSection[] = [
   },
 ];
 
+// Types for live GitHub data
+interface LiveRepoData {
+  description: string | null;
+  defaultBranch: string;
+  pushedAt: string;
+  languages: { name: string; bytes: number; color: string }[];
+  contributors: { login: string; contributions: number; avatar: string }[];
+  totalCommits: number;
+  recentCommits: {
+    sha: string;
+    message: string;
+    author: string;
+    date: string;
+    url: string;
+  }[];
+}
+
+// Color map for GitHub languages
+const LANGUAGE_COLORS: Record<string, string> = {
+  TypeScript: "#3178c6",
+  JavaScript: "#f7df1e",
+  CSS: "#563d7c",
+  PLpgSQL: "#336791",
+  HTML: "#e34c26",
+  Python: "#3572A5",
+  Shell: "#89e051",
+};
+
+// GitHub repository section — addresses Source Code & Documentation rubric
+function GitHubSection() {
+  const [data, setData] = useState<LiveRepoData | null>(null);
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchRepoData() {
+      try {
+        const base = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
+
+        const [repoRes, langRes, contribRes, commitsRes] = await Promise.all([
+          fetch(base),
+          fetch(`${base}/languages`),
+          fetch(`${base}/contributors?per_page=10`),
+          fetch(`${base}/commits?per_page=5`),
+        ]);
+
+        if (
+          !repoRes.ok ||
+          !langRes.ok ||
+          !contribRes.ok ||
+          !commitsRes.ok
+        ) {
+          return;
+        }
+
+        const repoJson = await repoRes.json();
+        const langJson = await langRes.json();
+        const contribJson = await contribRes.json();
+        const commitsJson = await commitsRes.json();
+
+        // Get total commit count via Link header pagination
+        let totalCommits = STATIC_REPO_DATA.totalCommits;
+        try {
+          const commitCountRes = await fetch(`${base}/commits?per_page=1`);
+          const linkHeader = commitCountRes.headers.get("Link");
+          if (linkHeader) {
+            const match = linkHeader.match(/&page=(\d+)>; rel="last"/);
+            if (match) totalCommits = parseInt(match[1], 10);
+          }
+        } catch {
+          // use fallback
+        }
+
+        if (cancelled) return;
+
+        const languages = Object.entries(
+          langJson as Record<string, number>,
+        ).map(([name, bytes]) => ({
+          name,
+          bytes: bytes as number,
+          color: LANGUAGE_COLORS[name] ?? "#8b949e",
+        }));
+
+        const contributors = (contribJson as Array<{
+          login: string;
+          contributions: number;
+          avatar_url: string;
+        }>).map((c) => ({
+          login: c.login,
+          contributions: c.contributions,
+          avatar: c.avatar_url,
+        }));
+
+        const recentCommits = (commitsJson as Array<{
+          sha: string;
+          html_url: string;
+          commit: {
+            message: string;
+            author: { name: string; date: string };
+          };
+        }>).map((c) => ({
+          sha: c.sha.slice(0, 7),
+          message: c.commit.message.split("\n")[0],
+          author: c.commit.author.name,
+          date: c.commit.author.date,
+          url: c.html_url,
+        }));
+
+        setData({
+          description: repoJson.description,
+          defaultBranch: repoJson.default_branch,
+          pushedAt: repoJson.pushed_at,
+          languages,
+          contributors,
+          totalCommits,
+          recentCommits,
+        });
+        setIsLive(true);
+      } catch {
+        // Silently fall back to static data
+      }
+    }
+
+    fetchRepoData();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const description = data?.description ?? STATIC_REPO_DATA.description;
+  const defaultBranch =
+    data?.defaultBranch ?? STATIC_REPO_DATA.defaultBranch;
+  const languages = data?.languages ?? STATIC_REPO_DATA.languages;
+  const contributors = data?.contributors ?? STATIC_REPO_DATA.contributors;
+  const totalCommits = data?.totalCommits ?? STATIC_REPO_DATA.totalCommits;
+  const recentCommits = data?.recentCommits ?? [];
+  const lastUpdated = data?.pushedAt ?? STATIC_REPO_DATA.pushedAt;
+
+  const totalBytes = languages.reduce((sum, l) => sum + l.bytes, 0);
+
+  const formattedDate = new Date(lastUpdated).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <div id="repository" className="scroll-mt-24 space-y-6">
+      {/* Section Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-lg bg-primary-500/10 border border-primary-500/20 flex items-center justify-center">
+          <Github className="w-5 h-5 text-primary-400" />
+        </div>
+        <h2 className="text-xl font-bold text-white">
+          Source Code & Repository
+        </h2>
+      </div>
+
+      {/* Repository Hero Card */}
+      <a
+        href={GITHUB_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block bg-gradient-to-br from-neutral-800/80 to-neutral-900/80 hover:from-neutral-800 hover:to-neutral-900 border border-white/10 hover:border-primary-500/30 rounded-xl p-6 transition-all duration-300"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 w-14 h-14 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Github className="w-7 h-7 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-white/50 font-mono">
+                {GITHUB_OWNER} /
+              </span>
+              <h3 className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors">
+                {GITHUB_REPO}
+              </h3>
+              <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 rounded-full px-2 py-0.5 font-medium">
+                Public
+              </span>
+              {isLive && (
+                <span className="text-xs bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-full px-2 py-0.5 font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
+                  Live
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-white/70 mt-2 leading-relaxed">
+              {description}
+            </p>
+            <div className="flex items-center gap-4 mt-3 text-xs text-white/50">
+              <span className="flex items-center gap-1.5">
+                <GitBranch className="w-3.5 h-3.5" />
+                {defaultBranch}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Scale className="w-3.5 h-3.5" />
+                All rights reserved
+              </span>
+              <span className="hidden sm:flex items-center gap-1.5">
+                Last updated {formattedDate}
+              </span>
+            </div>
+          </div>
+          <ExternalLink className="w-4 h-4 text-white/30 group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1" />
+        </div>
+      </a>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-4 text-center">
+          <GitCommit className="w-5 h-5 text-primary-400 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-white">{totalCommits}</div>
+          <div className="text-xs text-white/50 mt-1">Commits</div>
+        </div>
+        <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-4 text-center">
+          <Users className="w-5 h-5 text-primary-400 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-white">
+            {contributors.length}
+          </div>
+          <div className="text-xs text-white/50 mt-1">Contributors</div>
+        </div>
+        <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-4 text-center">
+          <FileCode className="w-5 h-5 text-primary-400 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-white">
+            {languages.length}
+          </div>
+          <div className="text-xs text-white/50 mt-1">Languages</div>
+        </div>
+        <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-4 text-center">
+          <Star className="w-5 h-5 text-primary-400 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-white">100%</div>
+          <div className="text-xs text-white/50 mt-1">Original</div>
+        </div>
+      </div>
+
+      {/* Language Breakdown */}
+      <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <FileCode className="w-4 h-4 text-primary-400" />
+            Language Composition
+          </h3>
+          <span className="text-xs text-white/40">
+            {(totalBytes / 1024).toFixed(0)} KB of source
+          </span>
+        </div>
+
+        {/* Stacked bar */}
+        <div className="flex h-2.5 rounded-full overflow-hidden bg-neutral-900">
+          {languages.map((lang) => {
+            const pct = (lang.bytes / totalBytes) * 100;
+            return (
+              <div
+                key={lang.name}
+                style={{ width: `${pct}%`, backgroundColor: lang.color }}
+                title={`${lang.name}: ${pct.toFixed(1)}%`}
+              />
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
+          {languages.map((lang) => {
+            const pct = (lang.bytes / totalBytes) * 100;
+            return (
+              <div
+                key={lang.name}
+                className="flex items-center gap-2 text-xs"
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: lang.color }}
+                />
+                <span className="text-white/80 font-medium">{lang.name}</span>
+                <span className="text-white/40">{pct.toFixed(1)}%</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Contributors */}
+      <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-5">
+        <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-primary-400" />
+          Contributors
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {contributors.map((c) => (
+            <a
+              key={c.login}
+              href={`https://github.com/${c.login}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3 bg-neutral-900/60 hover:bg-neutral-900 border border-white/5 hover:border-primary-500/30 rounded-lg p-3 transition-all"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={c.avatar}
+                alt={`${c.login} avatar`}
+                className="w-10 h-10 rounded-full border border-white/10"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-white group-hover:text-primary-400 transition-colors truncate">
+                  @{c.login}
+                </div>
+                <div className="text-xs text-white/50">
+                  {c.contributions} commits
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Repository Structure */}
+      <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-5">
+        <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <Folder className="w-4 h-4 text-primary-400" />
+          Repository Structure
+        </h3>
+        <div className="space-y-1.5 font-mono text-xs">
+          {repoStructure.map((item) => (
+            <a
+              key={item.name}
+              href={`${GITHUB_URL}/${
+                item.type === "dir" ? "tree" : "blob"
+              }/${defaultBranch}/${item.name.replace(/\/$/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-start gap-3 py-1.5 px-2 rounded hover:bg-white/5 transition-colors"
+            >
+              {item.type === "dir" ? (
+                <Folder className="w-4 h-4 text-primary-400/70 flex-shrink-0 mt-0.5" />
+              ) : (
+                <FileText className="w-4 h-4 text-white/40 flex-shrink-0 mt-0.5" />
+              )}
+              <span className="text-white/90 group-hover:text-primary-400 transition-colors font-semibold min-w-[140px]">
+                {item.name}
+              </span>
+              <span className="text-white/50 font-sans text-xs">
+                {item.description}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Commits (only shown if live data loaded) */}
+      {recentCommits.length > 0 && (
+        <div className="bg-neutral-800/50 border border-white/5 rounded-lg p-5">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
+            <GitCommit className="w-4 h-4 text-primary-400" />
+            Recent Commits
+          </h3>
+          <div className="space-y-2">
+            {recentCommits.map((commit) => (
+              <a
+                key={commit.sha}
+                href={commit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-3 py-2 px-3 rounded hover:bg-white/5 transition-colors border-l-2 border-primary-500/30 hover:border-primary-500"
+              >
+                <code className="text-xs text-primary-400/80 font-mono mt-0.5 flex-shrink-0">
+                  {commit.sha}
+                </code>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm text-white/90 group-hover:text-white transition-colors truncate">
+                    {commit.message}
+                  </div>
+                  <div className="text-xs text-white/40 mt-0.5">
+                    {commit.author} •{" "}
+                    {new Date(commit.date).toLocaleDateString()}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Originality & Ownership Statement */}
+      <div className="bg-gradient-to-br from-primary-500/5 to-neutral-800/50 border border-primary-500/20 rounded-lg p-6">
+        <div className="flex items-start gap-3">
+          <Award className="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5" />
+          <div className="space-y-3">
+            <h3 className="text-base font-bold text-white">
+              Originality & Ownership
+            </h3>
+            <p className="text-sm text-white/70 leading-relaxed">
+              Every line of application code in this repository was written
+              from scratch by our team. Reclaimr is not based on a template,
+              starter kit, boilerplate, or site builder. The UI components,
+              page layouts, database schema, API routes, and business logic
+              are entirely our own work.
+            </p>
+            <ul className="space-y-2 mt-3">
+              <li className="flex items-start gap-2 text-sm text-white/70">
+                <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-white">No templates used.</strong>{" "}
+                  The project was initialized with a vanilla{" "}
+                  <code className="text-xs bg-white/5 px-1.5 py-0.5 rounded">
+                    create-next-app
+                  </code>{" "}
+                  scaffold and built up from there.
+                </span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-white/70">
+                <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-white">Full version history.</strong>{" "}
+                  Every change is tracked in Git with meaningful commit
+                  messages, demonstrating our day-to-day development process
+                  from initial scaffold through final polish.
+                </span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-white/70">
+                <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-white">
+                    Third-party libraries are credited below.
+                  </strong>{" "}
+                  Every open-source package we depend on is listed in the
+                  sections that follow, along with its license and purpose.
+                </span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-white/70">
+                <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-white">
+                    Publicly auditable.
+                  </strong>{" "}
+                  The complete source code is available at the repository link
+                  above so judges can verify authorship and review the
+                  development process.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-3">
+        <a
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 bg-white text-black hover:bg-white/90 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+        >
+          <Github className="w-4 h-4" />
+          View Repository
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+        <a
+          href={`${GITHUB_URL}/blob/${defaultBranch}/README.md`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 bg-neutral-800 hover:bg-neutral-700 border border-white/10 text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+        >
+          <BookOpen className="w-4 h-4" />
+          Read README
+        </a>
+        <a
+          href={`${GITHUB_URL}/commits/${defaultBranch}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 bg-neutral-800 hover:bg-neutral-700 border border-white/10 text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+        >
+          <GitCommit className="w-4 h-4" />
+          Commit History
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function AttributionPage() {
   const [activeSection, setActiveSection] = useState("frameworks");
   const [tocVisible, setTocVisible] = useState(true);
@@ -483,6 +1059,11 @@ export default function AttributionPage() {
           Reclaimr is built with open-source software and tools from the
           developer community. We gratefully acknowledge the following projects.
         </p>
+      </ScrollReveal>
+
+      {/* GitHub / Source Code Section */}
+      <ScrollReveal className="mb-12">
+        <GitHubSection />
       </ScrollReveal>
 
       {/* Attribution Sections */}
