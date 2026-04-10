@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
 import TermsModal from "@/components/TermsModal";
 import Chatbot from "@/components/Chatbot";
+import DemoPasteHotkeys from "@/components/DemoPasteHotkeys";
 import { Footer } from "@/components/ui/footer-section";
 
 const nunito = Nunito_Sans({
@@ -41,6 +42,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <SessionProvider>
+          <DemoPasteHotkeys />
           <TermsModal />
           <Navbar />
           <main id="main-content" className="min-h-[calc(100vh-4rem)]">

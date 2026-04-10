@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { SlideTabs } from "@/components/ui/slide-tabs";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Shield } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 const navTabs = [
@@ -22,6 +22,7 @@ const navTabs = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
   const [isLightBackground, setIsLightBackground] = useState(false);
@@ -260,17 +261,34 @@ export default function Navbar() {
                   </LiquidButton>
                 </div>
               ) : isAdmin ? (
-                <LiquidButton
-                  variant="light"
-                  size="sm"
-                  onClick={async () => {
-                    await fetch("/api/admin/auth", { method: "DELETE" });
-                    setIsAdmin(false);
-                  }}
-                  aria-label="Sign out"
-                >
-                  <LogOut className="w-4 h-4 text-red-400" />
-                </LiquidButton>
+                <div className="flex items-center justify-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{
+                      background: "rgba(255,255,255,0.1)",
+                      border: "1px solid rgba(255,255,255,0.16)",
+                    }}
+                  >
+                    <Shield className="w-5 h-5 text-blue-300" />
+                  </div>
+                  <span
+                    className={`font-semibold transition-colors duration-200 ${textColorSecondary} lg:text-white/80`}
+                  >
+                    Admin
+                  </span>
+                  <LiquidButton
+                    variant="light"
+                    size="sm"
+                    onClick={async () => {
+                      await fetch("/api/admin/auth", { method: "DELETE" });
+                      setIsAdmin(false);
+                      router.push("/");
+                    }}
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                  </LiquidButton>
+                </div>
               ) : (
                 <LiquidButton variant="light" size="default" asChild>
                   <Link href="/login" className="flex items-center gap-2">
@@ -397,20 +415,36 @@ export default function Navbar() {
                     </LiquidButton>
                   </div>
                 ) : isAdmin ? (
-                  <LiquidButton
-                    variant="light"
-                    size="default"
-                    onClick={async () => {
-                      await fetch("/api/admin/auth", { method: "DELETE" });
-                      setIsAdmin(false);
-                    }}
-                    aria-label="Sign out"
-                  >
-                    <div className="flex items-center">
-                      <LogOut className="w-4 h-4 mr-2 text-red-400" />
-                      Sign Out
+                  <div className="flex flex-row items-center justify-center gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{
+                          background: "rgba(255,255,255,0.1)",
+                          border: "1px solid rgba(255,255,255,0.16)",
+                        }}
+                      >
+                        <Shield className="w-5 h-5 text-blue-300" />
+                      </div>
+                      <span className="text-white/80 font-semibold">Admin</span>
                     </div>
-                  </LiquidButton>
+                    <LiquidButton
+                      variant="light"
+                      size="default"
+                      onClick={async () => {
+                        await fetch("/api/admin/auth", { method: "DELETE" });
+                        setIsAdmin(false);
+                        setMobileOpen(false);
+                        router.push("/");
+                      }}
+                      aria-label="Sign out"
+                    >
+                      <div className="flex items-center">
+                        <LogOut className="w-4 h-4 mr-2 text-red-400" />
+                        Sign Out
+                      </div>
+                    </LiquidButton>
+                  </div>
                 ) : (
                   <LiquidButton variant="light" size="lg" asChild>
                     <Link

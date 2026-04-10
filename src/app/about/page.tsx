@@ -24,9 +24,9 @@ import CardSwap, { Card } from "@/components/CardSwap";
 // Table of Contents sections (in page order)
 const tocSections = [
   { id: "mission", label: "Our Mission" },
+  { id: "how-it-works", label: "How It Works" },
   { id: "policy", label: "30-Day Policy" },
   { id: "rewards", label: "Rewards" },
-  { id: "how-it-works", label: "How It Works" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -398,6 +398,76 @@ export default function AboutPage() {
           </ScrollReveal>
         </section>
 
+        {/* How It Works - Steps */}
+        <section id="how-it-works" className="scroll-mt-24">
+          <ScrollReveal className="text-center mb-10">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Search className="w-4 h-4 text-primary-500" />
+              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
+                Process
+              </span>
+            </div>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">
+              How It Works
+            </h2>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <div className="flex flex-col md:flex-row w-full">
+              {[
+                {
+                  step: "Step 1",
+                  title: "Report Item",
+                  desc: "Take a photo and submit a report",
+                  color: "bg-primary-400",
+                },
+                {
+                  step: "Step 2",
+                  title: "Admin Review",
+                  desc: "Admins verify the report is genuine",
+                  color: "bg-primary-500",
+                },
+                {
+                  step: "Step 3",
+                  title: "Search & Claim",
+                  desc: "Browse or search, then submit a claim",
+                  color: "bg-primary-600",
+                },
+                {
+                  step: "Step 4",
+                  title: "Collect Item",
+                  desc: "Verified! Collect your item",
+                  color: "bg-primary-700",
+                },
+              ].map((item, i, arr) => (
+                <div
+                  key={i}
+                  className={`relative flex-1 ${item.color} flex items-center justify-center text-center px-8 py-5 min-h-[100px]`}
+                  style={{
+                    clipPath:
+                      i === 0
+                        ? "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)"
+                        : i === arr.length - 1
+                          ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%)"
+                          : "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)",
+                    marginLeft: i === 0 ? "0" : "-10px",
+                  }}
+                >
+                  <div>
+                    <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
+                      {item.step}
+                    </span>
+                    <p className="text-sm font-bold text-white">{item.title}</p>
+                    <p className="text-[11px] text-white/70 mt-1 leading-tight">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </section>
+
         {/* 30-Day Donation Policy - Chevron Flow */}
         <section id="policy" className="scroll-mt-24">
           <ScrollReveal className="text-center mb-10">
@@ -578,76 +648,6 @@ export default function AboutPage() {
               </div>
             </ScrollReveal>
           </div>
-        </section>
-
-        {/* How It Works - Steps */}
-        <section id="how-it-works" className="scroll-mt-24">
-          <ScrollReveal className="text-center mb-10">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Search className="w-4 h-4 text-primary-500" />
-              <span className="text-sm font-bold text-primary-500 uppercase tracking-wider">
-                Process
-              </span>
-            </div>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight">
-              How It Works
-            </h2>
-          </ScrollReveal>
-
-          <ScrollReveal>
-            <div className="flex flex-col md:flex-row w-full">
-              {[
-                {
-                  step: "Step 1",
-                  title: "Report Item",
-                  desc: "Take a photo and submit a report",
-                  color: "bg-primary-400",
-                },
-                {
-                  step: "Step 2",
-                  title: "Admin Review",
-                  desc: "Admins verify the report is genuine",
-                  color: "bg-primary-500",
-                },
-                {
-                  step: "Step 3",
-                  title: "Search & Claim",
-                  desc: "Browse or search, then submit a claim",
-                  color: "bg-primary-600",
-                },
-                {
-                  step: "Step 4",
-                  title: "Collect Item",
-                  desc: "Verified! Collect your item",
-                  color: "bg-primary-700",
-                },
-              ].map((item, i, arr) => (
-                <div
-                  key={i}
-                  className={`relative flex-1 ${item.color} flex items-center justify-center text-center px-8 py-5 min-h-[100px]`}
-                  style={{
-                    clipPath:
-                      i === 0
-                        ? "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)"
-                        : i === arr.length - 1
-                          ? "polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%)"
-                          : "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)",
-                    marginLeft: i === 0 ? "0" : "-10px",
-                  }}
-                >
-                  <div>
-                    <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
-                      {item.step}
-                    </span>
-                    <p className="text-sm font-bold text-white">{item.title}</p>
-                    <p className="text-[11px] text-white/70 mt-1 leading-tight">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
         </section>
 
         {/* Contact - 3 Cards */}

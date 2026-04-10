@@ -73,7 +73,7 @@ function generateMatchEmailHTML(
         <!-- Match Card ${index + 1} -->
         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
           <tr>
-            <td style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <td style="background: #0f1d31; border-radius: 12px; border: 1px solid #243b53; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.28);">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   ${imageCell}
@@ -87,29 +87,29 @@ function generateMatchEmailHTML(
                       </tr>
                     </table>
                     <!-- Title -->
-                    <h3 style="margin: 0 0 6px 0; color: #0f172a; font-size: 16px; font-weight: 700; line-height: 1.3;">
+                    <h3 style="margin: 0 0 6px 0; color: #eaf2ff; font-size: 16px; font-weight: 700; line-height: 1.3;">
                       ${f.title}
                     </h3>
                     <!-- Description -->
-                    <p style="margin: 0 0 14px 0; color: #64748b; font-size: 13px; line-height: 1.6;">
+                    <p style="margin: 0 0 14px 0; color: #a6b4c7; font-size: 13px; line-height: 1.6;">
                       ${description}
                     </p>
                     <!-- Meta pills -->
                     <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
                       <tr>
                         ${f.location_found ? `<td style="padding-right: 8px;">
-                          <span style="display: inline-block; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">&#128205; ${f.location_found}</span>
+                          <span style="display: inline-block; background: #1a2d4a; color: #c8dcf5; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; border: 1px solid #2d4d73;">&#128205; ${f.location_found}</span>
                         </td>` : ""}
                         ${f.reporter_name ? `<td>
-                          <span style="display: inline-block; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">&#128100; ${f.reporter_name}</span>
+                          <span style="display: inline-block; background: #1a2d4a; color: #c8dcf5; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; border: 1px solid #2d4d73;">&#128100; ${f.reporter_name}</span>
                         </td>` : ""}
                       </tr>
                     </table>
                     <!-- CTA -->
                     <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <td style="background: #4f46e5; border-radius: 8px;">
-                          <a href="${baseUrl}/items/${f.id}" style="display: inline-block; color: #ffffff; text-decoration: none; padding: 9px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.2px;">
+                        <td style="background: #6ca7ff; border-radius: 8px;">
+                          <a href="${baseUrl}/items/${f.id}" style="display: inline-block; color: #0b1728; text-decoration: none; padding: 9px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.2px;">
                             View Item &rarr;
                           </a>
                         </td>
@@ -135,12 +135,14 @@ function generateMatchEmailHTML(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <meta name="supported-color-schemes" content="dark light">
   <title>We found matches for your lost item &mdash; Reclaimr</title>
   <!--[if mso]><style>body,table,td,a{font-family:Arial,sans-serif!important}</style><![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+<body style="margin: 0; padding: 0; background-color: #070f1f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
 
-  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #070f1f;">
     <tr>
       <td align="center" style="padding: 32px 16px 48px 16px;">
 
@@ -149,12 +151,12 @@ function generateMatchEmailHTML(
 
           <!-- ── HEADER ── -->
           <tr>
-            <td style="background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c3aed 100%); border-radius: 16px 16px 0 0; padding: 28px 36px;">
+            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #1a2d4a 50%, #12233b 100%); border-radius: 16px 16px 0 0; padding: 28px 36px; border: 1px solid #2d4d73; border-bottom: none;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
                   <td>
                     <span style="color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Reclaimr</span>
-                    <span style="display: inline-block; margin-left: 10px; background: rgba(255,255,255,0.15); color: #c7d2fe; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; vertical-align: middle;">LOST &amp; FOUND</span>
+                    <span style="display: inline-block; margin-left: 10px; background: rgba(255,255,255,0.12); color: #c9dbf5; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; vertical-align: middle;">LOST &amp; FOUND</span>
                   </td>
                 </tr>
               </table>
@@ -163,35 +165,35 @@ function generateMatchEmailHTML(
 
           <!-- ── HERO ── -->
           <tr>
-            <td style="background: #ffffff; padding: 40px 36px 32px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+            <td style="background: #0b1728; padding: 40px 36px 32px 36px; border-left: 1px solid #2d4d73; border-right: 1px solid #2d4d73;">
               <!-- Icon -->
               <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
                 <tr>
-                  <td style="background: #ede9fe; width: 56px; height: 56px; border-radius: 14px; text-align: center; vertical-align: middle;">
+                  <td style="background: #1a2d4a; width: 56px; height: 56px; border-radius: 14px; text-align: center; vertical-align: middle; border: 1px solid #2d4d73;">
                     <span style="font-size: 28px; line-height: 56px;">&#128269;</span>
                   </td>
                 </tr>
               </table>
               <!-- Headline -->
-              <h1 style="margin: 0 0 12px 0; color: #0f172a; font-size: 28px; font-weight: 800; line-height: 1.25; letter-spacing: -0.5px;">
+              <h1 style="margin: 0 0 12px 0; color: #eaf2ff; font-size: 28px; font-weight: 800; line-height: 1.25; letter-spacing: -0.5px;">
                 Good news &mdash; we found<br/>potential matches!
               </h1>
-              <p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.7;">
-                Hi ${lostItem.reporter_name ? lostItem.reporter_name.split(" ")[0] : "there"}, our system spotted <strong style="color: #4f46e5;">${matches.length} item${matches.length !== 1 ? "s" : ""}</strong> in our database that may be yours. Take a look below.
+              <p style="margin: 0; color: #a6b4c7; font-size: 15px; line-height: 1.7;">
+                Hi ${lostItem.reporter_name ? lostItem.reporter_name.split(" ")[0] : "there"}, our system spotted <strong style="color: #8cc6ff;">${matches.length} item${matches.length !== 1 ? "s" : ""}</strong> in our database that may be yours. Take a look below.
               </p>
             </td>
           </tr>
 
           <!-- ── YOUR REPORT SUMMARY ── -->
           <tr>
-            <td style="background: #ffffff; padding: 0 36px 32px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+            <td style="background: #0b1728; padding: 0 36px 32px 36px; border-left: 1px solid #2d4d73; border-right: 1px solid #2d4d73;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td style="background: #fafafa; border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5; border-radius: 10px; padding: 18px 20px;">
-                    <p style="margin: 0 0 6px 0; color: #6366f1; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Your Report</p>
-                    <p style="margin: 0 0 4px 0; color: #0f172a; font-size: 16px; font-weight: 700;">${lostItem.title}</p>
-                    <p style="margin: 0 0 10px 0; color: #64748b; font-size: 13px; line-height: 1.5;">${lostItem.description}</p>
-                    <p style="margin: 0; color: #94a3b8; font-size: 12px;">Reported on ${reportedDate}</p>
+                  <td style="background: #10233d; border: 1px solid #2d4d73; border-left: 4px solid #6ca7ff; border-radius: 10px; padding: 18px 20px;">
+                    <p style="margin: 0 0 6px 0; color: #8cc6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Your Report</p>
+                    <p style="margin: 0 0 4px 0; color: #eaf2ff; font-size: 16px; font-weight: 700;">${lostItem.title}</p>
+                    <p style="margin: 0 0 10px 0; color: #a6b4c7; font-size: 13px; line-height: 1.5;">${lostItem.description}</p>
+                    <p style="margin: 0; color: #8fa4bf; font-size: 12px;">Reported on ${reportedDate}</p>
                   </td>
                 </tr>
               </table>
@@ -200,11 +202,11 @@ function generateMatchEmailHTML(
 
           <!-- ── DIVIDER + MATCH COUNT ── -->
           <tr>
-            <td style="background: #ffffff; padding: 0 36px 20px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+            <td style="background: #0b1728; padding: 0 36px 20px 36px; border-left: 1px solid #2d4d73; border-right: 1px solid #2d4d73;">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td style="border-top: 1px solid #f1f5f9; padding-top: 24px;">
-                    <h2 style="margin: 0; color: #0f172a; font-size: 17px; font-weight: 700;">
+                  <td style="border-top: 1px solid #243b53; padding-top: 24px;">
+                    <h2 style="margin: 0; color: #eaf2ff; font-size: 17px; font-weight: 700;">
                       ${matches.length} Potential Match${matches.length !== 1 ? "es" : ""} Found
                     </h2>
                   </td>
@@ -215,21 +217,21 @@ function generateMatchEmailHTML(
 
           <!-- ── MATCH CARDS ── -->
           <tr>
-            <td style="background: #ffffff; padding: 0 36px 8px 36px; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+            <td style="background: #0b1728; padding: 0 36px 8px 36px; border-left: 1px solid #2d4d73; border-right: 1px solid #2d4d73;">
               ${matchCardsHTML}
             </td>
           </tr>
 
           <!-- ── BROWSE CTA ── -->
           <tr>
-            <td style="background: #f8fafc; padding: 28px 36px 32px 36px; border: 1px solid #e2e8f0; border-top: none; text-align: center;">
-              <p style="margin: 0 0 18px 0; color: #64748b; font-size: 13px; line-height: 1.6;">
+            <td style="background: #0e1f35; padding: 28px 36px 32px 36px; border: 1px solid #2d4d73; border-top: none; text-align: center;">
+              <p style="margin: 0 0 18px 0; color: #a6b4c7; font-size: 13px; line-height: 1.6;">
                 Not quite right? New items are added regularly &mdash; keep checking back.
               </p>
               <table cellpadding="0" cellspacing="0" border="0" align="center">
                 <tr>
-                  <td style="border: 2px solid #4f46e5; border-radius: 10px;">
-                    <a href="${baseUrl}/items" style="display: inline-block; color: #4f46e5; text-decoration: none; padding: 12px 32px; font-size: 14px; font-weight: 700; letter-spacing: 0.2px;">
+                  <td style="border: 2px solid #8cc6ff; border-radius: 10px;">
+                    <a href="${baseUrl}/items" style="display: inline-block; color: #8cc6ff; text-decoration: none; padding: 12px 32px; font-size: 14px; font-weight: 700; letter-spacing: 0.2px;">
                       Browse All Items &rarr;
                     </a>
                   </td>
@@ -240,28 +242,28 @@ function generateMatchEmailHTML(
 
           <!-- ── FOOTER ── -->
           <tr>
-            <td style="padding: 28px 36px; border-top: 1px solid #e2e8f0; text-align: center;">
-              <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 14px; font-weight: 700;">Reclaimr</p>
-              <p style="margin: 0 0 14px 0; color: #94a3b8; font-size: 12px; line-height: 1.6;">
+            <td style="padding: 28px 36px; border-top: 1px solid #243b53; background: #0b1728; text-align: center; border-left: 1px solid #2d4d73; border-right: 1px solid #2d4d73; border-bottom: 1px solid #2d4d73; border-radius: 0 0 16px 16px;">
+              <p style="margin: 0 0 10px 0; color: #eaf2ff; font-size: 14px; font-weight: 700;">Reclaimr</p>
+              <p style="margin: 0 0 14px 0; color: #8fa4bf; font-size: 12px; line-height: 1.6;">
                 You&rsquo;re receiving this because you filed a lost item report.<br/>
                 This is an automated notification from your school&rsquo;s Lost &amp; Found system.
               </p>
               <table cellpadding="0" cellspacing="0" border="0" align="center">
                 <tr>
                   <td style="padding: 0 10px;">
-                    <a href="${baseUrl}" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Home</a>
+                    <a href="${baseUrl}" style="color: #8cc6ff; font-size: 12px; text-decoration: none;">Home</a>
                   </td>
-                  <td style="color: #cbd5e1; font-size: 12px;">&bull;</td>
+                  <td style="color: #4d6784; font-size: 12px;">&bull;</td>
                   <td style="padding: 0 10px;">
-                    <a href="${baseUrl}/items" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Browse Items</a>
+                    <a href="${baseUrl}/items" style="color: #8cc6ff; font-size: 12px; text-decoration: none;">Browse Items</a>
                   </td>
-                  <td style="color: #cbd5e1; font-size: 12px;">&bull;</td>
+                  <td style="color: #4d6784; font-size: 12px;">&bull;</td>
                   <td style="padding: 0 10px;">
-                    <a href="${baseUrl}/report" style="color: #94a3b8; font-size: 12px; text-decoration: none;">Report Item</a>
+                    <a href="${baseUrl}/report" style="color: #8cc6ff; font-size: 12px; text-decoration: none;">Report Item</a>
                   </td>
                 </tr>
               </table>
-              <p style="margin: 16px 0 0 0; color: #cbd5e1; font-size: 11px;">
+              <p style="margin: 16px 0 0 0; color: #5f7a97; font-size: 11px;">
                 &copy; ${new Date().getFullYear()} Reclaimr. All rights reserved.
               </p>
             </td>
