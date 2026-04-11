@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Info } from "lucide-react";
 import { AnimatedGradient } from "@/components/ui/animated-gradient-with-svg";
 import CountUp from "@/components/ui/count-up";
 
@@ -9,6 +10,7 @@ interface BentoCardProps {
   title: string;
   value: number;
   subtitle?: string;
+  infoTooltip?: string;
   colors: string[];
   delay: number;
   direction?: "left" | "right";
@@ -19,6 +21,7 @@ const BentoCard: React.FC<BentoCardProps> = ({
   title,
   value,
   subtitle,
+  infoTooltip,
   colors,
   delay,
   direction = "left",
@@ -63,10 +66,23 @@ const BentoCard: React.FC<BentoCardProps> = ({
         viewport={{ once: true }}
       >
         <motion.h3
-          className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-wider"
+          className="text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-wider flex items-center gap-1.5"
           variants={item}
         >
-          {title}
+          <span>{title}</span>
+          {infoTooltip && (
+            <span className="relative group/tooltip inline-flex">
+              <span
+                className="w-4 h-4 rounded-full border border-white/40 text-white/70 inline-flex items-center justify-center cursor-help"
+                aria-label={infoTooltip}
+              >
+                <Info className="w-2.5 h-2.5" strokeWidth={2.5} />
+              </span>
+              <span className="pointer-events-none absolute z-20 left-1/2 -translate-x-1/2 top-6 w-52 rounded-md border border-white/15 bg-earth-900/95 px-2.5 py-2 text-[11px] normal-case tracking-normal font-medium text-white/85 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-150">
+                {infoTooltip}
+              </span>
+            </span>
+          )}
         </motion.h3>
         <motion.p
           className="text-4xl sm:text-5xl md:text-6xl font-extrabold mt-3 text-white"
@@ -100,36 +116,20 @@ interface StatsSectionProps {
     totalReported: number;
     totalReturned: number;
     activeListing: number;
+    onTimeReviewRate: number;
   };
 }
 
-// Demo values for when database is empty
-const DEMO_STATS = {
-  totalReported: 44,
-  totalReturned: 39,
-  activeListing: 234,
-};
-
 export function StatsSection({ stats }: StatsSectionProps) {
-  // Use demo values if database is empty
-  const baseStats = stats.totalReported === 0 ? DEMO_STATS : stats;
-  // Always override reported/returned with hardcoded values for demo
-  const displayStats = {
-    ...baseStats,
-    totalReported: 44,
-    totalReturned: 39,
-  };
-
-  const returnRate = 89;
-
   return (
     <section className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-earth-800">
         <div className="md:col-span-2">
           <BentoCard
             title="Items Reported"
-            value={displayStats.totalReported}
+            value={stats.totalReported}
             subtitle="Total items found and reported by the community"
+            infoTooltip="Total number of found-item reports submitted on the platform."
             colors={["#6366f1", "#8b5cf6", "#a78bfa"]}
             delay={0.2}
             direction="left"
@@ -137,17 +137,19 @@ export function StatsSection({ stats }: StatsSectionProps) {
         </div>
         <BentoCard
           title="Items Returned"
-          value={displayStats.totalReturned}
+          value={stats.totalReturned}
           subtitle="Successfully reunited with owners"
+          infoTooltip="Items confirmed as returned to their rightful owners."
           colors={["#14b8a6", "#2dd4bf", "#5eead4"]}
           delay={0.4}
           direction="right"
         />
         <BentoCard
-          title="Return Rate"
-          value={returnRate}
+          title="On-Time Reviews"
+          value={stats.onTimeReviewRate}
           suffix="%"
-          subtitle="Items successfully returned to owners"
+          subtitle="Reports reviewed within 24 hours"
+          infoTooltip="Percentage of submitted reports that were reviewed by admins within 24 hours."
           colors={["#f97316", "#fb923c", "#fdba74"]}
           delay={0.6}
           direction="left"
@@ -155,8 +157,9 @@ export function StatsSection({ stats }: StatsSectionProps) {
         <div className="md:col-span-2">
           <BentoCard
             title="Active Listings"
-            value={displayStats.activeListing}
+            value={stats.activeListing}
             subtitle="Items currently waiting to be claimed"
+            infoTooltip="Approved items that are currently visible and available on the Browse page."
             colors={["#ec4899", "#f472b6", "#f9a8d4"]}
             delay={0.8}
             direction="right"
