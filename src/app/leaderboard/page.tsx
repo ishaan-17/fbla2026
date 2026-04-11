@@ -9,18 +9,17 @@ import CountUp from "@/components/ui/count-up";
 import { Sparkles } from "@/components/ui/sparkles";
 import { LiquidGlassCard } from "@/components/ui/liquid-glass-card";
 
-// Demo users with real portrait photos from randomuser.me
+// Demo users
 const DEMO_USERS: (LeaderboardEntry & { isDemo: boolean })[] = [
-  { email: "__demo_1__", name: "Sarah Chen",     total_points: 115, items_reported: 5, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/women/44.jpg" },
-  { email: "__demo_2__", name: "Marcus Johnson", total_points: 90,  items_reported: 4, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/men/32.jpg" },
-  { email: "__demo_3__", name: "Priya Patel",    total_points: 75,  items_reported: 3, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/women/75.jpg" },
-  { email: "__demo_4__", name: "Tyler Brooks",   total_points: 55,  items_reported: 2, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/men/51.jpg" },
-  { email: "__demo_5__", name: "Aisha Williams", total_points: 35,  items_reported: 2, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/women/89.jpg" },
-  { email: "__demo_6__", name: "Kevin Nguyen",   total_points: 20,  items_reported: 1, isDemo: true, avatar_url: "https://randomuser.me/api/portraits/men/16.jpg" },
+  { email: "__demo_1__", name: "Sarah Chen",     total_points: 115, items_reported: 5, isDemo: false },
+  { email: "__demo_2__", name: "Marcus Johnson", total_points: 90,  items_reported: 4, isDemo: false },
+  { email: "__demo_3__", name: "Priya Patel",    total_points: 75,  items_reported: 3, isDemo: false },
+  { email: "__demo_4__", name: "Tyler Brooks",   total_points: 55,  items_reported: 2, isDemo: false },
+  { email: "__demo_5__", name: "Aisha Williams", total_points: 35,  items_reported: 2, isDemo: false },
+  { email: "__demo_6__", name: "Kevin Nguyen",   total_points: 20,  items_reported: 1, isDemo: false },
 ];
 
-function getAvatar(name: string, avatarUrl?: string | null): string {
-  if (avatarUrl) return avatarUrl;
+function getAvatar(name: string): string {
   const seed = encodeURIComponent(name.trim());
   return `https://api.dicebear.com/9.x/initials/png?seed=${seed}&backgroundColor=627d98,486581,334e68,243b53&textColor=ffffff&fontSize=38&fontWeight=700&size=128`;
 }
@@ -214,10 +213,7 @@ export default function LeaderboardPage() {
                   const medal = rankMedal[rank as 1 | 2 | 3];
                   const isFirst = rank === 1;
                   const isCurrentUser = entry.email.toLowerCase().trim() === userEmail;
-                  const avatarSrc =
-                    isCurrentUser && session?.user?.image
-                      ? session.user.image
-                      : getAvatar(entry.name, entry.avatar_url);
+                  const avatarSrc = getAvatar(entry.name);
 
                   return (
                     <motion.div
@@ -232,27 +228,23 @@ export default function LeaderboardPage() {
                         {isFirst && (
                           <Crown className="absolute -top-6 left-1/2 -translate-x-1/2 w-6 h-6 text-yellow-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.9)] z-20" />
                         )}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={avatarSrc}
-                          alt={entry.name}
-                          className={`rounded-full object-cover ${medal.ring} ${isFirst ? "w-20 h-20" : "w-16 h-16"}`}
-                        />
+                        <div className={`rounded-full bg-[#1e2a38] ${medal.ring} ${isFirst ? "w-20 h-20" : "w-16 h-16"} overflow-hidden`}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={avatarSrc}
+                            alt={entry.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                         <span className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ring-2 ring-white/10 ${medal.badge}`}>
                           {rank}
                         </span>
                       </div>
 
-                      {/* Glass card below avatar */}
-                      <div className={`-mt-10 w-full ${medal.glow}`}>
-                        <LiquidGlassCard
-                          draggable={false}
-                          borderRadius="18px"
-                          blurIntensity="xl"
-                          glowIntensity="sm"
-                          shadowIntensity="sm"
-                          turbulence="liquid"
-                          className={medal.border}
+                      {/* Card below avatar */}
+                      <div className="-mt-10 w-full">
+                        <div className={`relative rounded-[18px] overflow-hidden ${medal.border} ${medal.glow}`}
+                          style={{ background: "rgba(20, 25, 35, 0.85)" }}
                         >
                           {/* Rank color tint overlay */}
                           <div className={`absolute inset-0 rounded-[18px] z-0 pointer-events-none ${medal.cardOverlay}`} />
@@ -267,7 +259,7 @@ export default function LeaderboardPage() {
                               {entry.items_reported} item{entry.items_reported !== 1 ? "s" : ""} found
                             </p>
                           </div>
-                        </LiquidGlassCard>
+                        </div>
                       </div>
                     </motion.div>
                   );
@@ -303,10 +295,7 @@ export default function LeaderboardPage() {
                       const rank = i + 4;
                       const isCurrentUser = entry.email.toLowerCase().trim() === userEmail;
                       const isDemo = "isDemo" in entry && (entry as { isDemo: boolean }).isDemo;
-                      const avatarSrc =
-                        isCurrentUser && session?.user?.image
-                          ? session.user.image
-                          : getAvatar(entry.name, entry.avatar_url);
+                      const avatarSrc = getAvatar(entry.name);
 
                       return (
                         <motion.div
@@ -324,7 +313,7 @@ export default function LeaderboardPage() {
                           </span>
 
                           {/* Avatar */}
-                          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-white/15">
+                          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-white/15 bg-[#3a5068]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={avatarSrc}
