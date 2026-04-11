@@ -2,13 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/server";
-import HeroShader from "@/components/HeroShader";
 import { StatsSection } from "@/components/StatsSection";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { HowItWorks } from "@/components/HowItWorks";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import {
-  ScrollReveal,
   ScrollRevealStagger,
   ScrollRevealItem,
 } from "@/components/ScrollReveal";
@@ -111,8 +109,8 @@ export default async function Home() {
               </ScrollRevealItem>
               <ScrollRevealItem>
                 <p className="mt-6 text-lg text-white/80 leading-relaxed max-w-lg">
-                  Monta Vista High School&apos;s lost and found platform makes 
-                  it easy to report found items, search for your belongings, 
+                  Monta Vista High School&apos;s lost and found platform makes
+                  it easy to report found items, search for your belongings,
                   and earn rewards for helping.
                 </p>
               </ScrollRevealItem>
