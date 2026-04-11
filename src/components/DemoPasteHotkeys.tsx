@@ -6,7 +6,10 @@ type EditableTarget = HTMLInputElement | HTMLTextAreaElement | HTMLElement;
 
 // Add new demo shortcuts here: key = KeyboardEvent.code, value = pasted text.
 const DEMO_HOTKEY_PASTES: Record<string, string> = {
-  Equal: "Black Hydro Flask water bottle with stickers. Left near the library after lunch.",
+  F1: "Report Form Description",
+  F2: "Inquiry Form",
+  F3: "Claim Form",
+  F4: "AI Chatbot",
 };
 
 const ALLOWED_INPUT_TYPES = new Set([
