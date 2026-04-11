@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
+import { getDisplayDaysLeft } from "@/lib/expiry";
 import {
   CollapsibleProvider,
   CollapsibleClaim,
@@ -265,21 +266,13 @@ export default async function ItemDetailPage({
                     Days Left
                   </p>
                   {(() => {
-                    const createdDate = new Date(item.created_at);
-                    const expiryDate = new Date(
-                      createdDate.getTime() + 30 * 24 * 60 * 60 * 1000,
-                    );
-                    const today = new Date();
-                    const daysLeft = Math.ceil(
-                      (expiryDate.getTime() - today.getTime()) /
-                        (1000 * 60 * 60 * 24),
-                    );
+                    const daysLeft = getDisplayDaysLeft(item.date_found);
                     const isUrgent = daysLeft <= 7;
                     return (
                       <p
                         className={`text-sm font-semibold ${isUrgent ? "text-amber-400" : "text-white"}`}
                       >
-                        {daysLeft > 0 ? `${daysLeft} days` : "Expired"}
+                        {`${daysLeft} days`}
                       </p>
                     );
                   })()}

@@ -5,14 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
-
-function getDaysRemaining(dateFound: string): number {
-  const found = new Date(dateFound);
-  const now = new Date();
-  const diffMs = now.getTime() - found.getTime();
-  const daysPassed = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  return Math.max(0, 30 - daysPassed);
-}
+import { getDisplayDaysLeft } from "@/lib/expiry";
 
 const ItemCard = React.memo(
   ({
@@ -27,7 +20,7 @@ const ItemCard = React.memo(
     setHovered: React.Dispatch<React.SetStateAction<number | null>>;
   }) => {
     const daysLeft =
-      item.status === "approved" ? getDaysRemaining(item.date_found) : null;
+      item.status === "approved" ? getDisplayDaysLeft(item.date_found) : null;
     const isExpired = daysLeft !== null && daysLeft <= 0;
     const isUrgent = daysLeft !== null && daysLeft > 0 && daysLeft <= 7;
 

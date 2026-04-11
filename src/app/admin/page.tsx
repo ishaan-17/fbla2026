@@ -6,6 +6,7 @@ import PasswordGate from "@/components/PasswordGate";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import type { Item, ClaimWithItem, InquiryWithItem } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
+import { getDisplayDaysLeft } from "@/lib/expiry";
 
 type Tab = "items" | "claims" | "inquiries";
 
@@ -25,14 +26,9 @@ function ItemDetailModal({
     ? item.ai_tags.map(String)
     : [];
 
-  const foundDate = new Date(item.date_found);
-  const expiryDate = new Date(foundDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-  const today = new Date();
-  const daysLeft = Math.ceil(
-    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  const isExpired = daysLeft <= 0;
-  const isUrgent = daysLeft > 0 && daysLeft <= 7;
+  const daysLeft = getDisplayDaysLeft(item.date_found);
+  const isExpired = false;
+  const isUrgent = daysLeft <= 7;
 
   const handleClose = useCallback(() => {
     setClosing(true);

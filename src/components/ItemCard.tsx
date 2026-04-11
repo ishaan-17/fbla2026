@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Item } from "@/types";
 import { getCategoryLabel } from "@/lib/categories";
+import { getDisplayDaysLeft } from "@/lib/expiry";
 
 const statusLabels: Record<string, string> = {
   pending: "Pending",
@@ -10,17 +11,9 @@ const statusLabels: Record<string, string> = {
   archived: "Archived",
 };
 
-function getDaysRemaining(dateFound: string): number {
-  const found = new Date(dateFound);
-  const now = new Date();
-  const diffMs = now.getTime() - found.getTime();
-  const daysPassed = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  return Math.max(0, 30 - daysPassed);
-}
-
 export default function ItemCard({ item }: { item: Item }) {
   const daysLeft =
-    item.status === "approved" ? getDaysRemaining(item.date_found) : null;
+    item.status === "approved" ? getDisplayDaysLeft(item.date_found) : null;
 
   return (
     <Link href={`/items/${item.id}`}>
@@ -62,7 +55,7 @@ export default function ItemCard({ item }: { item: Item }) {
           {daysLeft !== null && daysLeft <= 15 && (
             <div className="absolute top-3 left-3">
               <span className="text-xs font-bold px-3 py-1 bg-primary-500 text-white">
-                {daysLeft === 0 ? "Expires today" : `${daysLeft}d left`}
+                {`${daysLeft}d left`}
               </span>
             </div>
           )}
